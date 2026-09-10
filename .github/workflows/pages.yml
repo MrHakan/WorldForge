@@ -20,55 +20,44 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-
       - name: Check JavaScript syntax
         run: |
           node --check engine.js
           node --check history-engine.js
           node --check society-engine.js
           node --check city-engine.js
+          node --check adventure-engine.js
           node --check renderer.js
           node --check city-ui.js
+          node --check worldforge-extensions.js
           node --check app.js
           node --check tests/worldgen.mjs
           node --check tests/history.mjs
           node --check tests/society.mjs
           node --check tests/cities.mjs
-
-      - name: Validate v0.4 static app
+          node --check tests/adventure.mjs
+      - name: Validate v0.5 static app
         run: |
           test -f index.html
-          test -f styles.css
-          test -f history.css
-          test -f society.css
-          test -f city.css
-          test -f engine.js
-          test -f history-engine.js
-          test -f society-engine.js
-          test -f city-engine.js
-          test -f renderer.js
-          test -f city-ui.js
-          test -f app.js
-          grep -q "v0.4 · CITIES & CRIME" index.html
-          grep -q "city-engine.js" index.html
-          grep -q "city-ui.js" index.html
-          grep -q "WorldForgeCity" city-engine.js
-          grep -q "gang_war" city-engine.js
-          grep -q "districts" city-engine.js
-          grep -q "Cities, Economy & Public Order" city-ui.js
-          grep -q "Gangs, Territory & Black Markets" city-ui.js
-
+          test -f adventure-engine.js
+          test -f worldforge-extensions.js
+          test -f extension.css
+          grep -q "v0.5 · ADVENTURE" index.html
+          grep -q "adventure-engine.js" index.html
+          grep -q "worldforge-extensions.js" index.html
+          grep -q "Ruins, Dungeons & Expeditions" worldforge-extensions.js
+          grep -q "Boss Chamber" adventure-engine.js
+          grep -q "site_discovered" adventure-engine.js
       - name: Run v0.1 deterministic world-generation tests
         run: node tests/worldgen.mjs
-
       - name: Run v0.2 deterministic history regression tests
         run: node tests/history.mjs
-
       - name: Run v0.3 deterministic society regression tests
         run: node tests/society.mjs
-
       - name: Run v0.4 deterministic cities and crime regression tests
         run: node tests/cities.mjs
+      - name: Run v0.5 deterministic adventure regression tests
+        run: node tests/adventure.mjs
 
   deploy:
     needs: validate
