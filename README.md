@@ -2,102 +2,110 @@
 
 **Procedural World, Civilization & Story Simulation Studio**
 
-Live site: https://mrhakan.github.io/WorldForge/
+**Live:** https://mrhakan.github.io/WorldForge/
 
-## Current milestone
+WorldForge is a deterministic, browser-based fantasy world simulation studio. A seed first creates geography, climate, rivers, settlements, kingdoms and roads; the v0.2 history engine then advances that same world through centuries of population change, migration, trade, diplomacy, war, territorial conquest and political fragmentation.
 
-### v0.1 — World Generation
+## Current milestone — v0.2 History
 
-WorldForge currently generates a deterministic founding world from a seed and exposes it through an interactive browser map.
+### v0.1 foundation retained
 
-Implemented systems:
-
-- Seeded deterministic procedural generation
-- Elevation, temperature and moisture layers
-- Climate-aware biome classification
-- Ocean / deep-ocean separation
-- Resource hints
-- River generation with downhill routing
-- Settlement suitability scoring
+- Deterministic seeded world generation
+- Elevation, temperature and moisture fields
+- Climate-aware biome assignment
+- Resource hints and river systems
+- Settlement suitability and placement
 - Cities, towns, villages and capitals
-- Founding kingdoms with political territory
-- Road graph between settlements and capitals
-- Interactive map with pan / zoom
-- Political, biome, elevation, temperature and moisture map modes
-- Settlement hover details and focus
-- Kingdom ledger and settlement table
-- Local save/load
-- `.worldforge.json` import/export
-- Versioned world-state schema
-- Deterministic regression tests in GitHub Actions
-- GitHub Pages deployment
+- Founding kingdoms and political territory
+- Road graph
+- Interactive political / biome / elevation / temperature / moisture map
+- Local save/load plus `.worldforge.json` export/import
 
-## Version gate
+### v0.2 history systems
 
-Development is intentionally milestone-gated.
+- Deterministic year-by-year simulation keyed from the world seed
+- Population growth with carrying capacity
+- Light road-based migration
+- Settlement prosperity and wealth indices
+- Realm treasury, stability, military strength and prestige
+- Road trade volumes affected by prosperity, distance, diplomacy and war
+- Pairwise realm diplomacy
+- Alliances and alliance breakdown
+- Wars, war score, exhaustion and peace settlements
+- Settlement conquest and visible political-border changes
+- Realm collapse when its last settlement is lost
+- Low-stability splinter states / new realm formation
+- Political crises, hard seasons and trade-boom events
+- Five-year historical snapshots
+- RLE-compressed political ownership snapshots
+- Timeline replay of borders, populations, realm ownership and trade roads
+- Population, prosperity and trade map modes
+- World chronicle event feed
+- Historical population and trade/conflict charts
+- Realm ledger and settlement table that follow the selected historical year
+- Save/export round-trip including the full history state
 
-- **v0.1 — World Generation** ✅
-- **v0.2 — History** — population, economy, diplomacy, war, timeline
-- **v0.3 — Society** — notable NPCs, families, dynasties, succession
-- **v0.4 — Cities & Crime** — city districts, gangs, crime economy
-- **v0.5 — Adventure** — historical ruins, dungeons, enemies, loot
-- **v0.6 — Story Studio** — quest graph, dialogue tree, variables/conditions
-- **v1.0 — WorldForge** — integrated simulation, encyclopedia, replay, complete persistence
+## Determinism contract
 
-The next version is not started until the current milestone passes its generation, state-contract, serialization and deployment checks.
+The geographical generator is deterministic for the same seed and world settings. History is also deterministic: the random stream for each simulated year is derived from the world seed and year, so advancing 300 years in one call or in multiple chunks produces the same present-state history fingerprint.
 
-## World-state contract
+The v0.2 CI regression suite verifies this chunk-independence as well as snapshot replay, political RLE round-trips and save/export preservation.
 
-v0.1 exports a stable schema containing:
+## Historical state model
 
-```text
-schemaVersion
-engineVersion
-settings
-name
-epoch
-layers
-  elevation
-  temperature
-  moisture
-  biome
-  resources
-  political
-rivers
-settlements
-kingdoms
-roads
-summary
-```
-
-Future simulation systems are intended to layer data onto this state instead of regenerating terrain.
-
-## Architecture
-
-The first milestone is deliberately dependency-light:
+`history-engine.js` layers onto the v0.1 world rather than regenerating it:
 
 ```text
-index.html      UI shell
-styles.css      responsive interface
-engine.js       deterministic world-generation engine
-renderer.js     interactive canvas map
-app.js          UI/state orchestration
-tests/          headless deterministic regression tests
-.github/        Pages CI/deployment
+world
+├── terrain / climate / biomes / rivers
+├── settlements / kingdoms / roads
+└── history
+    ├── currentYear
+    ├── realms[]
+    ├── current
+    │   ├── settlementPopulation[]
+    │   ├── settlementWealth[]
+    │   ├── settlementProsperity[]
+    │   ├── settlementKingdomIds[]
+    │   ├── political[]
+    │   ├── relations{}
+    │   ├── alliances[]
+    │   ├── activeWarIds[]
+    │   └── tradeVolumes[]
+    ├── wars[]
+    ├── events[]
+    └── snapshots[]
 ```
 
-The simulation engine is UI-independent and runs under Node in CI. Later milestones can move history simulation into a Web Worker without changing the v0.1 world-state contract.
+Snapshots are stored every five simulated years by default. Political ownership is run-length encoded in each snapshot to keep long histories practical inside a browser save file.
 
-## Generation notes
+## Version gates
 
-Settlement positions are not uniformly random. Site suitability considers temperature comfort, moisture, coast access, river access, terrain and local resource hints. Kingdom capitals are selected from strong, geographically separated settlements. Political territory is derived from capital proximity with deterministic local variation, while roads connect settlements within each realm.
+- **v0.1 — World Generation:** complete
+- **v0.2 — History:** current milestone
+- **v0.3 — Society:** next gate; notable NPCs, households, occupations, relationships, families and dynasties
+- **v0.4 — Cities & Crime**
+- **v0.5 — Adventure / Dungeons**
+- **v0.6 — Story Studio / Quests / Dialogue**
+- **v1.0 — Integrated WorldForge**
+
+Each milestone is tested and deployed to GitHub Pages before development proceeds to the next gate.
 
 ## Development
 
-No build step is required for v0.1. Open `index.html` through a local web server or deploy through GitHub Pages.
+WorldForge deliberately remains a static application so it can be hosted directly on GitHub Pages.
 
-Pushes to `main` run JavaScript syntax checks, static-asset checks, deterministic world-generation regression tests, JSON round-trip/state-contract tests, and GitHub Pages deployment.
+```text
+index.html
+styles.css
+history.css
+engine.js
+history-engine.js
+renderer.js
+app.js
+tests/worldgen.mjs
+tests/history.mjs
+.github/workflows/pages.yml
+```
 
-## Status
-
-Early development project. Generated worlds are fictional and intended for creative simulation, worldbuilding and game-design experimentation.
+No backend is required and generated worlds are not uploaded by the application.

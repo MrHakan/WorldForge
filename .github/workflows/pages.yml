@@ -24,25 +24,39 @@ jobs:
       - name: Check JavaScript syntax
         run: |
           node --check engine.js
+          node --check history-engine.js
           node --check renderer.js
           node --check app.js
           node --check tests/worldgen.mjs
+          node --check tests/history.mjs
 
-      - name: Validate v0.1 static app
+      - name: Validate v0.2 static app
         run: |
           test -f index.html
           test -f styles.css
+          test -f history.css
           test -f engine.js
+          test -f history-engine.js
           test -f renderer.js
           test -f app.js
-          grep -q "v0.1 · WORLD GENERATION" index.html
-          grep -q "World State Contract" index.html
-          grep -q "generateWorld" engine.js
-          grep -q "serialize" engine.js
-          grep -q "deserialize" engine.js
+          grep -q "v0.2 · HISTORY" index.html
+          grep -q "Chronicle Simulation" index.html
+          grep -q "timelineSlider" index.html
+          grep -q "Population" index.html
+          grep -q "Prosperity" index.html
+          grep -q "Trade" index.html
+          grep -q "simulateYears" history-engine.js
+          grep -q "viewAt" history-engine.js
+          grep -q "historyFingerprint" history-engine.js
+          grep -q "realm_formed" history-engine.js
+          grep -q "conquest" history-engine.js
+          grep -q "setHistoryView" renderer.js
 
-      - name: Run deterministic world-generation tests
+      - name: Run v0.1 deterministic world-generation tests
         run: node tests/worldgen.mjs
+
+      - name: Run v0.2 deterministic history regression tests
+        run: node tests/history.mjs
 
   deploy:
     needs: validate
