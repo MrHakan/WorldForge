@@ -37,6 +37,8 @@ jobs:
           node --check canon-wiki-adapter.js
           node --check living-wiki-engine.js
           node --check chronicle-press-engine.js
+          node --check knowledge-engine.js
+          node --check knowledge-wiki-adapter.js
           node --check renderer.js
           node --check city-ui.js
           node --check worldforge-v1-ui.js
@@ -49,6 +51,7 @@ jobs:
           node --check canon-bridge-ui.js
           node --check living-wiki-ui.js
           node --check chronicle-press-ui.js
+          node --check knowledge-ui.js
           node --check app.js
           node --check tests/worldgen.mjs
           node --check tests/history.mjs
@@ -64,29 +67,26 @@ jobs:
           node --check tests/canon-bridge.mjs
           node --check tests/living-wiki.mjs
           node --check tests/chronicle-press.mjs
-      - name: Validate v1.3 Heraldry and Chronicle Press static app
+          node --check tests/knowledge.mjs
+      - name: Validate v1.4 Knowledge Rumours and Lost History static app
         run: |
           test -f index.html
-          test -f endless-engine.js
-          test -f creator-suite-engine.js
-          test -f canon-bridge-engine.js
-          test -f canon-wiki-adapter.js
-          test -f living-wiki-engine.js
-          test -f living-wiki-ui.js
-          test -f living-wiki.css
+          test -f knowledge-engine.js
+          test -f knowledge-wiki-adapter.js
+          test -f knowledge-ui.js
+          test -f knowledge.css
           test -f chronicle-press-engine.js
-          test -f chronicle-press-ui.js
-          test -f chronicle-press.css
-          grep -q "WorldForgeLivingWiki" living-wiki-engine.js
-          grep -q "WorldForgeChroniclePress" chronicle-press-engine.js
-          grep -q "dynamicEraTitle" chronicle-press-engine.js
-          grep -q "The Iron Gazette" chronicle-press-engine.js
-          grep -q "archiveIssue" chronicle-press-engine.js
-          grep -q "HERALDRY & CHRONICLE PRESS" chronicle-press-ui.js
-          grep -q "Export Newspaper HTML" chronicle-press-ui.js
-          grep -q "chronicle-press-engine.js" living-wiki-ui.js
-          grep -q "chronicle-map-frame" chronicle-press.css
-          grep -q "quill-page" chronicle-press.css
+          grep -q "WorldForgeKnowledge" knowledge-engine.js
+          grep -q "viewClaim" knowledge-engine.js
+          grep -q "createInvestigationQuest" knowledge-engine.js
+          grep -q "propaganda" knowledge-engine.js
+          grep -q "archiveThrough" knowledge-engine.js
+          grep -q "The Known World Is Not The True World" knowledge-ui.js
+          grep -q "GM Truth Lens" knowledge-ui.js
+          grep -q "Export Perspective Codex" knowledge-ui.js
+          grep -q "knowledge-engine.js" chronicle-press-ui.js
+          grep -q "knowledge-ui.js" chronicle-press-ui.js
+          grep -q "Public-memory status" knowledge-wiki-adapter.js
           ! grep -q 'id="targetYearInput"[^>]*max="5000"' index.html
       - name: Run v0.1 deterministic world-generation tests
         run: node tests/worldgen.mjs
@@ -116,6 +116,8 @@ jobs:
         run: node tests/living-wiki.mjs
       - name: Run v1.3 heraldry and chronicle press tests
         run: node tests/chronicle-press.mjs
+      - name: Run v1.4 knowledge rumours and lost history tests
+        run: node tests/knowledge.mjs
 
   deploy:
     needs: validate
