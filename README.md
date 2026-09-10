@@ -4,13 +4,13 @@
 
 **Live:** https://mrhakan.github.io/WorldForge/
 
-## Current release — v1.4 Knowledge, Rumours & Lost History
+## Current release — v1.5 Calendar, Seasons, Weather & Celestial System
 
-WorldForge has grown from a procedural map generator into a connected emergent-history machine. The simulation now distinguishes **objective world state** from **what different realms believe happened**.
+WorldForge is a connected emergent-history machine: geography drives climate, climate affects harvests and prices, those pressures feed society and politics, and the resulting events become history, rumours, canon, quests and adaptive wiki material.
 
 ### Version line
 
-1. **v0.1 World Generation** — terrain, climate, biomes, rivers, resources, settlements, realms and roads.
+1. **v0.1 World Generation** — terrain, climate baselines, biomes, rivers, resources, settlements, realms and roads.
 2. **v0.2 History** — population, prosperity, migration, trade, diplomacy, alliances, war, conquest and realm collapse.
 3. **v0.3 Society** — notable NPCs, families, houses, marriage, inheritance, rulers, heirs and succession crises.
 4. **v0.4 Cities & Crime** — districts, businesses, officials, unemployment, guards, corruption, gangs, territory and black markets.
@@ -19,73 +19,65 @@ WorldForge has grown from a procedural map generator into a connected emergent-h
 7. **v0.7 Cultures & Religions** — cultures, languages, traditions, values, conversions, holy sites and schisms.
 8. **v0.8 Factions & Organizations** — guilds, orders, cults, mercenary companies, political factions, scholar societies and rebel leagues.
 9. **v0.9 Endless Simulation Core** — absolute world clock, epoch rebasing, bounded recent detail and deep-history compaction.
-10. **v1.0 Creator Studio** — world documents/cards, map annotations, relationships, family trees, mood boards, Quill-style stories, workshop tools and reader preview.
-11. **v1.1 Living Canon Bridge** — authoring can materialize into simulation entities; simulation events automatically generate cards, timeline entries, map notes and story hooks.
+10. **v1.0 Creator Studio** — cards/documents, map annotations, relationships, family trees, mood boards, Quill-style stories, workshop tools and reader preview.
+11. **v1.1 Living Canon Bridge** — authoring can materialize into simulation entities; simulation events create cards, timeline entries, map notes and story hooks.
 12. **v1.2 Living Wiki** — adaptive encyclopedia themes derived from war, prosperity, religion, crime, scholarship and deep world age; standalone themed HTML export.
-13. **v1.3 Heraldry & Chronicle Press** — deterministic realm heraldry, war banners, dynamic historical era names, themed map frames and automatic newspapers/chronicles.
-14. **v1.4 Knowledge, Rumours & Lost History** — source provenance, witnesses, merchant letters, temple records, tavern rumours, propaganda, inscriptions, realm-specific public memory, disputed history, legends, forgotten events and investigation quests.
+13. **v1.3 Heraldry & Chronicle Press** — deterministic realm heraldry, war banners, dynamic era names, themed map frames and automatic newspapers/chronicles.
+14. **v1.4 Knowledge, Rumours & Lost History** — source provenance, witnesses, merchant letters, temple records, tavern rumours, propaganda, inscriptions, realm-specific public memory, disputed history, legends and investigation quests.
+15. **v1.5 Living Almanac** — custom 365-day calendar, hemispheric seasons, latitude/elevation/biome-driven local climate, monthly weather, daylight, harvest yield, drought/flood/storm/winter/heat events, moon phases, eclipses, comets, auroras and climate-to-economy feedback.
 
 ## Living world chain
 
 ```text
 Seed
- └─ Planet / terrain / climate
-     └─ Settlements / realms / roads
-         └─ Population / economy / diplomacy / wars
-             └─ People / families / dynasties / succession
-                 └─ Cultures / religions / organizations
-                     └─ Cities / crime / hidden economies
-                         └─ Ruins / dungeons / expeditions / loot
-                             └─ Quests / dialogue / authoring
-                                 └─ Living Canon
-                                     └─ Living Wiki / Chronicle Press
-                                         └─ Knowledge / rumours / lost history
+ └─ Planet / terrain / climate baselines
+     └─ Calendar / seasons / weather / harvests
+         └─ Settlements / realms / roads / markets
+             └─ Population / economy / diplomacy / wars
+                 └─ People / families / dynasties / succession
+                     └─ Cultures / religions / organizations
+                         └─ Cities / crime / hidden economies
+                             └─ Ruins / dungeons / expeditions / loot
+                                 └─ Quests / dialogue / authoring
+                                     └─ Living Canon
+                                         └─ Living Wiki / Chronicle Press
+                                             └─ Knowledge / rumours / lost history
 ```
 
-## v1.4 epistemic model
+## v1.5 Living Almanac
 
-Every important historical event can create a **claim** representing objective simulation truth. The public does not read that truth directly. It receives information through persistent source traditions:
+The calendar uses twelve named months and 365 days. Each settlement receives a persistent climate profile derived from latitude, elevation, biome, moisture, temperature, river proximity and coastal exposure. Monthly weather is deterministic from world seed + absolute year + settlement + month, so reopening or replaying the same world produces the same almanac.
 
-- official state records
-- witness accounts
-- merchant letters
-- temple chronicles
-- tavern rumours
-- partisan propaganda
-- durable inscriptions
-- later scholarly compilations
+Annual climate state includes temperature and precipitation anomalies, crop yield, food stress and local extreme-weather indices. Severe conditions become actual history events: droughts, floods, great storms, harsh winters, heatwaves and exceptional harvests. The celestial model adds moon phase/illumination, daylight length, solar eclipses, great comets and auroras.
 
-Each source has reliability, geographic origin, political bias, polarity, archival durability and propagation speed. Knowledge spreads through the settlement road network, so two realms can have different awareness and confidence about the same event.
+Climate is part of the simulation loop rather than presentation only. Harvest stress can reduce settlement prosperity and population, raise city prices and unemployment, increase crime pressure, reduce trade and weaken realm stability. Eclipses and comets can also nudge religious fervor. The next simulated year therefore starts from a world already changed by the previous year's weather.
 
-A claim may be classified from a selected realm's perspective as:
+The Living Almanac UI offers settlement and date selection, a twelve-month climate view, a celestial docket, climate chronicle and standalone HTML almanac export.
 
-- **Confirmed** — multiple sufficiently independent sources agree.
-- **Disputed** — credible evidence conflicts or partisan narratives compete.
-- **Legendary** — the story survives but strong source diversity has decayed.
-- **Lost** — public awareness has effectively disappeared.
-- **Unknown** — the selected audience has not meaningfully received the claim.
+### Endless-world compatibility
 
-The **GM Truth Lens** can reveal the objective simulation event beside the public narrative. Disputed, legendary and lost claims can also be promoted into Creator Studio investigation quests.
+Detailed climate summaries use a rolling retention window. Older annual weather is compacted into 250-year climate archive blocks rather than accumulating forever. The climate engine uses absolute years and the original world seed, so epoch rebasing does not repeat weather cycles or random streams. Endless Core delegates normal and asynchronous long-run simulation through the climate wrapper, preserving the same feedback model during +10,000-year runs.
 
-### Endless-memory compatibility
+## Knowledge & public memory
 
-Knowledge does not retain unlimited detailed source graphs forever. Old claims are compacted into 250-year deep-memory archive blocks after the configured retention horizon. Major events remain summarized, and discovered ruins can trigger later rediscovery records. This keeps the epistemic layer compatible with the endless simulation architecture instead of growing linearly with world age.
+Important historical events can become objective claims, but realms learn about them through official records, witnesses, merchant letters, temple chronicles, tavern rumours, propaganda, inscriptions and scholarship. A claim can be **confirmed, disputed, legendary, lost or unknown** depending on the selected realm's surviving evidence. The GM Truth Lens reveals objective simulation truth; uncertain claims can become investigation quests.
 
 ## Main workspaces
 
-- interactive political, population, prosperity, trade, biome, elevation, temperature and moisture maps
-- historical timeline replay
+- interactive world and historical map layers
+- historical timeline replay and endless absolute clock
 - realm ledger, diplomacy and wars
-- society dashboard, rulers, heirs, claims, families and dynasties
+- society, rulers, heirs, families and dynasties
 - procedural City Explorer and underworld simulation
-- culture, religion and organization workspaces
+- culture, religion, organization and faction workspaces
 - procedural Dungeon Studio
 - Quest Graph and Dialogue Tree editors
 - Creator Studio documents, map annotations, relationship graphs, mood boards and Quill stories
 - bidirectional Living Canon bridge
-- adaptive Living Wiki with themed standalone HTML export
+- adaptive Living Wiki and themed standalone HTML export
 - Heraldry & Chronicle Press with generated historical newspapers
-- Knowledge & Rumours workbench with realm-perspective public memory and perspective-codex export
+- Knowledge & Rumours perspective workbench
+- Living Almanac with local seasonal weather and celestial events
 - local save/load and `.worldforge.json` import/export
 
 ## Architecture
@@ -100,6 +92,7 @@ faction-engine.js            organizations and influence networks
 adventure-engine.js          historical sites and dungeon graphs
 story-engine.js              quests, dialogue and story variables
 endless-engine.js            absolute clock, rebasing and compaction
+calendar-engine.js           seasons, local climate, weather and celestial simulation
 wiki-engine.js               cross-linked encyclopedia
 creator-suite-engine.js      authoring toolkit
 canon-bridge-engine.js       authoring ↔ simulation bridge
@@ -113,6 +106,6 @@ Browser UI layers are split into matching `*-ui.js` and CSS modules. Compatibili
 
 ## Testing and deployment
 
-Every push to `main` runs JavaScript syntax validation plus the complete regression chain from **v0.1 through v1.4** before GitHub Pages deployment. Tests cover deterministic world generation, history, society, cities/crime, adventure, story, culture/religion, factions, endless simulation, authoring, bidirectional canon, adaptive wiki themes, heraldry/press, epistemic source propagation, knowledge compaction and save/export round-trips.
+Every push to `main` runs JavaScript syntax validation plus the complete regression chain from **v0.1 through v1.5** before GitHub Pages deployment. Tests cover deterministic generation, history, society, cities/crime, adventure, story, culture/religion, factions, endless simulation, authoring, canon, adaptive wiki themes, heraldry/press, knowledge propagation, climate feedback, calendar/celestial behavior, compaction and save/export round-trips.
 
 Everything runs locally in the browser; generated worlds are not uploaded by the application.
