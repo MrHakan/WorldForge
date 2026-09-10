@@ -17,3 +17,13 @@ function exportMarkdown(world,year=null){const d=dashboard(world,year),rows=buil
 function validateWiki(world){const errors=[...base.validateWiki(world)],rows=buildIndex(world),refs=new Set(rows.map(x=>x.ref));for(const a of rows.filter(x=>x.type==='canon'))for(const r of a.refs||[])if(!refs.has(r)&&!String(r).startsWith('event:'))errors.push('dangling canon reference');return[...new Set(errors)]}
 W.buildIndex=buildIndex;W.search=search;W.article=article;W.related=related;W.chronology=chronology;W.dashboard=dashboard;W.exportMarkdown=exportMarkdown;W.validateWiki=validateWiki;
 })(typeof window!=='undefined'?window:globalThis);
+
+// v1.2 Living Wiki loader. This deliberately runs after the release and canon
+// adapters so the themed codex sees simulation entities and authored canon in
+// the same final encyclopedia index.
+(()=>{
+  if(typeof document==='undefined'||window.WorldForgeLivingWikiUI)return;
+  const addStyle=href=>{if(document.querySelector(`link[href="${href}"]`))return;const l=document.createElement('link');l.rel='stylesheet';l.href=href;document.head.appendChild(l)};
+  const load=(src,globalName)=>new Promise((resolve,reject)=>{if(globalName&&window[globalName])return resolve(window[globalName]);let s=[...document.scripts].find(x=>x.getAttribute('src')===src);if(!s){s=document.createElement('script');s.src=src;document.head.appendChild(s)}let n=0;const t=setInterval(()=>{if(!globalName||window[globalName]){clearInterval(t);resolve(globalName?window[globalName]:true)}else if(++n>160){clearInterval(t);reject(new Error(`Timed out loading ${globalName||src}`))}},25)});
+  (async()=>{try{addStyle('living-wiki.css');await load('living-wiki-engine.js','WorldForgeLivingWiki');await load('living-wiki-ui.js','WorldForgeLivingWikiUI');window.WorldForgeLivingWikiUI.render(true)}catch(e){console.error('Living Wiki bootstrap failed',e)}})();
+})();
