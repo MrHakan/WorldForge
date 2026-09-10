@@ -2,7 +2,7 @@
 'use strict';
 const P=window.WorldForgeChroniclePress,L=window.WorldForgeLivingWiki,C=window.WorldForgeCreatorSuite;
 if(!P||!L||!window.WorldRenderer)return;
-const $=s=>document.querySelector(s),esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])),fmt=n=>Number(n||0).toLocaleString();
+const $=s=>document.querySelector(s),esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot',"'":'&#39;'}[c])),fmt=n=>Number(n||0).toLocaleString();
 const state={world:null,viewYear:null,last:null};
 function world(){return state.world||window.WorldForgeCanonBridgeUI?.state?.world||window.WorldForgeCreatorUI?.state?.world||window.WorldForgeReleaseUI?.state?.world||window.WorldForgeEndlessUI?.state?.world||null}
 function year(){const r=window.WorldForgeReleaseUI?.state?.viewYear;if(r!=null)return r;const e=window.WorldForgeEndlessUI?.state?.viewYear;if(e!=null)return e;return state.viewYear}
@@ -15,4 +15,13 @@ function archiveIssue(){const w=world();if(!w)return;const doc=P.archiveIssue(w,
 const proto=window.WorldRenderer.prototype,oldSet=proto.setWorld,oldHist=proto.setHistoryView;proto.setWorld=function(w){state.world=w;state.viewYear=null;state.last=null;const r=oldSet.call(this,w);setTimeout(()=>render(true),0);return r};proto.setHistoryView=function(v){const r=oldHist.call(this,v);if(this.world){state.world=this.world;state.viewYear=v?.isPresent?null:(v?.year??null);state.last=null;setTimeout(()=>render(true),0)}return r};
 setInterval(()=>render(false),1100);setTimeout(()=>render(true),100);
 window.WorldForgeChroniclePressUI={version:'1.3.0',state,render,exportIssue,archiveIssue};
+})();
+
+// v1.4 Knowledge, Rumours & Lost History loader. It runs after the themed wiki
+// and Chronicle Press so public-memory perspectives inherit the world's era style.
+(()=>{
+  if(typeof document==='undefined'||window.WorldForgeKnowledgeUI)return;
+  const addStyle=href=>{if(document.querySelector(`link[href="${href}"]`))return;const l=document.createElement('link');l.rel='stylesheet';l.href=href;document.head.appendChild(l)};
+  const load=(src,globalName)=>new Promise((resolve,reject)=>{if(window[globalName])return resolve(window[globalName]);let s=[...document.scripts].find(x=>x.getAttribute('src')===src);if(!s){s=document.createElement('script');s.src=src;document.head.appendChild(s)}let n=0;const t=setInterval(()=>{if(window[globalName]){clearInterval(t);resolve(window[globalName])}else if(++n>180){clearInterval(t);reject(new Error(`Timed out loading ${globalName}`))}},25)});
+  (async()=>{try{addStyle('knowledge.css');await load('knowledge-engine.js','WorldForgeKnowledge');await load('knowledge-ui.js','WorldForgeKnowledgeUI');const w=window.WorldForgeChroniclePressUI?.state?.world||window.WorldForgeReleaseUI?.state?.world;if(w){window.WorldForgeKnowledge.initialize(w);window.WorldForgeKnowledge.sync(w);window.WorldForgeKnowledgeUI.state.world=w;window.WorldForgeKnowledgeUI.render(true)}}catch(e){console.error('Knowledge layer bootstrap failed',e)}})();
 })();
