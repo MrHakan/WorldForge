@@ -1,24 +1,31 @@
 # WorldForge
 
-**Procedural World, Civilization & Story Simulation Studio** — a fully client-side deterministic worldbuilding sandbox that runs on GitHub Pages.
+**Procedural World, Civilization & Story Simulation Studio** — a fully client-side deterministic living-world sandbox for GitHub Pages.
 
 **Live:** https://mrhakan.github.io/WorldForge/
 
-## WorldForge v1.0
+## Current release — v1.4 Knowledge, Rumours & Lost History
 
-WorldForge now integrates the full planned simulation stack:
+WorldForge has grown from a procedural map generator into a connected emergent-history machine. The simulation now distinguishes **objective world state** from **what different realms believe happened**.
 
-1. **v0.1 World Generation** — elevation, temperature, moisture, biomes, rivers, resources, settlements, kingdoms, roads and political geography.
-2. **v0.2 History** — population, prosperity, migration, trade, diplomacy, alliances, wars, conquest, realm formation/collapse and historical replay.
-3. **v0.3 Society** — named notable people, families, dynastic houses, marriages, children, inheritance, occupations, friendships, rivalries, rulers, heirs, claims and succession crises.
-4. **v0.4 Cities & Crime** — procedural city districts, local businesses, civic officials, unemployment, prices, guards, corruption, gangs, territory, black markets and crime events.
-5. **v0.5 Adventure** — history-derived ruins, mines, crypts, caves, keeps and gang hideouts with procedural room graphs, encounters, traps, secrets, loot, danger and expedition history.
-6. **v0.6 Story Studio** — branching quest graphs, conditional dialogue trees, persistent story variables, custom quests/nodes and entity-bound story generation.
-7. **v1.0 Encyclopedia & Authoring Hub** — a searchable cross-linked world wiki, entity chronology, historical replay-aware articles, bookmarks, personal notes, authored world notes and Markdown encyclopedia export.
+### Version line
 
-The same seed and generator settings reproduce the same founding world. Every evolving simulation layer uses deterministic year-keyed randomness, and the regression suite verifies chunk independence where applicable.
+1. **v0.1 World Generation** — terrain, climate, biomes, rivers, resources, settlements, realms and roads.
+2. **v0.2 History** — population, prosperity, migration, trade, diplomacy, alliances, war, conquest and realm collapse.
+3. **v0.3 Society** — notable NPCs, families, houses, marriage, inheritance, rulers, heirs and succession crises.
+4. **v0.4 Cities & Crime** — districts, businesses, officials, unemployment, guards, corruption, gangs, territory and black markets.
+5. **v0.5 Adventure** — history-derived ruins, mines, crypts, caves, keeps, procedural room graphs, encounters, traps, secrets and loot.
+6. **v0.6 Story Studio** — branching quest graphs, dialogue trees, persistent variables and entity-bound story generation.
+7. **v0.7 Cultures & Religions** — cultures, languages, traditions, values, conversions, holy sites and schisms.
+8. **v0.8 Factions & Organizations** — guilds, orders, cults, mercenary companies, political factions, scholar societies and rebel leagues.
+9. **v0.9 Endless Simulation Core** — absolute world clock, epoch rebasing, bounded recent detail and deep-history compaction.
+10. **v1.0 Creator Studio** — world documents/cards, map annotations, relationships, family trees, mood boards, Quill-style stories, workshop tools and reader preview.
+11. **v1.1 Living Canon Bridge** — authoring can materialize into simulation entities; simulation events automatically generate cards, timeline entries, map notes and story hooks.
+12. **v1.2 Living Wiki** — adaptive encyclopedia themes derived from war, prosperity, religion, crime, scholarship and deep world age; standalone themed HTML export.
+13. **v1.3 Heraldry & Chronicle Press** — deterministic realm heraldry, war banners, dynamic historical era names, themed map frames and automatic newspapers/chronicles.
+14. **v1.4 Knowledge, Rumours & Lost History** — source provenance, witnesses, merchant letters, temple records, tavern rumours, propaganda, inscriptions, realm-specific public memory, disputed history, legends, forgotten events and investigation quests.
 
-## Integrated world model
+## Living world chain
 
 ```text
 Seed
@@ -26,62 +33,86 @@ Seed
      └─ Settlements / realms / roads
          └─ Population / economy / diplomacy / wars
              └─ People / families / dynasties / succession
-                 └─ Cities / districts / businesses / crime / gangs
-                     └─ Ruins / dungeons / encounters / loot
-                         └─ Quests / dialogue / world-state variables
-                             └─ Searchable World Encyclopedia
+                 └─ Cultures / religions / organizations
+                     └─ Cities / crime / hidden economies
+                         └─ Ruins / dungeons / expeditions / loot
+                             └─ Quests / dialogue / authoring
+                                 └─ Living Canon
+                                     └─ Living Wiki / Chronicle Press
+                                         └─ Knowledge / rumours / lost history
 ```
+
+## v1.4 epistemic model
+
+Every important historical event can create a **claim** representing objective simulation truth. The public does not read that truth directly. It receives information through persistent source traditions:
+
+- official state records
+- witness accounts
+- merchant letters
+- temple chronicles
+- tavern rumours
+- partisan propaganda
+- durable inscriptions
+- later scholarly compilations
+
+Each source has reliability, geographic origin, political bias, polarity, archival durability and propagation speed. Knowledge spreads through the settlement road network, so two realms can have different awareness and confidence about the same event.
+
+A claim may be classified from a selected realm's perspective as:
+
+- **Confirmed** — multiple sufficiently independent sources agree.
+- **Disputed** — credible evidence conflicts or partisan narratives compete.
+- **Legendary** — the story survives but strong source diversity has decayed.
+- **Lost** — public awareness has effectively disappeared.
+- **Unknown** — the selected audience has not meaningfully received the claim.
+
+The **GM Truth Lens** can reveal the objective simulation event beside the public narrative. Disputed, legendary and lost claims can also be promoted into Creator Studio investigation quests.
+
+### Endless-memory compatibility
+
+Knowledge does not retain unlimited detailed source graphs forever. Old claims are compacted into 250-year deep-memory archive blocks after the configured retention horizon. Major events remain summarized, and discovered ruins can trigger later rediscovery records. This keeps the epistemic layer compatible with the endless simulation architecture instead of growing linearly with world age.
 
 ## Main workspaces
 
-- Interactive political, population, prosperity, trade, biome, elevation, temperature and moisture maps
-- Historical timeline replay with persistent snapshots
-- Realm ledger, diplomacy and conflict browser
-- Society dashboard, throne view, notable-person dossier and family graph
-- Dynasty / house ledger
-- Procedural City Explorer with district plan, local economy, officials and gang territory
-- Underworld dashboard with criminal factions, heat, influence and black markets
-- Procedural Dungeon Studio with historical origins, room graphs, encounters, traps, secrets and loot
-- Quest Graph Editor with custom nodes and persistent conditions/effects
-- Dialogue Tree Studio with conditional choices and live variable preview
-- World-state variable editor
-- Global Encyclopedia search across realms, settlements, people, houses, cities, gangs, sites, quests, dialogues and events
-- Cross-linked entity relationships and entity-specific chronology
-- Historical encyclopedia views that follow the main timeline
-- Bookmarks, article notes and authored world notes
-- Markdown encyclopedia export
-- Local save/load and `.worldforge.json` import/export
+- interactive political, population, prosperity, trade, biome, elevation, temperature and moisture maps
+- historical timeline replay
+- realm ledger, diplomacy and wars
+- society dashboard, rulers, heirs, claims, families and dynasties
+- procedural City Explorer and underworld simulation
+- culture, religion and organization workspaces
+- procedural Dungeon Studio
+- Quest Graph and Dialogue Tree editors
+- Creator Studio documents, map annotations, relationship graphs, mood boards and Quill stories
+- bidirectional Living Canon bridge
+- adaptive Living Wiki with themed standalone HTML export
+- Heraldry & Chronicle Press with generated historical newspapers
+- Knowledge & Rumours workbench with realm-perspective public memory and perspective-codex export
+- local save/load and `.worldforge.json` import/export
 
 ## Architecture
 
 ```text
-engine.js             deterministic geography + founding world
-history-engine.js     aggregate civilization/history simulation
-society-engine.js     notable NPC + family + dynasty simulation
-city-engine.js        city + economy + law + organized crime
-adventure-engine.js   history-derived sites + dungeon graphs
-story-engine.js       quests + dialogue + story variables
-wiki-engine.js        derived encyclopedia + cross-link graph
-renderer.js           world/historical Canvas rendering
-city-ui.js            city workspace + v0.4 integration adapter
-worldforge-v1-ui.js   v1 adventure/story/wiki workspaces + integration adapter
-app.js                core browser UI orchestration
+engine.js                    founding geography
+history-engine.js            aggregate civilization/history simulation
+society-engine.js            notable NPCs, families and dynasties
+city-engine.js               cities, economy, law and organized crime
+culture-engine.js            culture and religion simulation
+faction-engine.js            organizations and influence networks
+adventure-engine.js          historical sites and dungeon graphs
+story-engine.js              quests, dialogue and story variables
+endless-engine.js            absolute clock, rebasing and compaction
+wiki-engine.js               cross-linked encyclopedia
+creator-suite-engine.js      authoring toolkit
+canon-bridge-engine.js       authoring ↔ simulation bridge
+living-wiki-engine.js        adaptive historical presentation
+chronicle-press-engine.js    heraldry, era names and generated press
+knowledge-engine.js          claims, sources, rumours and public memory
+renderer.js                  map/historical Canvas rendering
 ```
 
-The browser simulation chain at v1.0 advances History → Society → Cities → Adventure → Story. The encyclopedia is derived from that synchronized state and therefore needs no separate simulation clock.
-
-## Deterministic gates
-
-- **v0.1 — World Generation:** passed
-- **v0.2 — History:** passed
-- **v0.3 — Society:** passed
-- **v0.4 — Cities & Crime:** passed
-- **v0.5 — Adventure:** passed
-- **v0.6 — Story Studio:** passed
-- **v1.0 — Integrated WorldForge:** current release
+Browser UI layers are split into matching `*-ui.js` and CSS modules. Compatibility adapters bridge later systems into the original static app without requiring a backend or build step.
 
 ## Testing and deployment
 
-Every push to `main` is validated before GitHub Pages deployment. The workflow runs JavaScript syntax checks plus the complete versioned regression suite: world generation, history, society, cities/crime, adventure, story and v1 encyclopedia integration. Tests cover deterministic long-run simulation, graph integrity, entity links, historical replay, save/export round-trips and encyclopedia cross-link validity.
+Every push to `main` runs JavaScript syntax validation plus the complete regression chain from **v0.1 through v1.4** before GitHub Pages deployment. Tests cover deterministic world generation, history, society, cities/crime, adventure, story, culture/religion, factions, endless simulation, authoring, bidirectional canon, adaptive wiki themes, heraldry/press, epistemic source propagation, knowledge compaction and save/export round-trips.
 
 Everything runs locally in the browser; generated worlds are not uploaded by the application.
