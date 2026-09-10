@@ -28,9 +28,10 @@ assert.equal(A.find(world,chronicle.id).status,'held','rediscovery must restore 
 assert.ok(world.knowledge.sources.filter(s=>s.artifactId===chronicle.id).length>sourcesBefore,'rediscovery must add fresh material evidence to surviving claims');
 assert.ok(world.history.events.some(e=>e.type==='artifact_rediscovered'&&(e.artifactIds||[]).includes(chronicle.id)),'rediscovery must enter world history');
 assert.ok(A.find(world,chronicle.id).provenance.some(p=>p.action==='rediscovered'),'rediscovery must enter provenance');
-const wikiArtifact=W.article(world,`artifact:${chronicle.id}`);assert.ok(wikiArtifact&&wikiArtifact.type==='artifact','artifacts must enter the Universal Encyclopedia');
-assert.ok(W.search(world,'Broken Seal',{type:'artifact',limit:20}).some(x=>x.id===chronicle.id),'artifact wiki search must find written works');
-assert.ok(W.chronology(world,`artifact:${chronicle.id}`).some(e=>e.type==='artifact_rediscovered'),'artifact wiki chronology must expose provenance');
+// The test world clock is still Year 0, so explicitly inspect the Year 220 historical perspective.
+const wikiArtifact=W.article(world,`artifact:${chronicle.id}`,220);assert.ok(wikiArtifact&&wikiArtifact.type==='artifact','artifacts must enter the Universal Encyclopedia at and after their creation date');
+assert.ok(W.search(world,'Broken Seal',{type:'artifact',year:220,limit:20}).some(x=>x.id===chronicle.id),'artifact wiki search must find written works at the viewed historical year');
+assert.ok(W.chronology(world,`artifact:${chronicle.id}`,220).some(e=>e.type==='artifact_rediscovered'),'artifact wiki chronology must expose provenance at the viewed historical year');
 Cal.setBaseSimulator(C.simulateYears.bind(C));A.setBaseSimulator(Cal.simulateYears.bind(C));
 const direct=make(),chunked=make();A.simulateYears(direct,90);A.simulateYears(chunked,30);A.simulateYears(chunked,25);A.simulateYears(chunked,35);
 assert.equal(A.fingerprint(direct),A.fingerprint(chunked),'artifact lifecycle must be chunk independent');
