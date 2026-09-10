@@ -31,11 +31,13 @@ jobs:
           node --check wiki-engine.js
           node --check culture-engine.js
           node --check faction-engine.js
+          node --check endless-engine.js
           node --check renderer.js
           node --check city-ui.js
           node --check worldforge-v1-ui.js
           node --check culture-ui.js
           node --check faction-ui.js
+          node --check endless-ui.js
           node --check app.js
           node --check tests/worldgen.mjs
           node --check tests/history.mjs
@@ -46,19 +48,21 @@ jobs:
           node --check tests/wiki.mjs
           node --check tests/culture.mjs
           node --check tests/factions.mjs
-      - name: Validate v0.8 static app
+          node --check tests/endless.mjs
+      - name: Validate v0.9 static app
         run: |
           test -f index.html
-          test -f culture-engine.js
-          test -f faction-engine.js
-          test -f faction-ui.js
-          test -f faction.css
-          grep -q "v0.8 · FACTIONS & ORGANIZATIONS" index.html
-          grep -q "faction-engine.js" index.html
-          grep -q "faction-ui.js" index.html
-          grep -q "WorldForgeFactions" faction-engine.js
-          grep -q "POWER NETWORK" faction-ui.js
-          grep -q "Uprising" faction-engine.js
+          test -f endless-engine.js
+          test -f endless-ui.js
+          test -f endless.css
+          grep -q "v0.9 · ENDLESS SIMULATION" index.html
+          grep -q "endless-engine.js" index.html
+          grep -q "endless-ui.js" index.html
+          grep -q "WorldForgeEndless" endless-engine.js
+          grep -q "REBASE_AT" endless-engine.js
+          grep -q "simulateYearsAsync" endless-engine.js
+          grep -q "Long-Run Simulation & Memory Budget" endless-ui.js
+          ! grep -q 'id="targetYearInput"[^>]*max="5000"' index.html
       - name: Run v0.1 deterministic world-generation tests
         run: node tests/worldgen.mjs
       - name: Run v0.2 deterministic history regression tests
@@ -77,6 +81,8 @@ jobs:
         run: node tests/culture.mjs
       - name: Run v0.8 deterministic faction and organization tests
         run: node tests/factions.mjs
+      - name: Run v0.9 endless simulation and compaction tests
+        run: node tests/endless.mjs
 
   deploy:
     needs: validate
