@@ -30,10 +30,12 @@ jobs:
           node --check story-engine.js
           node --check wiki-engine.js
           node --check culture-engine.js
+          node --check faction-engine.js
           node --check renderer.js
           node --check city-ui.js
           node --check worldforge-v1-ui.js
           node --check culture-ui.js
+          node --check faction-ui.js
           node --check app.js
           node --check tests/worldgen.mjs
           node --check tests/history.mjs
@@ -43,18 +45,20 @@ jobs:
           node --check tests/story.mjs
           node --check tests/wiki.mjs
           node --check tests/culture.mjs
-      - name: Validate v0.7 static app
+          node --check tests/factions.mjs
+      - name: Validate v0.8 static app
         run: |
           test -f index.html
-          test -f culture.css
           test -f culture-engine.js
-          test -f culture-ui.js
-          grep -q "v0.7 · CULTURES & RELIGIONS" index.html
-          grep -q "culture-engine.js" index.html
-          grep -q "culture-ui.js" index.html
-          grep -q "WorldForgeCulture" culture-engine.js
-          grep -q "RELIGIOUS LANDSCAPE" culture-ui.js
-          grep -q "CULTURAL LEDGER" culture-ui.js
+          test -f faction-engine.js
+          test -f faction-ui.js
+          test -f faction.css
+          grep -q "v0.8 · FACTIONS & ORGANIZATIONS" index.html
+          grep -q "faction-engine.js" index.html
+          grep -q "faction-ui.js" index.html
+          grep -q "WorldForgeFactions" faction-engine.js
+          grep -q "POWER NETWORK" faction-ui.js
+          grep -q "Uprising" faction-engine.js
       - name: Run v0.1 deterministic world-generation tests
         run: node tests/worldgen.mjs
       - name: Run v0.2 deterministic history regression tests
@@ -71,6 +75,8 @@ jobs:
         run: node tests/wiki.mjs
       - name: Run v0.7 deterministic culture and religion tests
         run: node tests/culture.mjs
+      - name: Run v0.8 deterministic faction and organization tests
+        run: node tests/factions.mjs
 
   deploy:
     needs: validate
