@@ -4,25 +4,18 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <meta name="theme-color" content="#10130f">
-  <meta name="description" content="WorldForge — procedural world, civilization and history simulation studio.">
-  <title>WorldForge · v0.2 History</title>
+  <meta name="description" content="WorldForge — procedural world, civilization, history, society and dynasty simulation studio.">
+  <title>WorldForge · v0.3 Society</title>
   <link rel="stylesheet" href="styles.css">
   <link rel="stylesheet" href="history.css">
+  <link rel="stylesheet" href="society.css">
 </head>
 <body>
 <div class="app-shell">
   <header class="topbar">
-    <div class="brand">
-      <div class="brand-mark">WF</div>
-      <div><h1>WorldForge</h1><p>Procedural World, Civilization & Story Simulation Studio</p></div>
-    </div>
-    <div class="version-pill">v0.2 · HISTORY</div>
-    <div class="top-actions">
-      <button id="saveBtn">Save</button>
-      <button id="loadBtn">Load</button>
-      <button id="exportBtn">Export World</button>
-      <label class="file-button">Import World<input id="importInput" type="file" accept=".json,application/json"></label>
-    </div>
+    <div class="brand"><div class="brand-mark">WF</div><div><h1>WorldForge</h1><p>Procedural World, Civilization & Story Simulation Studio</p></div></div>
+    <div class="version-pill">v0.3 · SOCIETY</div>
+    <div class="top-actions"><button id="saveBtn">Save</button><button id="loadBtn">Load</button><button id="exportBtn">Export World</button><label class="file-button">Import World<input id="importInput" type="file" accept=".json,application/json"></label></div>
   </header>
 
   <main class="layout">
@@ -39,120 +32,76 @@
           <label>Kingdoms<input id="kingdomInput" type="range" min="3" max="12" step="1" value="7"><small id="kingdomValue">7</small></label>
         </div>
         <button id="generateBtn" class="primary wide">FORGE WORLD</button>
-        <p class="help">Forging resets the chronicle. The same seed and generator settings reproduce the same Year 0 world; the history engine is deterministic from there.</p>
+        <p class="help">Forging resets terrain, chronicle and society. The same seed and generator settings reproduce the same Year 0 world and deterministic simulation.</p>
       </div>
     </section>
 
     <section class="panel map-panel">
-      <div class="panel-head map-head">
-        <div><span class="eyebrow">WORLD MAP · LIVE / HISTORICAL</span><h2 id="worldName">Unforged World</h2></div>
-        <div class="map-actions">
-          <button class="map-mode active" data-mode="political">Political</button>
-          <button class="map-mode" data-mode="population">Population</button>
-          <button class="map-mode" data-mode="prosperity">Prosperity</button>
-          <button class="map-mode" data-mode="trade">Trade</button>
-          <button class="map-mode" data-mode="biome">Biomes</button>
-          <button class="map-mode" data-mode="elevation">Elevation</button>
-          <button class="map-mode" data-mode="temperature">Temperature</button>
-          <button class="map-mode" data-mode="moisture">Moisture</button>
-        </div>
-      </div>
-      <div id="mapWrap" class="map-wrap">
-        <canvas id="worldCanvas" width="1280" height="720" aria-label="Procedural fantasy world history map"></canvas>
-        <div class="map-hint"><b>MOVE</b> drag / WASD / arrows <span>·</span> <b>ZOOM</b> wheel <span>·</span> <b>TIMELINE</b> changes political borders</div>
-        <div class="map-controls"><button id="zoomOutBtn">−</button><span id="zoomLabel">100%</span><button id="zoomInBtn">+</button><button id="centerBtn">Center</button></div>
-        <div id="mapTooltip" class="map-tooltip hidden"></div>
-        <div class="legend" id="legend"></div>
-      </div>
+      <div class="panel-head map-head"><div><span class="eyebrow">WORLD MAP · LIVE / HISTORICAL</span><h2 id="worldName">Unforged World</h2></div><div class="map-actions"><button class="map-mode active" data-mode="political">Political</button><button class="map-mode" data-mode="population">Population</button><button class="map-mode" data-mode="prosperity">Prosperity</button><button class="map-mode" data-mode="trade">Trade</button><button class="map-mode" data-mode="biome">Biomes</button><button class="map-mode" data-mode="elevation">Elevation</button><button class="map-mode" data-mode="temperature">Temperature</button><button class="map-mode" data-mode="moisture">Moisture</button></div></div>
+      <div id="mapWrap" class="map-wrap"><canvas id="worldCanvas" width="1280" height="720" aria-label="Procedural fantasy world history map"></canvas><div class="map-hint"><b>MOVE</b> drag / WASD / arrows <span>·</span> <b>ZOOM</b> wheel <span>·</span> <b>TIMELINE</b> replays borders and society</div><div class="map-controls"><button id="zoomOutBtn">−</button><span id="zoomLabel">100%</span><button id="zoomInBtn">+</button><button id="centerBtn">Center</button></div><div id="mapTooltip" class="map-tooltip hidden"></div><div class="legend" id="legend"></div></div>
     </section>
 
     <section class="panel summary-panel">
       <div class="panel-head"><div><span class="eyebrow">WORLD SUMMARY</span><h2>Viewed State</h2></div><span id="landBadge" class="badge">—</span></div>
-      <div class="summary-kpis">
-        <div><span>LAND</span><b id="landPct">—</b><small>of map</small></div>
-        <div><span>RIVERS</span><b id="riverCount">—</b><small>systems</small></div>
-        <div><span>SETTLEMENTS</span><b id="settlementCount">—</b><small>tracked places</small></div>
-        <div><span>ACTIVE REALMS</span><b id="kingdomCount">—</b><small>at viewed year</small></div>
-      </div>
-      <div id="worldNarrative" class="narrative">Forge a world to begin.</div>
-      <div class="biome-bars" id="biomeBars"></div>
+      <div class="summary-kpis"><div><span>LAND</span><b id="landPct">—</b><small>of map</small></div><div><span>RIVERS</span><b id="riverCount">—</b><small>systems</small></div><div><span>SETTLEMENTS</span><b id="settlementCount">—</b><small>tracked places</small></div><div><span>ACTIVE REALMS</span><b id="kingdomCount">—</b><small>at viewed year</small></div></div>
+      <div id="worldNarrative" class="narrative">Forge a world to begin.</div><div class="biome-bars" id="biomeBars"></div>
     </section>
 
     <section class="panel history-panel">
-      <div class="panel-head history-head">
-        <div><span class="eyebrow">HISTORY ENGINE</span><h2>Chronicle Simulation</h2></div>
-        <div class="history-heading"><span id="simState">HISTORY ENGINE READY</span><b id="currentYear">YEAR 0</b><small id="eraLabel">Founding Age</small></div>
-      </div>
-      <div class="history-kpis">
-        <div><span>POPULATION</span><b id="historyPopulation">—</b></div>
-        <div><span>TRADE INDEX</span><b id="historyTrade">—</b></div>
-        <div><span>ACTIVE WARS</span><b id="historyWars">—</b></div>
-        <div><span>ACTIVE REALMS</span><b id="historyRealms">—</b></div>
-        <div><span>PROSPERITY</span><b id="historyProsperity">—</b></div>
-      </div>
-      <div class="sim-toolbar">
-        <div class="advance-buttons">
-          <button class="history-action" data-years="1">+1 year</button>
-          <button class="history-action" data-years="10">+10</button>
-          <button class="history-action" data-years="50">+50</button>
-          <button class="history-action primary" data-years="100">+100</button>
-          <button id="playBtn">▶ Auto 5y/tick</button>
-        </div>
-        <div class="target-control"><label>Run to year <input id="targetYearInput" type="number" min="1" max="5000" step="25" value="500"></label><button id="runTargetBtn" class="history-action">Simulate</button></div>
-      </div>
-      <div class="timeline-box">
-        <div class="timeline-labels"><span class="badge" id="viewModeBadge">PRESENT</span><b id="timelineYear">Year 0</b><button id="presentBtn" class="tiny" disabled>Return to present</button></div>
-        <input id="timelineSlider" type="range" min="0" max="0" step="5" value="0">
-        <div class="timeline-caption"><span>Year 0</span><span>Drag backward to replay saved 5-year snapshots. Borders, populations, realms and trade roads update with the viewed date.</span><span>Present</span></div>
-      </div>
+      <div class="panel-head history-head"><div><span class="eyebrow">INTEGRATED HISTORY ENGINE</span><h2>Chronicle Simulation</h2></div><div class="history-heading"><span id="simState">HISTORY + SOCIETY READY</span><b id="currentYear">YEAR 0</b><small id="eraLabel">Founding Age</small></div></div>
+      <div class="history-kpis"><div><span>POPULATION</span><b id="historyPopulation">—</b></div><div><span>TRADE INDEX</span><b id="historyTrade">—</b></div><div><span>ACTIVE WARS</span><b id="historyWars">—</b></div><div><span>ACTIVE REALMS</span><b id="historyRealms">—</b></div><div><span>PROSPERITY</span><b id="historyProsperity">—</b></div></div>
+      <div class="sim-toolbar"><div class="advance-buttons"><button class="history-action" data-years="1">+1 year</button><button class="history-action" data-years="10">+10</button><button class="history-action" data-years="50">+50</button><button class="history-action primary" data-years="100">+100</button><button id="playBtn">▶ Auto 5y/tick</button></div><div class="target-control"><label>Run to year <input id="targetYearInput" type="number" min="1" max="5000" step="25" value="500"></label><button id="runTargetBtn" class="history-action">Simulate</button></div></div>
+      <div class="timeline-box"><div class="timeline-labels"><span class="badge" id="viewModeBadge">PRESENT</span><b id="timelineYear">Year 0</b><button id="presentBtn" class="tiny" disabled>Return to present</button></div><input id="timelineSlider" type="range" min="0" max="0" step="5" value="0"><div class="timeline-caption"><span>Year 0</span><span>Replay political borders, population, trade, rulers, dynasties and notable people from saved snapshots.</span><span>Present</span></div></div>
     </section>
 
-    <section class="panel history-charts-panel">
-      <div class="panel-head"><div><span class="eyebrow">LONG-RUN METRICS</span><h2>Historical Curves</h2></div><span class="muted-note">Snapshots every 5 years + current year</span></div>
-      <div class="history-chart-grid">
-        <div class="history-chart-card"><h3>Recorded population</h3><canvas id="populationChart"></canvas></div>
-        <div class="history-chart-card"><h3>Trade & conflict</h3><canvas id="tradeChart"></canvas></div>
-      </div>
+    <section class="panel society-overview-panel">
+      <div class="panel-head"><div><span class="eyebrow">SOCIETY ENGINE</span><h2>People, Houses & Succession</h2></div><span id="societyYearBadge" class="badge">YEAR 0</span></div>
+      <div class="society-kpis"><div><span>LIVING NOTABLES</span><b id="societyLiving">—</b></div><div><span>ACTIVE HOUSES</span><b id="societyHouses">—</b></div><div><span>RULERS</span><b id="societyRulers">—</b></div><div><span>SUCCESSIONS</span><b id="societySuccessions">—</b></div><div><span>SUCCESSION CRISES</span><b id="societyCrises">—</b></div></div>
+      <p class="society-note">Notable characters age, marry, have children, form friendships and rivalries, inherit wealth, change careers and compete for titles. Dynastic crises feed back into realm stability.</p>
     </section>
+
+    <section class="panel thrones-panel">
+      <div class="panel-head"><div><span class="eyebrow">THRONES</span><h2>Rulers, Heirs & Claims</h2></div><span class="muted-note">Succession laws are simulated per realm</span></div>
+      <div id="throneList" class="throne-list"></div>
+    </section>
+
+    <section class="panel people-panel">
+      <div class="panel-head"><div><span class="eyebrow">NOTABLE PEOPLE</span><h2>Living Society</h2></div><div class="filters society-filters"><select id="peopleRealmFilter"><option value="all">All realms</option></select><select id="peopleOccupationFilter"><option value="all">All occupations</option></select><select id="peopleSort"><option value="prestige">Prestige</option><option value="wealth">Wealth</option><option value="age">Age</option><option value="name">Name</option></select></div></div>
+      <div class="society-split"><div class="table-wrap people-table-wrap"><table><thead><tr><th>PERSON</th><th>AGE</th><th>ROLE</th><th>HOUSE</th><th>REALM</th><th>PRESTIGE</th><th>WEALTH</th></tr></thead><tbody id="peopleTable"></tbody></table></div><aside><div id="personDossier" class="person-dossier"></div><div class="family-head"><span class="eyebrow">IMMEDIATE FAMILY</span><h3>Family graph</h3></div><div id="familyGraph" class="family-graph"></div></aside></div>
+    </section>
+
+    <section class="panel dynasty-panel">
+      <div class="panel-head"><div><span class="eyebrow">DYNASTIES</span><h2>House Ledger</h2></div><span class="muted-note">Ruling, noble, landed and extinct lines</span></div>
+      <div id="dynastyList" class="dynasty-list"></div>
+    </section>
+
+    <section class="panel history-charts-panel"><div class="panel-head"><div><span class="eyebrow">LONG-RUN METRICS</span><h2>Historical Curves</h2></div><span class="muted-note">Chronicle snapshots + current year</span></div><div class="history-chart-grid"><div class="history-chart-card"><h3>Recorded population</h3><canvas id="populationChart"></canvas></div><div class="history-chart-card"><h3>Trade & conflict</h3><canvas id="tradeChart"></canvas></div></div></section>
 
     <section class="panel chronicle-panel">
-      <div class="panel-head"><div><span class="eyebrow">WORLD CHRONICLE</span><h2>Recorded Events</h2></div><select id="eventFilter"><option value="all">All events</option><option value="war">Wars</option><option value="peace">Peace</option><option value="conquest">Conquests</option><option value="alliance">Alliances</option><option value="realm_formed">New realms</option><option value="collapse">Collapses</option><option value="crisis">Crises</option><option value="famine">Hard seasons</option><option value="trade_boom">Trade booms</option></select></div>
+      <div class="panel-head"><div><span class="eyebrow">WORLD CHRONICLE</span><h2>Recorded Events</h2></div><select id="eventFilter"><option value="all">All events</option><option value="succession">Successions</option><option value="succession_crisis">Succession crises</option><option value="marriage">Dynastic marriages</option><option value="death">Notable deaths</option><option value="birth">Dynastic births</option><option value="dynasty_founded">New dynasties</option><option value="war">Wars</option><option value="peace">Peace</option><option value="conquest">Conquests</option><option value="alliance">Alliances</option><option value="realm_formed">New realms</option><option value="collapse">Collapses</option><option value="crisis">Political crises</option><option value="famine">Hard seasons</option><option value="trade_boom">Trade booms</option></select></div>
       <div id="chronicleList" class="chronicle-list"></div>
     </section>
 
-    <section class="panel diplomacy-panel">
-      <div class="panel-head"><div><span class="eyebrow">DIPLOMACY</span><h2>Relations & Wars</h2></div></div>
-      <div class="diplomacy-split"><div><h3>Realm relations</h3><div id="diplomacyList" class="diplomacy-list"></div></div><div><h3>Conflicts at viewed year</h3><div id="warList" class="war-list"></div></div></div>
-    </section>
+    <section class="panel diplomacy-panel"><div class="panel-head"><div><span class="eyebrow">DIPLOMACY</span><h2>Relations & Wars</h2></div></div><div class="diplomacy-split"><div><h3>Realm relations</h3><div id="diplomacyList" class="diplomacy-list"></div></div><div><h3>Conflicts at viewed year</h3><div id="warList" class="war-list"></div></div></div></section>
 
-    <section class="panel kingdoms-panel">
-      <div class="panel-head"><div><span class="eyebrow">REALMS</span><h2>Kingdom Ledger</h2></div><span class="muted-note">Formation, collapse, stability & prosperity</span></div>
-      <div id="kingdomList" class="kingdom-list"><div class="empty">No kingdoms yet.</div></div>
-    </section>
+    <section class="panel kingdoms-panel"><div class="panel-head"><div><span class="eyebrow">REALMS</span><h2>Kingdom Ledger</h2></div><span class="muted-note">Now linked to simulated rulers</span></div><div id="kingdomList" class="kingdom-list"><div class="empty">No kingdoms yet.</div></div></section>
 
-    <section class="panel places-panel">
-      <div class="panel-head"><div><span class="eyebrow">SETTLEMENTS</span><h2>Places Through Time</h2></div><div class="filters"><select id="settlementFilter"><option value="all">All realms</option></select><select id="settlementSort"><option value="score">Prosperity</option><option value="population">Largest</option><option value="name">Name</option></select></div></div>
-      <div class="table-wrap"><table><thead><tr><th>PLACE</th><th>REALM</th><th>TYPE</th><th>BIOME</th><th>POP.</th><th>PROSPERITY</th></tr></thead><tbody id="settlementTable"><tr><td colspan="6" class="empty">No settlements yet.</td></tr></tbody></table></div>
-    </section>
+    <section class="panel places-panel"><div class="panel-head"><div><span class="eyebrow">SETTLEMENTS</span><h2>Places Through Time</h2></div><div class="filters"><select id="settlementFilter"><option value="all">All realms</option></select><select id="settlementSort"><option value="score">Prosperity</option><option value="population">Largest</option><option value="name">Name</option></select></div></div><div class="table-wrap"><table><thead><tr><th>PLACE</th><th>REALM</th><th>TYPE</th><th>BIOME</th><th>POP.</th><th>PROSPERITY</th></tr></thead><tbody id="settlementTable"><tr><td colspan="6" class="empty">No settlements yet.</td></tr></tbody></table></div></section>
 
     <section class="panel architecture-panel">
-      <div class="panel-head"><div><span class="eyebrow">VERSION GATE</span><h2>v0.2 History State Contract</h2></div><span class="status-ready">HISTORY READY</span></div>
-      <div class="architecture-grid">
-        <div><b>Deterministic Time</b><span>Year-keyed RNG · chunk-safe simulation · 5-year snapshots</span></div>
-        <div><b>Society Aggregates</b><span>Population · migration · prosperity · realm stability · treasury · military</span></div>
-        <div><b>World Systems</b><span>Road trade · diplomacy · alliances · wars · conquest · realm formation/collapse</span></div>
-        <div><b>Historical Replay</b><span>RLE political snapshots · historical ownership · metrics · event chronicle</span></div>
-      </div>
-      <p class="help">v0.3 can layer notable NPCs, families, occupations and dynasties onto these persistent realm and settlement histories without regenerating terrain or rewriting the chronicle.</p>
+      <div class="panel-head"><div><span class="eyebrow">VERSION GATE</span><h2>v0.3 Society State Contract</h2></div><span class="status-ready">SOCIETY READY</span></div>
+      <div class="architecture-grid"><div><b>Notable People</b><span>Age · careers · wealth · prestige · traits · ambitions · friendships · rivalries</span></div><div><b>Families & Houses</b><span>Marriage · children · parents · inheritance · house heads · prestige · extinction</span></div><div><b>Dynastic Rule</b><span>Realm titles · succession law · rulers · heirs · claims · reign history · succession crises</span></div><div><b>History Integration</b><span>Named figures attached to wars, peace, conquests and crises · dynastic instability feeds realm state</span></div></div>
+      <p class="help">v0.4 can now build detailed cities, districts, local factions and crime networks around persistent settlements and named people instead of anonymous population aggregates.</p>
     </section>
   </main>
 
-  <footer><span>WorldForge v0.2 · History</span><span>Simulation runs locally in your browser. No world data is uploaded.</span></footer>
+  <footer><span>WorldForge v0.3 · Society</span><span>All generation and simulation run locally in your browser. No world data is uploaded.</span></footer>
 </div>
 <div id="toast" class="toast"></div>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
 <script src="engine.js"></script>
 <script src="history-engine.js"></script>
+<script src="society-engine.js"></script>
 <script src="renderer.js"></script>
 <script src="app.js"></script>
 </body>
