@@ -1,0 +1,8 @@
+(()=>{
+'use strict';
+if(typeof document==='undefined'||window.__worldforgeResourceLoader)return;window.__worldforgeResourceLoader=true;
+const wait=(fn,timeout=16000)=>new Promise((resolve,reject)=>{const start=Date.now(),t=setInterval(()=>{const v=fn();if(v){clearInterval(t);resolve(v)}else if(Date.now()-start>timeout){clearInterval(t);reject(new Error('WorldForge v1.8 dependency timeout'))}},35)});
+const css=href=>{if(document.querySelector(`link[href="${href}"]`))return;const l=document.createElement('link');l.rel='stylesheet';l.href=href;document.head.appendChild(l)};
+const script=(src,test)=>new Promise((resolve,reject)=>{if(test())return resolve();let s=[...document.scripts].find(x=>x.getAttribute('src')===src);if(!s){s=document.createElement('script');s.src=src;document.body.appendChild(s)}const done=()=>test()?resolve():reject(new Error(`Failed to load ${src}`));s.addEventListener('load',done,{once:true});s.addEventListener('error',()=>reject(new Error(`Failed to load ${src}`)),{once:true})});
+(async()=>{try{await wait(()=>window.WorldForgeTechnology&&window.WorldForgeTechnologyUI&&window.WorldForgeWiki&&window.WorldForgeCalendar&&window.WorldForgeCity);css('resource.css');await script('resource-engine.js',()=>window.WorldForgeResources);await script('resource-wiki-adapter.js',()=>window.WorldForgeResourceWiki);await script('resource-ui.js',()=>window.WorldForgeResourceUI);const w=window.WorldForgeTechnologyUI?.state?.world||window.WorldForgeArtifactUI?.state?.world||window.WorldForgeReleaseUI?.state?.world;if(w){window.WorldForgeResources.initialize(w);window.WorldForgeResourceUI.state.world=w;window.WorldForgeResourceUI.render(true)}}catch(e){console.error('WorldForge v1.8 resource bootstrap failed',e)}})();
+})();
