@@ -4,9 +4,9 @@
 
 **Live:** https://mrhakan.github.io/WorldForge/
 
-## Current release — v1.7 Technology, Inventions & Knowledge Diffusion
+## Current release — v1.8 Resources, Agriculture & Supply Chains
 
-WorldForge is a connected emergent-history machine. Geography drives climate; climate changes harvests and markets; societies create wars, faiths, institutions and stories; events leave behind physical objects and written records; and civilizations now **discover, adopt, steal, trade and continuously extend technology across an endless world clock**.
+WorldForge is a connected emergent-history machine. Geography drives climate; climate changes harvests; technology changes productivity and transport; settlements physically produce, consume, stock and exchange commodities; shortages alter prices, prosperity, crime and stability; and those pressures feed back into history, knowledge, artifacts, quests and the Living Wiki.
 
 ### Version line
 
@@ -26,94 +26,102 @@ WorldForge is a connected emergent-history machine. Geography drives climate; cl
 14. **v1.4 Knowledge, Rumours & Lost History** — objective truth, public memory, propaganda, disputed history and rediscovery.
 15. **v1.5 Living Almanac** — calendar, seasons, local weather, harvest pressure and celestial phenomena.
 16. **v1.6 Treasury of Memory** — persistent artifacts, books, provenance, copying, loss, rediscovery and material evidence.
-17. **v1.7 Hall of Discovery** — realm technology, research, adoption, trade/scholarship/espionage diffusion, technology-linked artifacts, printing-driven documentary circulation and open-ended procedural breakthroughs.
+17. **v1.7 Hall of Discovery** — realm technology, adoption, diffusion, printing and endless procedural breakthroughs.
+18. **v1.8 World Market** — physical commodity stocks, production, consumption, prices, shortages, road/sea cargo flows, famine and supply-chain feedback.
 
 ## Living world chain
 
 ```text
-Seed
- └─ Planet / terrain / climate baselines
-     └─ Calendar / seasons / weather / harvests
-         └─ Settlements / realms / roads / markets
-             └─ Population / economy / diplomacy / wars
-                 └─ People / families / dynasties / succession
-                     └─ Cultures / religions / organizations
-                         └─ Cities / crime / hidden economies
-                             └─ Technology / invention / diffusion
-                                 ├─ Agriculture / health / trade / stability
-                                 ├─ Navigation / logistics / warfare / engineering
-                                 ├─ Printing / scholarship / public knowledge
-                                 └─ Artifacts / books / technical records
-                                     ├─ Knowledge / rumours / public memory
-                                     ├─ Ruins / expeditions / rediscovery
-                                     └─ Quests / dialogue / authoring
-                                         └─ Living Canon
-                                             └─ Living Wiki / Chronicle Press
+Seed / geography
+ └─ Climate / calendar / weather
+     └─ Agricultural & mineral suitability
+         └─ Technology / production capability
+             └─ Commodity production
+                 └─ Local inventories & consumption
+                     └─ Prices / shortages / surpluses
+                         └─ Road & maritime supply chains
+                             └─ Food security / market stress
+                                 └─ Prosperity / crime / migration / stability
+                                     └─ Politics / war / history
+                                         └─ Artifacts / knowledge / quests / wiki
 ```
+
+## v1.8 World Market
+
+Every settlement now owns a persistent market rather than inheriting a purely abstract economy. The initial commodity catalog contains:
+
+- Grain
+- Rice
+- Fish
+- Livestock
+- Timber
+- Iron
+- Copper
+- Salt
+- Coal
+- Wine
+
+Each commodity tracks local inventory, production, consumption, imports, exports, shortage and price. Production potential is derived from the settlement's biome, moisture, temperature, elevation, coast/river access and founding resource deposits.
+
+### Agriculture and climate
+
+Grain, rice, livestock and wine respond to the Living Almanac. Crop yield, drought, flood and other weather pressure alter actual output before local consumption is applied. Food security is then calculated from remaining physical reserves across staple commodities.
+
+A bad harvest therefore follows a causal chain:
+
+```text
+Drought
+ → Grain/Rice output falls
+ → Local stock declines
+ → Coverage falls below demand
+ → Price rises
+ → Food security drops
+ → Market stress rises
+ → Prosperity and stability weaken
+ → Unemployment/crime pressure rises
+ → Severe cases become famine history
+```
+
+### Technology and production
+
+v1.7 technology is part of the same calculation. Food technologies improve agricultural production; engineering and metallurgy improve extraction; navigation and trade capabilities increase transport capacity. This means technological divergence now produces real economic divergence between civilizations.
+
+### Supply chains
+
+Roads act as cargo edges. A shipment occurs when one market has usable surplus while a connected market has enough shortage or price pressure. Cargo is physically removed from the exporter and added to the importer, with transport loss.
+
+Coastal settlements can also exchange goods by sea once participating realms possess sufficient navigation capability. War reduces cross-realm transport capacity; city crime also lowers overland logistics efficiency.
+
+The live flow ledger records commodity, origin, destination, quantity, price gap, method and year. Shortages and strong surplus exports can become historical **commodity_shortage**, **famine** and **trade_boom** events.
+
+### Endless-world compatibility
+
+Current markets remain detailed because their stocks affect the next simulation step. Historical annual economic summaries use the same bounded-history strategy as climate, artifacts and technology: old detailed years compact into 250-year archive blocks. Recent cargo flows and shocks are capped while long-run aggregate trends survive.
 
 ## v1.7 Hall of Discovery
 
-Technology exists per realm rather than as a single global unlock list. Each realm maintains its own discoveries, adoption percentages, research progress, diffusion history and long-run innovation domains.
+Technology exists per realm with gradual adoption, research, trade/scholarship/espionage diffusion and open-ended Synthesis breakthroughs. Printing spreads documentary evidence; metallurgy and engineering improve material culture; food, trade and navigation capabilities now feed directly into the v1.8 physical economy.
 
-The foundational technology graph currently covers agriculture, masonry, writing, bronze and iron working, irrigation, engineered roads, currency, medicine, shipbuilding, siege engineering, banking, celestial navigation, universities, agronomic science, printing, scientific cartography, public sanitation, mechanical engineering and oceanic navigation.
+## Knowledge, artifacts and public memory
 
-### Research and diffusion
-
-New knowledge can arrive through:
-
-- independent research driven by prosperity, existing scholarship and institutions
-- road/trade contact with more advanced realms
-- scholarly transmission
-- wartime contact and espionage
-- long-run open innovation after the core technology graph matures
-
-Adoption is gradual. Discovering a technology does not instantly give a realm its full effect; capabilities increase as practices spread through the society.
-
-### Simulation feedback
-
-Technology is connected to the same world state as the rest of the simulation. Adopted knowledge can influence food productivity, population resilience, realm stability, trade, military capability, navigation, engineering, research capacity, idea diffusion and artifact quality.
-
-The **Printing Press** also connects directly to v1.4 and v1.6: a sufficiently adopted print culture can create new scholarly sources from circulating chronicles, maps and other written artifacts. This gives old evidence new geographic reach and can alter the public-memory classification of historical claims.
-
-Higher metallurgy and engineering capability can improve the durability, condition and prestige of newly created historical artifacts. Major discoveries can themselves create technical codices, maps, inscriptions, prototypes and other traceable objects.
-
-### Open-ended innovation
-
-The finite foundational tree is not the end of technological history. Mature realms periodically generate deterministic procedural breakthroughs in domains such as agriculture, metallurgy, medicine, navigation, engineering, scholarship, finance, logistics and governance.
-
-These appear as persistent **Synthesis levels** with diminishing returns. The mechanism means a world at Year 20,000 can still create new technical history instead of becoming permanently saturated after the last named technology.
-
-Old detailed breakthrough records compact into 250-year archive blocks, preserving long-run trends without unbounded memory growth.
-
-## v1.6 Treasury of Memory
-
-Important events create persistent crowns, weapons, banners, relics, coins, treaties, chronicles, letters, maps, inscriptions, codices, charters, journals and ledgers. Objects track ownership, condition, authenticity, provenance, loss, rediscovery, circulation and links to historical claims. Rediscovered objects can become new material evidence and change what civilizations believe about the past.
-
-## v1.5 Living Almanac
-
-The calendar contains twelve named months and 365 days. Settlement climate is derived from geography and produces deterministic weather, harvest stress and celestial events. Climate feeds prosperity, population, city prices, crime pressure, trade and realm stability.
-
-## Knowledge & public memory
-
-Important events become objective claims, but realms learn about them through official records, witnesses, merchants, temples, tavern rumours, propaganda, inscriptions, scholarship, artifacts and now printed documentary circulation. Claims can be **confirmed, disputed, legendary, lost or unknown** depending on the selected realm's surviving evidence.
+History can leave behind persistent books and artifacts; rediscovery can alter public knowledge; printing can spread surviving evidence; and economic crises now become objective events that can later be remembered, disputed, propagandized or forgotten.
 
 ## Main workspaces
 
 - interactive world and historical map layers
-- historical timeline replay and endless absolute clock
-- realm ledger, diplomacy and wars
-- society, rulers, heirs, families and dynasties
-- City Explorer and underworld simulation
-- cultures, religions, organizations and factions
-- procedural Dungeon Studio
-- Quest Graph and Dialogue Tree editors
+- historical replay and endless absolute clock
+- realms, diplomacy and wars
+- society, rulers, families and dynasties
+- cities, businesses, crime and underworld networks
+- cultures, religions, factions and organizations
+- dungeons, quests and dialogue
 - Creator Studio and bidirectional Living Canon
-- adaptive Living Wiki and themed HTML export
-- Heraldry & Chronicle Press
+- adaptive Living Wiki and Chronicle Press
 - Knowledge & Rumours perspective workbench
 - Living Almanac
-- Treasury of Memory and museum catalogue export
-- **Hall of Discovery**, realm technology comparison, diffusion ledger and Technology Chronicle export
+- Treasury of Memory
+- Hall of Discovery
+- **World Market** with commodity board, local market inspection, supply-chain flows, shortage chronicle and Economic Ledger HTML export
 - local save/load and `.worldforge.json` import/export
 
 ## Architecture
@@ -132,13 +140,15 @@ calendar-engine.js           seasons, weather and celestial simulation
 knowledge-engine.js          claims, sources, rumours and public memory
 artifact-engine.js           persistent material culture and written works
 technology-engine.js         research, adoption, diffusion and endless innovation
+resource-engine.js           physical production, inventory, prices and cargo flows
 wiki-engine.js               cross-linked encyclopedia
 artifact-wiki-adapter.js     artifact encyclopedia integration
-technology-wiki-adapter.js   technology and breakthrough encyclopedia integration
+technology-wiki-adapter.js   technology encyclopedia integration
+resource-wiki-adapter.js     commodity and settlement-market encyclopedia integration
 creator-suite-engine.js      authoring toolkit
 canon-bridge-engine.js       authoring ↔ simulation bridge
 living-wiki-engine.js        adaptive historical presentation
-chronicle-press-engine.js    heraldry, era names and generated press
+chronicle-press-engine.js    heraldry, eras and generated press
 renderer.js                  map/historical Canvas rendering
 ```
 
@@ -146,6 +156,6 @@ Browser UI layers are split into matching `*-ui.js` and CSS modules. Later syste
 
 ## Testing and deployment
 
-Every push to `main` runs JavaScript syntax validation plus the complete regression chain from **v0.1 through v1.7** before GitHub Pages deployment. v1.7 tests cover deterministic chunk-independent technology progression, realm capabilities, discovery history, technology-linked artifacts, printing-driven knowledge sources, endless procedural breakthroughs, diminishing returns, wiki integration, archive compaction and save/export round-trips.
+Every push to `main` runs JavaScript syntax validation plus the complete regression chain from **v0.1 through v1.8** before GitHub Pages deployment. v1.8 tests cover deterministic chunk-independent economic simulation, commodity stock/price validity, road cargo flow, physical famine generation, Wiki integration, historical compaction and save/export round-trips.
 
 Everything runs locally in the browser; generated worlds are not uploaded by the application.
