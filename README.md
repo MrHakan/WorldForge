@@ -4,49 +4,57 @@
 
 **Live:** https://mrhakan.github.io/WorldForge/
 
-## Current milestone — v0.3 Society
+## Current milestone — v0.4 Cities & Crime
 
-WorldForge now combines three persistent simulation layers:
+WorldForge now combines four persistent deterministic layers:
 
-1. **v0.1 World Generation** — deterministic terrain, climate, biomes, rivers, resources, settlements, kingdoms and roads.
-2. **v0.2 History** — population, prosperity, migration, trade, diplomacy, alliances, wars, conquest, realm formation/collapse, historical snapshots and chronicle replay.
-3. **v0.3 Society** — named notable people, families, dynastic houses, marriage, children, inheritance, careers, friendships/rivalries, rulers, heirs, claims and succession crises.
+1. **v0.1 World Generation** — terrain, climate, biomes, rivers, resources, settlements, kingdoms and roads.
+2. **v0.2 History** — population, prosperity, migration, trade, diplomacy, wars, conquest, realm formation/collapse and historical replay.
+3. **v0.3 Society** — notable people, families, houses, marriage, inheritance, rulers, heirs, claims and succession crises.
+4. **v0.4 Cities & Crime** — procedural district layouts, local businesses, civic officials, unemployment, prices, guards, corruption, crime, gangs, territory, black markets and named underworld events.
 
-The same seed and generator settings reproduce the same founding world. Integrated history + society simulation uses year-keyed seeded randomness so advancing 300 years at once or in multiple chunks reaches the same deterministic state.
+The same seed and generator settings reproduce the same founding world. History, society and city simulation use year-keyed seeded randomness, so advancing centuries in one call or in multiple chunks reaches the same deterministic state.
 
-## v0.3 systems
+## v0.4 systems
 
-- 50–220 living notable NPCs, with bounded simulation population
-- Age, birth/death years, residence, realm, occupation, status, wealth and prestige
-- Traits and personal ambitions
-- Reciprocal spouse links, parents, children and immediate-family graph
-- Friendship and rivalry networks
-- Ruling, noble, landed and extinct dynastic houses
-- House founders, heads, members and prestige
-- Realm titles with ruler style and succession law
-- Four succession models: absolute primogeniture, male-preference primogeniture, house seniority and council elective
-- Dynamic heirs and ranked claimants
-- Reign history and inheritance on death
-- Succession crises that reduce realm stability
-- Dynastic marriages that can improve inter-realm relations
-- New realms automatically receive a new ruling dynasty
-- Collapsed realms dissolve active titles
-- Existing history events (war, peace, alliance, conquest, crisis) are enriched with named principal figures
-- Society snapshots follow the history timeline for historical replay
-- Save/import/export includes world, history and society in one `.worldforge.json` state
+- Every settlement receives a persistent locality/city model
+- Capital, city, town and village-specific district sets
+- Coastal docks and river wards when geography supports them
+- Deterministic district positions and local road graphs
+- Market, residential, craft, government, temple, wealthy, low-income and outskirts districts
+- 100+ generated businesses in a standard 45-settlement world
+- Business sector, district, tier, owner and health
+- Named magistrate, watch captain and merchant patron selected from v0.3 society NPCs
+- Local population, prosperity, wealth and road trade integration
+- Unemployment and price-index simulation
+- Guard strength and public-order simulation
+- Corruption and black-market indices
+- Dynamic crime rate influenced by economy, war, guards, corruption and gang pressure
+- Persistent organized-crime factions with names, leaders, members, influence, heat, treasury and specialties
+- District territory ownership for gangs
+- Smuggling and extortion activity
+- Gang formation, succession and dissolution
+- Rival factions and turf wars
+- Watch crackdowns and arrest counts
+- Named gang leaders and civic officials attached to shared history events
+- City snapshots synchronized to the historical timeline
+- Save/import/export includes city and underworld state in the `.worldforge.json` file
 
 ## UI
 
-The GitHub Pages app includes the interactive world map and historical timeline from v0.2 plus:
+The GitHub Pages application now includes:
 
-- Society KPI dashboard
-- Throne / ruler / heir / claimant cards
-- Filterable notable-people table
-- Person dossier with traits, ambition, wealth, prestige, spouse, friends and rivals
-- Clickable immediate-family graph
-- Dynasty / house ledger
-- Society-aware chronicle filters and named historical figures
-- Realm ledger linked to current/historical rulers
+- City KPI dashboard
+- Sortable City Explorer
+- Procedural city-plan canvas with district blocks and streets
+- Gang territory overlays on district plans
+- District population, wealth and criminal-attraction inspection
+- Local public-order/economy metrics
+- Named civic power figures
+- Active gang/faction ledger
+- Business ledger with sector, district, owner and tier
+- Crime-related filters in the shared World Chronicle
+- Historical city/underworld replay through the same timeline used by politics and society
 
 ## Architecture
 
@@ -54,22 +62,24 @@ The GitHub Pages app includes the interactive world map and historical timeline 
 engine.js          deterministic geography + base world state
 history-engine.js  aggregate civilization/history simulation
 society-engine.js  notable NPC + family + dynasty simulation
+city-engine.js     locality + economy + law + organized-crime simulation
 renderer.js        Canvas world/historical rendering
+city-ui.js         v0.4 city explorer + integration adapter
 app.js             browser UI orchestration
 ```
 
-`WorldForgeSociety.simulateYears()` is the v0.3 integrated orchestrator: history advances one deterministic year, society processes that same year, dynastic effects feed back into realm stability, and compact snapshots are retained for replay.
+`WorldForgeCity.simulateYears()` is the v0.4 integrated orchestrator. It advances the captured v0.3 society/history simulation one deterministic year at a time and then processes the matching city year. This keeps the three evolving layers synchronized without changing the v0.1 geography contract.
 
 ## Version gates
 
 - **v0.1 — World Generation:** passed
 - **v0.2 — History:** passed
-- **v0.3 — Society:** current
-- **v0.4 — Cities & Crime:** next — detailed city districts, local factions, gangs, corruption and black-market simulation tied to named NPCs
-- **v0.5 — Adventure:** procedural dungeons, ruins, loot and encounters derived from world history
+- **v0.3 — Society:** passed
+- **v0.4 — Cities & Crime:** current
+- **v0.5 — Adventure:** next — procedural dungeons, ruins, hideouts, loot and encounters derived from geography, cities and recorded history
 - **v0.6 — Story Studio:** quest graph, dialogue tree and variables connected to persistent entities
 - **v1.0 — WorldForge:** integrated world wiki, replay and authoring suite
 
 ## Testing and deployment
 
-Pushes to `main` run JavaScript syntax checks and all deterministic regression suites before GitHub Pages deploys. v0.3 CI keeps the v0.1 and v0.2 tests intact and adds long-run society, succession, event-linking, timeline and save/export checks.
+Pushes to `main` run JavaScript syntax checks and every deterministic regression suite before GitHub Pages deploys. v0.4 retains all v0.1–v0.3 tests and adds city-layout integrity, named-role links, long-run crime simulation, gang activity, historical replay, chunk-independence and save/export tests.

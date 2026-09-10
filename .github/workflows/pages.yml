@@ -26,29 +26,37 @@ jobs:
           node --check engine.js
           node --check history-engine.js
           node --check society-engine.js
+          node --check city-engine.js
           node --check renderer.js
+          node --check city-ui.js
           node --check app.js
           node --check tests/worldgen.mjs
           node --check tests/history.mjs
           node --check tests/society.mjs
+          node --check tests/cities.mjs
 
-      - name: Validate v0.3 static app
+      - name: Validate v0.4 static app
         run: |
           test -f index.html
           test -f styles.css
           test -f history.css
           test -f society.css
+          test -f city.css
           test -f engine.js
           test -f history-engine.js
           test -f society-engine.js
+          test -f city-engine.js
           test -f renderer.js
+          test -f city-ui.js
           test -f app.js
-          grep -q "v0.3 · SOCIETY" index.html
-          grep -q "People, Houses & Succession" index.html
-          grep -q "Rulers, Heirs & Claims" index.html
-          grep -q "familyGraph" society-engine.js
-          grep -q "succession_crisis" society-engine.js
-          grep -q "WorldForgeSociety" app.js
+          grep -q "v0.4 · CITIES & CRIME" index.html
+          grep -q "city-engine.js" index.html
+          grep -q "city-ui.js" index.html
+          grep -q "WorldForgeCity" city-engine.js
+          grep -q "gang_war" city-engine.js
+          grep -q "districts" city-engine.js
+          grep -q "Cities, Economy & Public Order" city-ui.js
+          grep -q "Gangs, Territory & Black Markets" city-ui.js
 
       - name: Run v0.1 deterministic world-generation tests
         run: node tests/worldgen.mjs
@@ -58,6 +66,9 @@ jobs:
 
       - name: Run v0.3 deterministic society regression tests
         run: node tests/society.mjs
+
+      - name: Run v0.4 deterministic cities and crime regression tests
+        run: node tests/cities.mjs
 
   deploy:
     needs: validate
