@@ -1,0 +1,23 @@
+(function(root){
+'use strict';
+const W=root.WorldForgeWiki,A=root.WorldForgeArtifacts,K=root.WorldForgeKnowledge;
+if(!W||!A||W.__artifactAdapter)return;
+W.__artifactAdapter=true;
+if(!W.TYPES.includes('artifact'))W.TYPES.push('artifact');
+const base={buildIndex:W.buildIndex.bind(W),search:W.search.bind(W),article:W.article.bind(W),related:W.related.bind(W),chronology:W.chronology.bind(W),dashboard:W.dashboard.bind(W),exportMarkdown:W.exportMarkdown.bind(W),validateWiki:W.validateWiki.bind(W)};
+const uniq=a=>[...new Set(a.filter(Boolean))];
+function yearOf(world,year){if(year==null)return A.absYear(world);const n=Number(year);return Number.isFinite(n)?n:A.absYear(world)}
+function row(world,item,year){const d=A.detail(world,item.id),status=item.status==='lost'?'LOST':item.status==='destroyed'?'DESTROYED':'EXTANT',refs=uniq([...(item.refs||[]),item.ownerType&&item.ownerId!=null?`${item.ownerType}:${item.ownerId}`:null,item.siteId!=null?`site:${item.siteId}`:null]);return{ref:`artifact:${item.id}`,type:'artifact',id:item.id,title:item.name,subtitle:`${status} ${item.kind}${item.written?` · ${item.copies} known ${item.copies===1?'copy':'copies'}`:''}`,summary:item.contents?`${item.contents.slice(0,260)}${item.forgery?' Material analysis raises authenticity concerns.':''}`:`A ${item.material} ${item.kind} created in Year ${item.createdYear}. Current custody: ${d?.ownerLabel||'unknown'}.`,tags:uniq(['artifact',item.kind,item.written?'written work':'material culture',item.status,item.forgery?'possible forgery':null]),refs,year:item.createdYear,data:{status:item.status,kind:item.kind,written:item.written,owner:d?.ownerLabel||'',prestige:item.prestige,condition:item.condition,authenticity:item.authenticity,copies:item.copies,claimKeys:[...(item.claimKeys||[])],provenance:[...(item.provenance||[])]}}}
+function artifactRows(world,year=null){const y=yearOf(world,year);return A.list(world,{year:y}).map(x=>row(world,x,y))}
+function buildIndex(world,year=null){return[...base.buildIndex(world,year),...artifactRows(world,year)]}
+function score(a,q){if(!q)return 1;const s=String(q).trim().toLowerCase(),terms=s.split(/\s+/),title=String(a.title).toLowerCase(),body=`${a.subtitle||''} ${a.summary||''} ${(a.tags||[]).join(' ')}`.toLowerCase();return terms.reduce((n,t)=>n+(title===t?20:0)+(title.includes(t)?8:0)+(body.includes(t)?2:0),0)}
+function search(world,q='',options={}){const type=options.type&&options.type!=='all'?options.type:null,limit=Math.max(1,Math.min(300,Number(options.limit)||60)),rows=buildIndex(world,options.year);return rows.filter(a=>!type||a.type===type).map(a=>({a,n:score(a,q)})).filter(x=>!String(q).trim()||x.n>0).sort((x,y)=>y.n-x.n||y.a.year-x.a.year||x.a.title.localeCompare(y.a.title)).slice(0,limit).map(x=>x.a)}
+function article(world,ref,year=null){return buildIndex(world,year).find(a=>a.ref===ref)||null}
+function related(world,ref,year=null,limit=30){const idx=buildIndex(world,year),map=new Map(idx.map(x=>[x.ref,x])),a=map.get(ref);if(!a)return[];const direct=(a.refs||[]).map(r=>map.get(r)).filter(Boolean),back=idx.filter(x=>(x.refs||[]).includes(ref));return[...new Map([...direct,...back].map(x=>[x.ref,x])).values()].slice(0,limit)}
+function chronology(world,ref,year=null){if(!String(ref).startsWith('artifact:'))return base.chronology(world,ref,year);const item=A.find(world,Number(String(ref).split(':')[1]));if(!item)return[];return(item.provenance||[]).filter(p=>year==null||p.year<=Number(year)).map((p,i)=>({year:p.year,type:`artifact_${p.action}`,title:`${item.name}: ${p.action.replaceAll('_',' ')}`,text:p.note||`${p.from||'Unknown'} → ${p.to||'Unknown'}`,ref:`artifact-provenance:${item.id}:${i}`}))}
+function dashboard(world,year=null){const d=base.dashboard(world,year),rows=artifactRows(world,year);d.total+=rows.length;d.counts={...d.counts,artifact:rows.length};d.artifacts=A.summary(world);return d}
+function exportMarkdown(world,year=null){const rows=artifactRows(world,year);if(!rows.length)return base.exportMarkdown(world,year);return`${base.exportMarkdown(world,year)}\n\n## Artifacts & Written Works (${rows.length})\n${rows.slice(0,800).map(a=>`- **${a.title}** — ${a.subtitle}. ${a.summary}`).join('\n')}`}
+function validateWiki(world){const errors=[...base.validateWiki(world)];for(const a of artifactRows(world))if(!a.title||a.ref==null)errors.push('artifact wiki row');return[...new Set(errors)]}
+W.buildIndex=buildIndex;W.search=search;W.article=article;W.related=related;W.chronology=chronology;W.dashboard=dashboard;W.exportMarkdown=exportMarkdown;W.validateWiki=validateWiki;
+root.WorldForgeArtifactWiki={version:'1.6.0',artifactRows,buildIndex};
+})(typeof window!=='undefined'?window:globalThis);
