@@ -17,3 +17,13 @@ const proto=window.WorldRenderer.prototype,oldSet=proto.setWorld,oldHist=proto.s
 setInterval(()=>render(false),1300);setTimeout(()=>render(true),140);
 window.WorldForgeKnowledgeUI={version:'1.4.0',state,render,exportPerspective};
 })();
+
+// v1.5 Living Almanac loader. Calendar wraps the pre-endless simulation chain,
+// then becomes Endless Core's base simulator so both normal and +10,000-year
+// asynchronous runs receive deterministic climate feedback year by year.
+(()=>{
+  if(typeof document==='undefined'||window.WorldForgeCalendarUI)return;
+  const addStyle=href=>{if(document.querySelector(`link[href="${href}"]`))return;const l=document.createElement('link');l.rel='stylesheet';l.href=href;document.head.appendChild(l)};
+  const load=(src,globalName)=>new Promise((resolve,reject)=>{if(window[globalName])return resolve(window[globalName]);let s=[...document.scripts].find(x=>x.getAttribute('src')===src);if(!s){s=document.createElement('script');s.src=src;document.head.appendChild(s)}let n=0;const t=setInterval(()=>{if(window[globalName]){clearInterval(t);resolve(window[globalName])}else if(++n>180){clearInterval(t);reject(new Error(`Timed out loading ${globalName}`))}},25)});
+  (async()=>{try{addStyle('calendar.css');await load('calendar-engine.js','WorldForgeCalendar');await load('calendar-ui.js','WorldForgeCalendarUI');const w=window.WorldForgeKnowledgeUI?.state?.world||window.WorldForgeReleaseUI?.state?.world;if(w){window.WorldForgeCalendar.initialize(w);window.WorldForgeCalendarUI.state.world=w;window.WorldForgeCalendarUI.render(true)}}catch(e){console.error('Living Almanac bootstrap failed',e)}})();
+})();
