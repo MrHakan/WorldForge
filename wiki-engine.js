@@ -1,0 +1,1 @@
+(function(root){'use strict';if(root&&!root.WorldForgeWiki)root.WorldForgeWiki=null;})(typeof window!=='undefined'?window:globalThis);
