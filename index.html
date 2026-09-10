@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#10130f">
+  <meta name="description" content="WorldForge — procedural world, civilization and story simulation studio.">
+  <title>WorldForge · v0.1 World Generation</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div class="app-shell">
+  <header class="topbar">
+    <div class="brand">
+      <div class="brand-mark">WF</div>
+      <div>
+        <h1>WorldForge</h1>
+        <p>Procedural World, Civilization & Story Simulation Studio</p>
+      </div>
+    </div>
+    <div class="version-pill">v0.1 · WORLD GENERATION</div>
+    <div class="top-actions">
+      <button id="saveBtn">Save</button>
+      <button id="loadBtn">Load</button>
+      <button id="exportBtn">Export World</button>
+      <label class="file-button">Import World<input id="importInput" type="file" accept=".json,application/json"></label>
+    </div>
+  </header>
+
+  <main class="layout">
+    <section class="panel generator-panel">
+      <div class="panel-head">
+        <div><span class="eyebrow">GENERATOR</span><h2>Forge a New World</h2></div>
+        <button id="randomSeedBtn" class="tiny">Random Seed</button>
+      </div>
+      <div class="form-stack">
+        <label>World seed
+          <div class="inline-input"><input id="seedInput" value="EMBER-CROWN-01" spellcheck="false"><button id="copySeedBtn" title="Copy seed">Copy</button></div>
+        </label>
+        <div class="grid-2">
+          <label>Map width
+            <select id="widthInput">
+              <option value="120">120</option>
+              <option value="160" selected>160</option>
+              <option value="200">200</option>
+            </select>
+          </label>
+          <label>Map height
+            <select id="heightInput">
+              <option value="70">70</option>
+              <option value="90" selected>90</option>
+              <option value="112">112</option>
+            </select>
+          </label>
+          <label>Sea level
+            <input id="seaLevelInput" type="range" min="0.40" max="0.66" step="0.01" value="0.53">
+            <small id="seaLevelValue">0.53</small>
+          </label>
+          <label>World age
+            <select id="ageInput">
+              <option value="young">Young · rugged</option>
+              <option value="mature" selected>Mature · balanced</option>
+              <option value="ancient">Ancient · eroded</option>
+            </select>
+          </label>
+          <label>Settlements
+            <input id="settlementInput" type="range" min="20" max="90" step="5" value="45">
+            <small id="settlementValue">45</small>
+          </label>
+          <label>Kingdoms
+            <input id="kingdomInput" type="range" min="3" max="12" step="1" value="7">
+            <small id="kingdomValue">7</small>
+          </label>
+        </div>
+        <button id="generateBtn" class="primary wide">FORGE WORLD</button>
+        <p class="help">The same seed and generator settings always reproduce the same starting world.</p>
+      </div>
+    </section>
+
+    <section class="panel map-panel">
+      <div class="panel-head map-head">
+        <div>
+          <span class="eyebrow">WORLD MAP</span>
+          <h2 id="worldName">Unforged World</h2>
+        </div>
+        <div class="map-actions">
+          <button class="map-mode active" data-mode="political">Political</button>
+          <button class="map-mode" data-mode="biome">Biomes</button>
+          <button class="map-mode" data-mode="elevation">Elevation</button>
+          <button class="map-mode" data-mode="temperature">Temperature</button>
+          <button class="map-mode" data-mode="moisture">Moisture</button>
+        </div>
+      </div>
+      <div id="mapWrap" class="map-wrap">
+        <canvas id="worldCanvas" width="1280" height="720" aria-label="Procedural fantasy world map"></canvas>
+        <div class="map-hint"><b>MOVE</b> drag / WASD / arrows <span>·</span> <b>ZOOM</b> wheel / pinch</div>
+        <div class="map-controls">
+          <button id="zoomOutBtn">−</button><span id="zoomLabel">100%</span><button id="zoomInBtn">+</button><button id="centerBtn">Center</button>
+        </div>
+        <div id="mapTooltip" class="map-tooltip hidden"></div>
+        <div class="legend" id="legend"></div>
+      </div>
+    </section>
+
+    <section class="panel summary-panel">
+      <div class="panel-head"><div><span class="eyebrow">WORLD SUMMARY</span><h2>Generated State</h2></div><span id="landBadge" class="badge">—</span></div>
+      <div class="summary-kpis">
+        <div><span>LAND</span><b id="landPct">—</b><small>of map</small></div>
+        <div><span>RIVERS</span><b id="riverCount">—</b><small>systems</small></div>
+        <div><span>SETTLEMENTS</span><b id="settlementCount">—</b><small>inhabited places</small></div>
+        <div><span>KINGDOMS</span><b id="kingdomCount">—</b><small>political realms</small></div>
+      </div>
+      <div id="worldNarrative" class="narrative">Forge a world to begin.</div>
+      <div class="biome-bars" id="biomeBars"></div>
+    </section>
+
+    <section class="panel kingdoms-panel">
+      <div class="panel-head"><div><span class="eyebrow">REALMS</span><h2>Kingdom Ledger</h2></div><span class="muted-note">Founding state only · history begins in v0.2</span></div>
+      <div id="kingdomList" class="kingdom-list"><div class="empty">No kingdoms yet.</div></div>
+    </section>
+
+    <section class="panel places-panel">
+      <div class="panel-head">
+        <div><span class="eyebrow">SETTLEMENTS</span><h2>Places of Note</h2></div>
+        <div class="filters">
+          <select id="settlementFilter"><option value="all">All kingdoms</option></select>
+          <select id="settlementSort"><option value="score">Best sites</option><option value="population">Largest</option><option value="name">Name</option></select>
+        </div>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>PLACE</th><th>REALM</th><th>TYPE</th><th>BIOME</th><th>POP.</th><th>SITE SCORE</th></tr></thead>
+          <tbody id="settlementTable"><tr><td colspan="6" class="empty">No settlements yet.</td></tr></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="panel architecture-panel">
+      <div class="panel-head"><div><span class="eyebrow">SIMULATION FOUNDATION</span><h2>World State Contract</h2></div><span class="status-ready">v0.1 READY</span></div>
+      <div class="architecture-grid">
+        <div><b>Terrain Layers</b><span>Elevation · temperature · moisture · biome · rivers · resources</span></div>
+        <div><b>Political Layer</b><span>Kingdom IDs · capitals · settlement ownership · founding borders</span></div>
+        <div><b>Transport Layer</b><span>Road graph between settlements and capitals</span></div>
+        <div><b>Versioned State</b><span>Schema v1 · deterministic seed · JSON save/export</span></div>
+      </div>
+      <p class="help">The v0.2 history engine can consume this state without regenerating the world: population, economy, diplomacy, war and timeline events will layer onto the existing entities.</p>
+    </section>
+  </main>
+
+  <footer>
+    <span>WorldForge v0.1 · World Generation</span>
+    <span>All generation runs locally in your browser. No world data is uploaded.</span>
+  </footer>
+</div>
+
+<div id="toast" class="toast"></div>
+<script src="engine.js"></script>
+<script src="renderer.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

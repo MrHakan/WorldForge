@@ -1,0 +1,64 @@
+name: Deploy WorldForge to Pages
+
+on:
+  push:
+    branches: ["main"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Check JavaScript syntax
+        run: |
+          node --check engine.js
+          node --check renderer.js
+          node --check app.js
+          node --check tests/worldgen.mjs
+
+      - name: Validate v0.1 static app
+        run: |
+          test -f index.html
+          test -f styles.css
+          test -f engine.js
+          test -f renderer.js
+          test -f app.js
+          grep -q "v0.1 · WORLD GENERATION" index.html
+          grep -q "World State Contract" index.html
+          grep -q "generateWorld" engine.js
+          grep -q "serialize" engine.js
+          grep -q "deserialize" engine.js
+
+      - name: Run deterministic world-generation tests
+        run: node tests/worldgen.mjs
+
+  deploy:
+    needs: validate
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: "."
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
