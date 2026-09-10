@@ -47,6 +47,7 @@ jobs:
           node --check technology-wiki-adapter.js
           node --check technology-loader.js
           node --check resource-engine.js
+          node --check resource-calibration.js
           node --check resource-wiki-adapter.js
           node --check resource-loader.js
           node --check renderer.js
@@ -91,6 +92,7 @@ jobs:
           test -f index.html
           test -f technology-engine.js
           test -f resource-engine.js
+          test -f resource-calibration.js
           test -f resource-wiki-adapter.js
           test -f resource-loader.js
           test -f resource-ui.js
@@ -99,10 +101,11 @@ jobs:
           grep -q "Grain" resource-engine.js
           grep -q "commodity_shortage" resource-engine.js
           grep -q "trade_boom" resource-engine.js
+          grep -q "BALANCE_VERSION='1.8.1'" resource-calibration.js
           grep -q "The World Market" resource-ui.js
           grep -q "Export Economic Ledger" resource-ui.js
           grep -q "WorldForgeResourceWiki" resource-wiki-adapter.js
-          grep -q "WorldForgeTechnology" resource-loader.js
+          grep -q "resource-calibration.js" resource-loader.js
           grep -q "technology-loader.js" .github/workflows/pages.yml
           grep -q "resource-loader.js" .github/workflows/pages.yml
           ! grep -q 'id="targetYearInput"[^>]*max="5000"' index.html
