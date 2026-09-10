@@ -40,6 +40,9 @@ jobs:
           node --check knowledge-engine.js
           node --check knowledge-wiki-adapter.js
           node --check calendar-engine.js
+          node --check artifact-engine.js
+          node --check artifact-wiki-adapter.js
+          node --check artifact-loader.js
           node --check renderer.js
           node --check city-ui.js
           node --check worldforge-v1-ui.js
@@ -54,6 +57,7 @@ jobs:
           node --check chronicle-press-ui.js
           node --check knowledge-ui.js
           node --check calendar-ui.js
+          node --check artifact-ui.js
           node --check app.js
           node --check tests/worldgen.mjs
           node --check tests/history.mjs
@@ -71,22 +75,24 @@ jobs:
           node --check tests/chronicle-press.mjs
           node --check tests/knowledge.mjs
           node --check tests/calendar.mjs
-      - name: Validate v1.5 Calendar Seasons Weather and Celestial static app
+          node --check tests/artifacts.mjs
+      - name: Validate v1.6 Artifacts Books and Written Works static app
         run: |
           test -f index.html
           test -f calendar-engine.js
-          test -f calendar-ui.js
-          test -f calendar.css
-          test -f knowledge-engine.js
-          grep -q "WorldForgeCalendar" calendar-engine.js
-          grep -q "Firstdawn" calendar-engine.js
-          grep -q "climateOscillation" calendar-engine.js
-          grep -q "foodStress" calendar-engine.js
-          grep -q "Great comet" calendar-engine.js
-          grep -q "The Living Almanac" calendar-ui.js
-          grep -q "Export Almanac HTML" calendar-ui.js
-          grep -q "calendar-engine.js" knowledge-ui.js
-          grep -q "calendar-ui.js" knowledge-ui.js
+          test -f artifact-engine.js
+          test -f artifact-wiki-adapter.js
+          test -f artifact-loader.js
+          test -f artifact-ui.js
+          test -f artifact.css
+          grep -q "WorldForgeArtifacts" artifact-engine.js
+          grep -q "artifact_rediscovered" artifact-engine.js
+          grep -q "copyMilestones" artifact-engine.js
+          grep -q "materialEvidence" artifact-engine.js
+          grep -q "The Treasury of Memory" artifact-ui.js
+          grep -q "Export Museum Catalogue" artifact-ui.js
+          grep -q "WorldForgeArtifactWiki" artifact-wiki-adapter.js
+          grep -q "WorldForgeCalendar" artifact-loader.js
           grep -q "WorldForgeKnowledge" knowledge-engine.js
           ! grep -q 'id="targetYearInput"[^>]*max="5000"' index.html
       - name: Run v0.1 deterministic world-generation tests
@@ -121,6 +127,8 @@ jobs:
         run: node tests/knowledge.mjs
       - name: Run v1.5 calendar seasons weather and celestial tests
         run: node tests/calendar.mjs
+      - name: Run v1.6 artifacts books and written works tests
+        run: node tests/artifacts.mjs
 
   deploy:
     needs: validate
@@ -131,6 +139,16 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+      - name: Assemble v1.6 runtime entrypoint
+        run: |
+          python - <<'PY'
+          p='index.html'
+          s=open(p,encoding='utf-8').read()
+          tag='<script src="artifact-loader.js"></script>\n'
+          if tag not in s:
+              s=s.replace('</body>',tag+'</body>')
+          open(p,'w',encoding='utf-8').write(s)
+          PY
       - name: Setup Pages
         uses: actions/configure-pages@v5
       - name: Upload artifact
