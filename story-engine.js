@@ -1,0 +1,1 @@
+(function(root){'use strict';if(root&&!root.WorldForgeStory)root.WorldForgeStory=null;})(typeof window!=='undefined'?window:globalThis);
