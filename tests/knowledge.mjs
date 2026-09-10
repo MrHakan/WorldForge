@@ -22,9 +22,9 @@ assert.ok(realmOne.sources.some(s=>s.kind==='propaganda'),'realm perspective mus
 const article=K.articleKnowledge(world,'realm:0',0,80);assert.ok(article.claims.length>=1,'encyclopedia entities must expose epistemic claims');
 const beforeDocs=world.creatorSuite.documents.length;const q=K.createInvestigationQuest(world,claim.key,1);assert.ok(q,'a disputed history claim must be promotable to an investigation quest');assert.ok(world.creatorSuite.documents.length>beforeDocs,'investigation hook must enter Creator Studio');
 const minor={id:world.history.events.length,year:0,absoluteYear:60,type:'diplomacy',importance:1,settlementIds:[2],title:'The Missing Envoy',text:'A minor envoy disappears on a winter road.'};world.history.events.push(minor);K.sync(world);const minorClaim=world.knowledge.claims.find(c=>c.trueTitle==='The Missing Envoy');assert.ok(minorClaim,'minor history must also enter public memory');
-// A single oral tradition should age into legend rather than remaining certain forever.
+// A lone oral tradition must decay out of certainty: first legend, eventually possibly lost.
 const keep=world.knowledge.sources.filter(s=>s.claimKey!==minorClaim.key);world.knowledge.sources=keep;minorClaim.sourceIds=[];world.knowledge.sources.forEach((s,i)=>s.id=i);for(const c of world.knowledge.claims.filter(c=>c.key!==minorClaim.key))c.sourceIds=world.knowledge.sources.filter(s=>s.claimKey===c.key).map(s=>s.id);K.addSource(world,minorClaim.key,{kind:'tavern',reliability:.34,archiveStrength:.03,text:'Only a road song remembers the envoy.'});
-const legendary=K.viewClaim(world,minorClaim.key,0,700);assert.equal(legendary.status,'legendary','poorly sourced old history should become legendary');
+const faded=K.viewClaim(world,minorClaim.key,0,700);assert.ok(['legendary','lost'].includes(faded.status),'poorly sourced old history must decay into legend or be lost');assert.notEqual(faded.status,'confirmed','poorly sourced old history must not remain confirmed forever');
 // Endless-history compatibility: old detailed claims compact into bounded era summaries.
 world.endless={epochOffset:1500,absoluteYear:1500};world.knowledge.settings.retainYears=400;
 for(const [y,title] of [[100,'Old Border Oath'],[300,'Forgotten Toll War'],[600,'The Broken Census']])world.history.events.push({id:world.history.events.length,year:0,absoluteYear:y,type:'crisis',importance:2,realmIds:[0],settlementIds:[0],title,text:`${title} survives in old registers.`});
@@ -32,4 +32,4 @@ K.sync(world);assert.ok(world.knowledge.archives.length>=1,'ancient claims must 
 assert.deepEqual(K.validate(world),[],'knowledge state must validate');
 const fp=K.fingerprint(world),restored=E.deserialize(E.serialize(world));K.initialize(restored);assert.deepEqual(K.validate(restored),[],'knowledge state must survive world save/export');assert.equal(K.fingerprint(restored),fp,'knowledge fingerprint must survive save/export round-trip');
 console.log('WorldForge v1.4 Knowledge, Rumours & Lost History regression tests passed.');
-console.log(JSON.stringify({claims:world.knowledge.claims.length,sources:world.knowledge.sources.length,archives:world.knowledge.archives.length,archived:world.knowledge.stats.claimsArchived,propaganda:world.knowledge.stats.propagandaSources,fingerprint:fp}));
+console.log(JSON.stringify({claims:world.knowledge.claims.length,sources:world.knowledge.sources.length,archives:world.knowledge.archives.length,archived:world.knowledge.stats.claimsArchived,propaganda:world.knowledge.stats.propagandaSources,fadedStatus:faded.status,fingerprint:fp}));
