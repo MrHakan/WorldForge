@@ -4,9 +4,9 @@
 
 **Live:** https://mrhakan.github.io/WorldForge/
 
-## Current release — v1.5 Calendar, Seasons, Weather & Celestial System
+## Current release — v1.6 Artifacts, Books & Written Works
 
-WorldForge is a connected emergent-history machine: geography drives climate, climate affects harvests and prices, those pressures feed society and politics, and the resulting events become history, rumours, canon, quests and adaptive wiki material.
+WorldForge is a connected emergent-history machine. Geography drives climate; climate changes harvests and markets; societies create wars, faiths, institutions and stories; and those events can now leave behind **physical objects and written records with their own multi-century histories**.
 
 ### Version line
 
@@ -24,7 +24,8 @@ WorldForge is a connected emergent-history machine: geography drives climate, cl
 12. **v1.2 Living Wiki** — adaptive encyclopedia themes derived from war, prosperity, religion, crime, scholarship and deep world age; standalone themed HTML export.
 13. **v1.3 Heraldry & Chronicle Press** — deterministic realm heraldry, war banners, dynamic era names, themed map frames and automatic newspapers/chronicles.
 14. **v1.4 Knowledge, Rumours & Lost History** — source provenance, witnesses, merchant letters, temple records, tavern rumours, propaganda, inscriptions, realm-specific public memory, disputed history, legends and investigation quests.
-15. **v1.5 Living Almanac** — custom 365-day calendar, hemispheric seasons, latitude/elevation/biome-driven local climate, monthly weather, daylight, harvest yield, drought/flood/storm/winter/heat events, moon phases, eclipses, comets, auroras and climate-to-economy feedback.
+15. **v1.5 Living Almanac** — custom 365-day calendar, hemispheric seasons, local climate, monthly weather, daylight, harvest yield, extreme weather, moon phases, eclipses, comets, auroras and climate-to-economy feedback.
+16. **v1.6 Treasury of Memory** — persistent crowns, weapons, banners, relics, coins, treaties, chronicles, letters, maps, inscriptions, codices, charters, journals and ledgers with custody, copying, loss, rediscovery, authenticity and evidentiary history.
 
 ## Living world chain
 
@@ -37,30 +38,71 @@ Seed
                  └─ People / families / dynasties / succession
                      └─ Cultures / religions / organizations
                          └─ Cities / crime / hidden economies
-                             └─ Ruins / dungeons / expeditions / loot
-                                 └─ Quests / dialogue / authoring
-                                     └─ Living Canon
-                                         └─ Living Wiki / Chronicle Press
-                                             └─ Knowledge / rumours / lost history
+                             └─ Ruins / dungeons / expeditions
+                                 └─ Artifacts / books / provenance
+                                     ├─ Knowledge / rumours / public memory
+                                     └─ Quests / dialogue / authoring
+                                         └─ Living Canon
+                                             └─ Living Wiki / Chronicle Press
 ```
 
-## v1.5 Living Almanac
+## v1.6 Treasury of Memory
 
-The calendar uses twelve named months and 365 days. Each settlement receives a persistent climate profile derived from latitude, elevation, biome, moisture, temperature, river proximity and coastal exposure. Monthly weather is deterministic from world seed + absolute year + settlement + month, so reopening or replaying the same world produces the same almanac.
+Important simulation events can create persistent historical objects. A war may leave behind a ceremonial weapon, banner, journal or chronicle; a peace can create a treaty; a realm foundation can create a charter or crown; a schism can produce a codex, inscription or relic; an expedition can create a journal or survey map.
 
-Annual climate state includes temperature and precipitation anomalies, crop yield, food stress and local extreme-weather indices. Severe conditions become actual history events: droughts, floods, great storms, harsh winters, heatwaves and exceptional harvests. The celestial model adds moon phase/illumination, daylight length, solar eclipses, great comets and auroras.
+Artifacts are not static loot entries. Every detailed object tracks:
 
-Climate is part of the simulation loop rather than presentation only. Harvest stress can reduce settlement prosperity and population, raise city prices and unemployment, increase crime pressure, reduce trade and weaken realm stability. Eclipses and comets can also nudge religious fervor. The next simulated year therefore starts from a world already changed by the previous year's weather.
+- creation year, origin, creator, culture and faith context
+- owner and custody state
+- prestige, material, condition, durability and authenticity
+- possible forgery status
+- event/entity references
+- complete recent provenance trail
+- associated objective knowledge claims
+- loss site and later rediscovery
+- circulation realms and copy count for written works
 
-The Living Almanac UI offers settlement and date selection, a twelve-month climate view, a celestial docket, climate chronicle and standalone HTML almanac export.
+### Custody and rediscovery
+
+Objects can move between people, realms, settlements, organizations and adventure sites. A bearer can die and pass an object back into institutional custody; conflict can turn objects into trophies; old objects can disappear into ruins; discovered sites can later return them to the world.
+
+Rediscovering an object creates a real historical event and can add a new **material-evidence source** to the Knowledge & Rumours engine. This means archaeology can change what a civilization believes about its own past instead of merely adding flavor text.
+
+```text
+Historical event
+      ↓
+Artifact / written work
+      ↓
+Ownership / copying / inheritance
+      ↓
+Loss or political upheaval
+      ↓
+Ruin / hidden archive
+      ↓
+Rediscovery
+      ↓
+New material evidence
+      ↓
+Public-memory classification changes
+      ↓
+Wiki / investigation quest / canon consequences
+```
+
+Written works can spread through copying. Important circulation thresholds create additional documentary traditions in the knowledge graph, while authenticity and provenance affect how credible the record is.
 
 ### Endless-world compatibility
 
-Detailed climate summaries use a rolling retention window. Older annual weather is compacted into 250-year climate archive blocks rather than accumulating forever. The climate engine uses absolute years and the original world seed, so epoch rebasing does not repeat weather cycles or random streams. Endless Core delegates normal and asynchronous long-run simulation through the climate wrapper, preserving the same feedback model during +10,000-year runs.
+WorldForge does not keep every disposable object at full fidelity forever. Old low-prestige lost or destroyed artifacts are compacted into 250-year archive summaries when the detailed-object budget is exceeded. Important/high-prestige objects remain individually traceable. The result is a persistent material history without linear memory growth over endless-world runs.
+
+## v1.5 Living Almanac
+
+The calendar contains twelve named months and 365 days. Every settlement receives a deterministic climate profile derived from latitude, elevation, biome, moisture, temperature, river proximity and coastal exposure. Severe weather affects harvests, prosperity, prices, population, trade, crime pressure and realm stability, while celestial events can influence religious fervor.
+
+Detailed climate history also uses a rolling retention window and ancient archive summaries so long-run simulation remains bounded.
 
 ## Knowledge & public memory
 
-Important historical events can become objective claims, but realms learn about them through official records, witnesses, merchant letters, temple chronicles, tavern rumours, propaganda, inscriptions and scholarship. A claim can be **confirmed, disputed, legendary, lost or unknown** depending on the selected realm's surviving evidence. The GM Truth Lens reveals objective simulation truth; uncertain claims can become investigation quests.
+Important events become objective claims, but realms learn about them through official records, witnesses, merchant letters, temple chronicles, tavern rumours, propaganda, inscriptions, scholarship and now **surviving artifacts/written works**. Claims can be **confirmed, disputed, legendary, lost or unknown** depending on the selected realm's evidence. The GM Truth Lens reveals objective simulation truth; uncertain claims can become investigation quests.
 
 ## Main workspaces
 
@@ -78,6 +120,7 @@ Important historical events can become objective claims, but realms learn about 
 - Heraldry & Chronicle Press with generated historical newspapers
 - Knowledge & Rumours perspective workbench
 - Living Almanac with local seasonal weather and celestial events
+- **Treasury of Memory** with artifact search, evidence, provenance and museum-catalogue export
 - local save/load and `.worldforge.json` import/export
 
 ## Architecture
@@ -93,7 +136,9 @@ adventure-engine.js          historical sites and dungeon graphs
 story-engine.js              quests, dialogue and story variables
 endless-engine.js            absolute clock, rebasing and compaction
 calendar-engine.js           seasons, local climate, weather and celestial simulation
+artifact-engine.js           persistent material culture and written works
 wiki-engine.js               cross-linked encyclopedia
+artifact-wiki-adapter.js     artifact encyclopedia/provenance integration
 creator-suite-engine.js      authoring toolkit
 canon-bridge-engine.js       authoring ↔ simulation bridge
 living-wiki-engine.js        adaptive historical presentation
@@ -102,10 +147,10 @@ knowledge-engine.js          claims, sources, rumours and public memory
 renderer.js                  map/historical Canvas rendering
 ```
 
-Browser UI layers are split into matching `*-ui.js` and CSS modules. Compatibility adapters bridge later systems into the original static app without requiring a backend or build step.
+Browser UI layers are split into matching `*-ui.js` and CSS modules. Later systems are loaded through compatibility/bootstrap layers so the project remains a static GitHub Pages application with no backend or build framework.
 
 ## Testing and deployment
 
-Every push to `main` runs JavaScript syntax validation plus the complete regression chain from **v0.1 through v1.5** before GitHub Pages deployment. Tests cover deterministic generation, history, society, cities/crime, adventure, story, culture/religion, factions, endless simulation, authoring, canon, adaptive wiki themes, heraldry/press, knowledge propagation, climate feedback, calendar/celestial behavior, compaction and save/export round-trips.
+Every push to `main` runs JavaScript syntax validation plus the complete regression chain from **v0.1 through v1.6** before GitHub Pages deployment. Tests cover deterministic generation, history, society, cities/crime, adventure, story, culture/religion, factions, endless simulation, authoring, canon, adaptive wiki themes, heraldry/press, public-memory propagation, climate feedback, calendar/celestial behavior, artifact creation, ownership, loss, rediscovery, knowledge evidence, provenance, bounded compaction and save/export round-trips.
 
 Everything runs locally in the browser; generated worlds are not uploaded by the application.
