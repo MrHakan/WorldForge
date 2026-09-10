@@ -33,13 +33,18 @@ jobs:
           node --check faction-engine.js
           node --check endless-engine.js
           node --check creator-suite-engine.js
+          node --check canon-bridge-engine.js
+          node --check canon-wiki-adapter.js
           node --check renderer.js
           node --check city-ui.js
           node --check worldforge-v1-ui.js
           node --check culture-ui.js
           node --check faction-ui.js
           node --check endless-ui.js
+          node --check release-integration.js
+          node --check release-ui.js
           node --check creator-suite-ui.js
+          node --check canon-bridge-ui.js
           node --check app.js
           node --check tests/worldgen.mjs
           node --check tests/history.mjs
@@ -52,26 +57,26 @@ jobs:
           node --check tests/factions.mjs
           node --check tests/endless.mjs
           node --check tests/creator-suite.mjs
-      - name: Validate v1.0 Creator Studio static app
+          node --check tests/canon-bridge.mjs
+      - name: Validate v1.1 Living Canon static app
         run: |
           test -f index.html
           test -f endless-engine.js
-          test -f endless-ui.js
-          test -f endless.css
           test -f creator-suite-engine.js
           test -f creator-suite-ui.js
           test -f creator-suite.css
-          grep -q "creator-suite-engine.js" endless-ui.js
-          grep -q "creator-suite-ui.js" endless-ui.js
-          grep -q "v1.0 · CREATOR STUDIO" endless-ui.js
-          grep -q "WorldForgeCreatorSuite" creator-suite-engine.js
-          grep -q "Worldbuilding Studio" creator-suite-ui.js
-          grep -q "Map Studio" creator-suite-ui.js
-          grep -q "Family Trees" creator-suite-ui.js
-          grep -q "Quill" creator-suite-ui.js
-          grep -q "Reader Site" creator-suite-ui.js
-          grep -q "HOMEBREWERY" creator-suite-ui.js
-          grep -q "TRADE ROUTES" creator-suite-ui.js
+          test -f canon-bridge-engine.js
+          test -f canon-wiki-adapter.js
+          test -f canon-bridge-ui.js
+          test -f canon-bridge.css
+          grep -q "WorldForgeCanonBridge" canon-bridge-engine.js
+          grep -q "materializeDocument" canon-bridge-engine.js
+          grep -q "syncSimulationToAuthoring" canon-bridge-engine.js
+          grep -q "promoteSuggestionToStory" canon-bridge-engine.js
+          grep -q "Simulation ↔ Authoring" canon-bridge-ui.js
+          grep -q "canon-bridge-engine.js" release-ui.js
+          grep -q "canon-wiki-adapter.js" release-ui.js
+          grep -q "v1.1 · LIVING CANON" release-ui.js
           ! grep -q 'id="targetYearInput"[^>]*max="5000"' index.html
       - name: Run v0.1 deterministic world-generation tests
         run: node tests/worldgen.mjs
@@ -95,6 +100,8 @@ jobs:
         run: node tests/endless.mjs
       - name: Run v1.0 creator toolkit integration tests
         run: node tests/creator-suite.mjs
+      - name: Run v1.1 bidirectional canon bridge tests
+        run: node tests/canon-bridge.mjs
 
   deploy:
     needs: validate
