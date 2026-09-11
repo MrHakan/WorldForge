@@ -1,0 +1,47 @@
+name: v4.7 City Activity
+
+on:
+  push:
+    branches: [main, v4.7-living-infrastructure]
+    paths:
+      - 'city-activity-engine.js'
+      - 'city-activity-pixel-renderer.js'
+      - 'city-activity-ui.js'
+      - 'workspace-navigation.js'
+      - 'worldbuilding-loader.js'
+      - 'V4.7.md'
+      - '.github/workflows/v47-city-activity.yml'
+  pull_request:
+    branches: [main]
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Syntax check
+        run: |
+          node --check city-activity-engine.js
+          node --check city-activity-pixel-renderer.js
+          node --check city-activity-ui.js
+          node --check workspace-navigation.js
+          node --check worldbuilding-loader.js
+      - name: Contract smoke test
+        run: |
+          node <<'NODE'
+          const fs=require('fs');
+          const engine=fs.readFileSync('city-activity-engine.js','utf8');
+          const pixel=fs.readFileSync('city-activity-pixel-renderer.js','utf8');
+          const ui=fs.readFileSync('city-activity-ui.js','utf8');
+          const nav=fs.readFileSync('workspace-navigation.js','utf8');
+          const loader=fs.readFileSync('worldbuilding-loader.js','utf8');
+          for(const token of ["VERSION='4.7.0'",'streetActivity','portActivity','traffic','maintenance','nightLights','w.cityActivity']) if(!engine.includes(token)) throw new Error(`Missing engine token: ${token}`);
+          for(const token of ['data-city-activity-overlay','data-port-boat','data-maintenance-zone','data-festival','data-night-lights','CITY_ACTIVITY_VERSION']) if(!pixel.includes(token)) throw new Error(`Missing pixel token: ${token}`);
+          for(const token of ['LIVING CITY ACTIVITY','cityActivitySummary','cityActivityDetails']) if(!ui.includes(token)) throw new Error(`Missing UI token: ${token}`);
+          for(const token of ["'activity','Activity'",'cityActivitySection']) if(!nav.includes(token)) throw new Error(`Missing navigation token: ${token}`);
+          for(const token of ['city-activity-engine.js','city-activity-pixel-renderer.js','city-activity-ui.js','simulateActivityYear']) if(!loader.includes(token)) throw new Error(`Missing loader token: ${token}`);
+          console.log('v4.7 city activity contract OK');
+          NODE
