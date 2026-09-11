@@ -1,0 +1,36 @@
+import fs from 'node:fs';
+import vm from 'node:vm';
+import assert from 'node:assert/strict';
+global.window=global;
+for(const f of ['engine.js','history-engine.js','society-engine.js','city-engine.js','adventure-engine.js','story-engine.js','wiki-engine.js','culture-engine.js','faction-engine.js','creator-suite-engine.js','canon-bridge-engine.js','knowledge-engine.js','calendar-engine.js','artifact-engine.js','artifact-wiki-adapter.js','technology-engine.js','technology-wiki-adapter.js','resource-engine.js','resource-calibration.js','resource-wiki-adapter.js','institution-engine.js','institution-wiki-adapter.js','military-engine.js','military-wiki-adapter.js','treasury-engine.js','treasury-wiki-adapter.js','workforce-engine.js','workforce-calibration.js','workforce-wiki-adapter.js','household-engine.js','household-wiki-adapter.js'])vm.runInThisContext(fs.readFileSync(f,'utf8'),{filename:f});
+const E=global.WorldForgeEngine,H=global.WorldForgeHistory,S=global.WorldForgeSociety,C=global.WorldForgeCity,Cal=global.WorldForgeCalendar,A=global.WorldForgeArtifacts,Tech=global.WorldForgeTechnology,R=global.WorldForgeResources,I=global.WorldForgeInstitutions,M=global.WorldForgeMilitary,T=global.WorldForgeTreasury,W=global.WorldForgeWorkforce,HH=global.WorldForgeHouseholds,Wiki=global.WorldForgeWiki;
+assert.ok(E&&H&&S&&C&&Cal&&A&&Tech&&R&&I&&M&&T&&W&&HH&&Wiki,'v2.3 household dependencies must load');
+assert.ok(W.__laborCalibration&&W.__householdBridge,'household bridge must attach after labor calibration');
+assert.equal(HH.CLASSES.length,8,'v2.3 must expose the eight-class social model');
+Cal.setBaseSimulator(C.simulateYears.bind(C));A.setBaseSimulator(Cal.simulateYears.bind(Cal));Tech.setBaseSimulator(A.simulateYears.bind(A));R.setBaseSimulator(Tech.simulateYears.bind(Tech));I.setBaseSimulator(R.simulateYears.bind(R));M.setBaseSimulator(I.simulateYears.bind(I));T.setBaseSimulator(M.simulateYears.bind(M));W.setBaseSimulator(T.simulateYears.bind(T));
+const opts={seed:'HOUSEHOLD-V23-TEST',width:110,height:66,seaLevel:.53,age:'mature',settlementTarget:30,kingdomTarget:5};
+function setup(){const w=E.generateWorld(opts);H.initialize(w);S.initialize(w);C.initialize(w);Cal.initialize(w);A.initialize(w);Tech.initialize(w);R.initialize(w);I.initialize(w);M.initialize(w);T.initialize(w);W.initialize(w);HH.initialize(w);for(const m of w.resources.markets){for(const id of ['grain','rice','fish','livestock','timber','iron','copper','salt','coal','wine'])m.inventory[id]=Math.max(Number(m.inventory[id]||0),2500)}W.simulateWorkforceYear(w,W.absYear(w));HH.simulateHouseholdYear(w,HH.absYear(w),{applyPopulation:false});return w}
+const w=setup(),sum=HH.summary(w);
+assert.deepEqual(HH.validate(w),[],'initial household state must validate');
+assert.equal(w.households.profiles.length,w.settlements.length,'every settlement must receive a household profile');
+assert.ok(sum.households>0&&sum.meanLifeExpectancy>20,'household and demographic accounting must materialize');
+assert.ok(sum.meanLiteracy>0&&sum.meanEducation>0,'education and literacy must be measurable');
+assert.ok(sum.povertyRate>=0&&sum.povertyRate<=1,'poverty must be bounded');
+for(const p of w.households.profiles){const shares=Object.values(p.classShares).reduce((a,b)=>a+b,0);assert.ok(Math.abs(shares-1)<.02,`class shares must close for settlement ${p.settlementId}`);assert.ok(p.samples.length>=4,'representative households must be generated');assert.ok(p.birthRate>0&&p.deathRate>0,'fertility and mortality must be explicit');assert.ok(p.apprentices>=0&&p.journeymen>=0&&p.masters>=0,'education pipeline cohorts must be explicit')}
+const sid=w.households.profiles[0].settlementId,profile=Wiki.article(w,`household_profile:${sid}`,HH.absYear(w)),demo=Wiki.article(w,`demography:${sid}`,HH.absYear(w)),cls=Wiki.article(w,'social_class:artisans',HH.absYear(w));
+assert.ok(profile&&profile.type==='household_profile','household profiles must enter Universal Encyclopedia');
+assert.ok(demo&&demo.type==='demography','demographic profiles must enter Universal Encyclopedia');
+assert.ok(cls&&cls.type==='social_class','social classes must enter Universal Encyclopedia');
+assert.ok(Wiki.search(w,'landless poor',{type:'social_class',year:HH.absYear(w)}).some(x=>x.ref==='social_class:landless_poor'),'social classes must be searchable');
+const before=w.history.current.settlementPopulation.reduce((a,b)=>a+b,0);W.simulateYears(w,3);const after=w.history.current.settlementPopulation.reduce((a,b)=>a+b,0);
+assert.ok(Number.isFinite(after)&&after>0&&before>0,'demographic feedback must keep population finite and positive');
+assert.ok(w.households.annual.length>=4,'household annual ledger must advance with workforce simulation');
+assert.deepEqual(HH.validate(w),[],'post-simulation household state must validate');
+const direct=setup(),chunked=setup();W.simulateYears(direct,4);W.simulateYears(chunked,2);W.simulateYears(chunked,2);
+assert.equal(HH.fingerprint(direct),HH.fingerprint(chunked),'households must be deterministic across caller chunk sizes');
+assert.equal(W.fingerprint(direct),W.fingerprint(chunked),'v2.3 feedback must preserve workforce chunk determinism');
+const fp=HH.fingerprint(w),restored=E.deserialize(E.serialize(w));W.initialize(restored);HH.initialize(restored);
+assert.deepEqual(HH.validate(restored),[],'household state must survive save/export');
+assert.equal(HH.fingerprint(restored),fp,'household fingerprint must survive save/export round-trip');
+console.log('WorldForge v2.3 Households, Social Classes & Demographic Life regression tests passed.');
+console.log(JSON.stringify({...HH.summary(w),profiles:w.households.profiles.length,annual:w.households.annual.length,fingerprint:fp}));
