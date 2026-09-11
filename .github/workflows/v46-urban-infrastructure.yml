@@ -7,6 +7,7 @@ on:
       - 'urban-infrastructure-engine.js'
       - 'urban-infrastructure-pixel-renderer.js'
       - 'urban-infrastructure-ui.js'
+      - 'workspace-navigation.js'
       - 'worldbuilding-loader.js'
       - 'V4.6.md'
       - '.github/workflows/v46-urban-infrastructure.yml'
@@ -16,6 +17,7 @@ on:
       - 'urban-infrastructure-engine.js'
       - 'urban-infrastructure-pixel-renderer.js'
       - 'urban-infrastructure-ui.js'
+      - 'workspace-navigation.js'
       - 'worldbuilding-loader.js'
       - 'V4.6.md'
       - '.github/workflows/v46-urban-infrastructure.yml'
@@ -33,6 +35,7 @@ jobs:
           node --check urban-infrastructure-engine.js
           node --check urban-infrastructure-pixel-renderer.js
           node --check urban-infrastructure-ui.js
+          node --check workspace-navigation.js
           node --check worldbuilding-loader.js
       - name: Contract smoke test
         run: |
@@ -41,10 +44,12 @@ jobs:
           const engine=fs.readFileSync('urban-infrastructure-engine.js','utf8');
           const pixel=fs.readFileSync('urban-infrastructure-pixel-renderer.js','utf8');
           const ui=fs.readFileSync('urban-infrastructure-ui.js','utf8');
+          const nav=fs.readFileSync('workspace-navigation.js','utf8');
           const loader=fs.readFileSync('worldbuilding-loader.js','utf8');
           for(const token of ["VERSION='4.6.0'",'road_upgrade','waterworks','bridge','gate_expansion','fireRisk','serviceStrain','world.urbanInfrastructure']) if(!engine.includes(token)) throw new Error(`Missing engine token: ${token}`);
           for(const token of ['data-infrastructure-overlay','data-fire-risk','data-bridge-demand','URBAN_INFRASTRUCTURE_VERSION']) if(!pixel.includes(token)) throw new Error(`Missing pixel token: ${token}`);
           for(const token of ['URBAN INFRASTRUCTURE & CITY SERVICES','urbanInfrastructureSummary','urbanInfrastructureProjects']) if(!ui.includes(token)) throw new Error(`Missing UI token: ${token}`);
-          for(const token of ['urban-infrastructure-engine.js','urban-infrastructure-pixel-renderer.js','urban-infrastructure-ui.js','simulateInfrastructureYear']) if(!loader.includes(token)) throw new Error(`Missing loader token: ${token}`);
-          console.log('v4.6 urban infrastructure contract OK');
+          for(const token of ['workspace-tabs','data-workspace-tab','map-panel','content-visibility','worldforge:workspace-tab']) if(!nav.includes(token)) throw new Error(`Missing navigation token: ${token}`);
+          for(const token of ['workspace-navigation.js','urban-infrastructure-engine.js','urban-infrastructure-pixel-renderer.js','urban-infrastructure-ui.js','simulateInfrastructureYear']) if(!loader.includes(token)) throw new Error(`Missing loader token: ${token}`);
+          console.log('v4.6 infrastructure + tabbed workspace contract OK');
           NODE
