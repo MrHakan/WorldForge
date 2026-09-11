@@ -1,0 +1,46 @@
+name: Validate WorldForge v4.2 Living Ruins & Archaeology
+
+on:
+  push:
+    branches: ["main", "v4.2-living-ruins-archaeology"]
+  pull_request:
+    branches: ["main"]
+
+permissions:
+  contents: read
+
+jobs:
+  validate-v42:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Check v4.2 JavaScript syntax
+        run: |
+          node --check archaeology-engine.js
+          node --check archaeology-pixel-renderer.js
+          node --check archaeology-wiki-adapter.js
+          node --check archaeology-ui.js
+          node --check worldbuilding-loader.js
+          node --check tests/archaeology-v42.mjs
+      - name: Validate v4.2 archaeology hooks
+        run: |
+          grep -q "pristine.*damaged.*ruined.*overgrown.*excavated" archaeology-engine.js
+          grep -q "historicalLayers" archaeology-engine.js
+          grep -q "artifact" archaeology-engine.js
+          grep -q "inscription" archaeology-engine.js
+          grep -q "data-ruin-stage" archaeology-pixel-renderer.js
+          grep -q "renderReconstruction" archaeology-pixel-renderer.js
+          grep -q "renderLifecycleStrip" archaeology-pixel-renderer.js
+          grep -q "archaeological_site" archaeology-wiki-adapter.js
+          grep -q "historical_reconstruction" archaeology-wiki-adapter.js
+          grep -q "ARCHAEOLOGY & HISTORICAL LAYERS" archaeology-ui.js
+          grep -q "archaeology-engine.js" worldbuilding-loader.js
+      - name: Run v4.0 worldbuilding compatibility regression
+        run: node tests/worldbuilding.mjs
+      - name: Run v4.1 historical landscape regression
+        run: node tests/worldbuilding-v41.mjs
+      - name: Run v4.1.1 pixel diversity regression
+        run: node tests/pixel-art-polish.mjs
+      - name: Run v4.2 archaeology regression
+        run: node tests/archaeology-v42.mjs
