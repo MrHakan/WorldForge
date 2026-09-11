@@ -127,10 +127,10 @@ jobs:
           grep -q "allocateConscription" workforce-engine.js
           grep -q "refugee_movement" workforce-engine.js
           grep -q "The Labor Exchange" workforce-ui.js
-          grep -q "Profession Registry" workforce-ui.js
+          grep -q "PROFESSION REGISTRY" workforce-ui.js
           grep -q "Export Workforce Ledger" workforce-ui.js
           grep -q "WorldForgeWorkforceWiki" workforce-wiki-adapter.js
-          grep -q "data-mode=\"workforce\"\|workforce-mode" workforce-map-layer.js
+          grep -q "workforce-mode" workforce-map-layer.js
           grep -q "Migration flows" workforce-map-layer.js
           grep -q "Recruitment" workforce-map-layer.js
           grep -q "treasury-loader.js" .github/workflows/pages.yml
