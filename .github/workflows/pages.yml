@@ -53,6 +53,9 @@ jobs:
           node --check institution-engine.js
           node --check institution-wiki-adapter.js
           node --check institution-loader.js
+          node --check military-engine.js
+          node --check military-wiki-adapter.js
+          node --check military-loader.js
           node --check renderer.js
           node --check city-ui.js
           node --check worldforge-v1-ui.js
@@ -71,6 +74,7 @@ jobs:
           node --check technology-ui.js
           node --check resource-ui.js
           node --check institution-ui.js
+          node --check military-ui.js
           node --check app.js
           node --check tests/worldgen.mjs
           node --check tests/history.mjs
@@ -92,25 +96,28 @@ jobs:
           node --check tests/technology.mjs
           node --check tests/resources.mjs
           node --check tests/institutions.mjs
-      - name: Validate v1.9 Institutions Industry and Great Works static app
+          node --check tests/military.mjs
+      - name: Validate v2.0 Armies Fleets Sieges and Military Logistics static app
         run: |
           test -f index.html
-          test -f resource-engine.js
-          test -f institution-engine.js
-          test -f institution-wiki-adapter.js
-          test -f institution-loader.js
-          test -f institution-ui.js
-          test -f institution.css
-          grep -q "WorldForgeInstitutions" institution-engine.js
-          grep -q "great_library" institution-engine.js
-          grep -q "great_work_completed" institution-engine.js
-          grep -q "knowledgeLoss" institution-engine.js
-          grep -q "The Civic Foundry" institution-ui.js
-          grep -q "Export Civic Ledger" institution-ui.js
-          grep -q "WorldForgeInstitutionWiki" institution-wiki-adapter.js
-          grep -q "WorldForgeResources" institution-loader.js
-          grep -q "resource-loader.js" .github/workflows/pages.yml
+          test -f military-engine.js
+          test -f military-wiki-adapter.js
+          test -f military-loader.js
+          test -f military-ui.js
+          test -f military.css
+          grep -q "WorldForgeMilitary" military-engine.js
+          grep -q "createArmy" military-engine.js
+          grep -q "createFleet" military-engine.js
+          grep -q "updateSieges" military-engine.js
+          grep -q "updateBlockades" military-engine.js
+          grep -q "cargoDenied" military-engine.js
+          grep -q "The War Room" military-ui.js
+          grep -q "Show forces on map" military-ui.js
+          grep -q "Export Campaign Ledger" military-ui.js
+          grep -q "WorldForgeMilitaryWiki" military-wiki-adapter.js
+          grep -q "WorldForgeInstitutions" military-loader.js
           grep -q "institution-loader.js" .github/workflows/pages.yml
+          grep -q "military-loader.js" .github/workflows/pages.yml
           ! grep -q 'id="targetYearInput"[^>]*max="5000"' index.html
       - name: Run v0.1 deterministic world-generation tests
         run: node tests/worldgen.mjs
@@ -152,6 +159,8 @@ jobs:
         run: node tests/resources.mjs
       - name: Run v1.9 institutions industry and great works tests
         run: node tests/institutions.mjs
+      - name: Run v2.0 operational military and logistics tests
+        run: node tests/military.mjs
 
   deploy:
     needs: validate
@@ -162,12 +171,12 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-      - name: Assemble v1.9 runtime entrypoint
+      - name: Assemble v2.0 runtime entrypoint
         run: |
           python - <<'PY'
           p='index.html'
           s=open(p,encoding='utf-8').read()
-          tags=['<script src="artifact-loader.js"></script>\n','<script src="technology-loader.js"></script>\n','<script src="resource-loader.js"></script>\n','<script src="institution-loader.js"></script>\n']
+          tags=['<script src="artifact-loader.js"></script>\n','<script src="technology-loader.js"></script>\n','<script src="resource-loader.js"></script>\n','<script src="institution-loader.js"></script>\n','<script src="military-loader.js"></script>\n']
           for tag in tags:
               if tag not in s:
                   s=s.replace('</body>',tag+'</body>')
