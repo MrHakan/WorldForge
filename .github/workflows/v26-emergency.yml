@@ -1,0 +1,48 @@
+name: Validate WorldForge v2.6 Emergency Response
+
+on:
+  push:
+    branches: ["main", "v2.6-health-emergency"]
+  pull_request:
+    branches: ["main"]
+
+permissions:
+  contents: read
+
+jobs:
+  validate-v26:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Check v2.5 and v2.6 JavaScript syntax
+        run: |
+          node --check municipal-engine.js
+          node --check municipal-loader.js
+          node --check municipal-ui.js
+          node --check emergency-engine.js
+          node --check emergency-wiki-adapter.js
+          node --check emergency-loader.js
+          node --check emergency-ui.js
+          node --check tests/municipal.mjs
+          node --check tests/emergency.mjs
+      - name: Validate v2.6 runtime files and optimization hooks
+        run: |
+          test -f emergency-engine.js
+          test -f emergency-wiki-adapter.js
+          test -f emergency-loader.js
+          test -f emergency-ui.js
+          test -f emergency.css
+          grep -q "WorldForgeEmergency" emergency-engine.js
+          grep -q "River Fever" emergency-engine.js
+          grep -q "disease_outbreak" emergency-wiki-adapter.js
+          grep -q "urban_fire" emergency-wiki-adapter.js
+          grep -q "emergency-loader.js" municipal-loader.js
+          grep -q "new WeakMap" emergency-engine.js
+          grep -q "requestAnimationFrame" emergency-ui.js
+          grep -q "lastAppliedYear" emergency-engine.js
+          grep -q "__emergencyBridge" emergency-engine.js
+      - name: Run v2.5 municipal regression
+        run: node tests/municipal.mjs
+      - name: Run v2.6 health disease fire and emergency regression
+        run: node tests/emergency.mjs
