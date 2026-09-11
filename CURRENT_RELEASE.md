@@ -1,9 +1,9 @@
 # Current WorldForge Release
 
-## v2.8 — Politics, Unrest, Legitimacy & Civil Disorder
+## v2.9 — Diplomacy, Treaties, Trade Agreements & International Relations
 
-The current release converts material pressures from food security, households, labor, housing, public services, health, war and state finance into settlement and realm political order.
+The current release connects realm-to-realm foreign relations to WorldForge's existing politics, treasury, military, resources and nutrition systems.
 
-Core systems: legitimacy, public order, grievance, radicalization, six political blocs, protests, strikes, bread riots, tax revolts, anti-war movements, repression/concessions, faction feedback, coup/revolution/secession risk, Political Stability Observatory and Political Ledger export.
+Core systems: persistent bilateral trust/goodwill/fear/rivalry, trade dependence, border tension, claims, diplomatic tension and war risk; trade agreements, non-aggression pacts, defensive pacts, alliances, embargoes, sanctions, peace treaties, humanitarian aid, material food/treasury effects, domestic political feedback, Diplomatic Chancery and Diplomatic Ledger export.
 
-See [`V2.8.md`](V2.8.md) for the complete release notes and architecture details.
+See [`V2.9.md`](V2.9.md) for the complete release notes and architecture details.
