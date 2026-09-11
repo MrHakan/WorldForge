@@ -6,6 +6,7 @@ on:
     paths:
       - 'urban-evolution-engine.js'
       - 'urban-evolution-pixel-renderer.js'
+      - 'urban-wiki-adapter.js'
       - 'urban-ui.js'
       - 'worldbuilding-loader.js'
       - 'V4.5.md'
@@ -14,6 +15,7 @@ on:
     paths:
       - 'urban-evolution-engine.js'
       - 'urban-evolution-pixel-renderer.js'
+      - 'urban-wiki-adapter.js'
       - 'urban-ui.js'
       - 'worldbuilding-loader.js'
       - 'V4.5.md'
@@ -31,6 +33,7 @@ jobs:
         run: |
           node --check urban-evolution-engine.js
           node --check urban-evolution-pixel-renderer.js
+          node --check urban-wiki-adapter.js
           node --check urban-ui.js
           node --check worldbuilding-loader.js
       - name: Contract smoke test
@@ -39,11 +42,13 @@ jobs:
           const fs=require('fs');
           const engine=fs.readFileSync('urban-evolution-engine.js','utf8');
           const pixel=fs.readFileSync('urban-evolution-pixel-renderer.js','utf8');
+          const wiki=fs.readFileSync('urban-wiki-adapter.js','utf8');
           const ui=fs.readFileSync('urban-ui.js','utf8');
           const loader=fs.readFileSync('worldbuilding-loader.js','utf8');
           for(const token of ["VERSION='4.5.0'","stable","growing","declining","ruined","rebuilding","wall_expansion","reconstruction","world.urbanEvolution"]){if(!engine.includes(token))throw new Error(`Missing v4.5 engine token: ${token}`)}
           for(const token of ['data-urban-state','data-urban-evolution-overlay','outsideWalls','URBAN_EVOLUTION_VERSION']){if(!pixel.includes(token))throw new Error(`Missing v4.5 pixel token: ${token}`)}
+          for(const token of ['urban_district','urban_expansion','urban_project','WorldForgeUrbanWiki']){if(!wiki.includes(token))throw new Error(`Missing v4.5 wiki token: ${token}`)}
           for(const token of ['LIVING CITY EVOLUTION','urbanEvolutionDistricts','urbanEvolutionProjects']){if(!ui.includes(token))throw new Error(`Missing v4.5 UI token: ${token}`)}
-          for(const token of ['urban-evolution-engine.js','urban-evolution-pixel-renderer.js','urban-ui.js','simulateUrbanYear']){if(!loader.includes(token))throw new Error(`Missing v4.5 loader token: ${token}`)}
-          console.log('v4.5 urban evolution + pixel + atelier contract OK');
+          for(const token of ['urban-evolution-engine.js','urban-evolution-pixel-renderer.js','urban-wiki-adapter.js','urban-ui.js','simulateUrbanYear']){if(!loader.includes(token))throw new Error(`Missing v4.5 loader token: ${token}`)}
+          console.log('v4.5 urban evolution + pixel + encyclopedia + atelier contract OK');
           NODE
