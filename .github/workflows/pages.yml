@@ -60,6 +60,7 @@ jobs:
           node --check treasury-wiki-adapter.js
           node --check treasury-loader.js
           node --check map-enhancement.js
+          node --check map-finance-layer.js
           node --check renderer.js
           node --check city-ui.js
           node --check worldforge-v1-ui.js
@@ -113,6 +114,8 @@ jobs:
           test -f treasury.css
           test -f map-enhancement.js
           test -f map-enhancement.css
+          test -f map-finance-layer.js
+          test -f map-finance.css
           grep -q "WorldForgeTreasury" treasury-engine.js
           grep -q "issueDebt" treasury-engine.js
           grep -q "sovereign_default" treasury-engine.js
@@ -125,6 +128,9 @@ jobs:
           grep -q "drawRealmLabels" map-enhancement.js
           grep -q "drawSupplyNetwork" map-enhancement.js
           grep -q "drawFiscalStress" map-enhancement.js
+          grep -q "data-mode=\"fiscal\"\|fiscal-mode" map-finance-layer.js
+          grep -q "strategic-tip" map-finance-layer.js
+          grep -q "map-finance-layer.js" treasury-loader.js
           grep -q "military-loader.js" .github/workflows/pages.yml
           grep -q "treasury-loader.js" .github/workflows/pages.yml
           ! grep -q 'id="targetYearInput"[^>]*max="5000"' index.html
