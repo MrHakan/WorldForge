@@ -61,6 +61,10 @@ jobs:
           node --check treasury-loader.js
           node --check map-enhancement.js
           node --check map-finance-layer.js
+          node --check workforce-engine.js
+          node --check workforce-wiki-adapter.js
+          node --check workforce-loader.js
+          node --check workforce-map-layer.js
           node --check renderer.js
           node --check city-ui.js
           node --check worldforge-v1-ui.js
@@ -81,6 +85,7 @@ jobs:
           node --check institution-ui.js
           node --check military-ui.js
           node --check treasury-ui.js
+          node --check workforce-ui.js
           node --check app.js
           node --check tests/worldgen.mjs
           node --check tests/history.mjs
@@ -104,35 +109,32 @@ jobs:
           node --check tests/institutions.mjs
           node --check tests/military.mjs
           node --check tests/treasury.mjs
-      - name: Validate v2.1 Treasury War Finance and Strategic Map static app
+          node --check tests/workforce.mjs
+      - name: Validate v2.2 Workforce Professions Conscription and Migration Map static app
         run: |
           test -f index.html
-          test -f treasury-engine.js
-          test -f treasury-wiki-adapter.js
-          test -f treasury-loader.js
-          test -f treasury-ui.js
-          test -f treasury.css
-          test -f map-enhancement.js
-          test -f map-enhancement.css
-          test -f map-finance-layer.js
-          test -f map-finance.css
-          grep -q "WorldForgeTreasury" treasury-engine.js
-          grep -q "issueDebt" treasury-engine.js
-          grep -q "sovereign_default" treasury-engine.js
-          grep -q "coin_debased" treasury-engine.js
-          grep -q "war_bond" treasury-engine.js
-          grep -q "The Exchequer" treasury-ui.js
-          grep -q "Export Fiscal Ledger" treasury-ui.js
-          grep -q "WorldForgeTreasuryWiki" treasury-wiki-adapter.js
-          grep -q "STRATEGIC MAP" map-enhancement.js
-          grep -q "drawRealmLabels" map-enhancement.js
-          grep -q "drawSupplyNetwork" map-enhancement.js
-          grep -q "drawFiscalStress" map-enhancement.js
-          grep -q "data-mode=\"fiscal\"\|fiscal-mode" map-finance-layer.js
-          grep -q "strategic-tip" map-finance-layer.js
-          grep -q "map-finance-layer.js" treasury-loader.js
-          grep -q "military-loader.js" .github/workflows/pages.yml
+          test -f workforce-engine.js
+          test -f workforce-wiki-adapter.js
+          test -f workforce-loader.js
+          test -f workforce-ui.js
+          test -f workforce.css
+          test -f workforce-map-layer.js
+          test -f workforce-map.css
+          grep -q "WorldForgeWorkforce" workforce-engine.js
+          grep -q "harbor_pilot" workforce-engine.js
+          grep -q "siege_engineer" workforce-engine.js
+          grep -q "ship_chandler" workforce-engine.js
+          grep -q "allocateConscription" workforce-engine.js
+          grep -q "refugee_movement" workforce-engine.js
+          grep -q "The Labor Exchange" workforce-ui.js
+          grep -q "Profession Registry" workforce-ui.js
+          grep -q "Export Workforce Ledger" workforce-ui.js
+          grep -q "WorldForgeWorkforceWiki" workforce-wiki-adapter.js
+          grep -q "data-mode=\"workforce\"\|workforce-mode" workforce-map-layer.js
+          grep -q "Migration flows" workforce-map-layer.js
+          grep -q "Recruitment" workforce-map-layer.js
           grep -q "treasury-loader.js" .github/workflows/pages.yml
+          grep -q "workforce-loader.js" .github/workflows/pages.yml
           ! grep -q 'id="targetYearInput"[^>]*max="5000"' index.html
       - name: Run v0.1 deterministic world-generation tests
         run: node tests/worldgen.mjs
@@ -178,6 +180,8 @@ jobs:
         run: node tests/military.mjs
       - name: Run v2.1 treasury debt war finance tests
         run: node tests/treasury.mjs
+      - name: Run v2.2 workforce professions and conscription tests
+        run: node tests/workforce.mjs
 
   deploy:
     needs: validate
@@ -188,12 +192,12 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-      - name: Assemble v2.1 runtime entrypoint
+      - name: Assemble v2.2 runtime entrypoint
         run: |
           python - <<'PY'
           p='index.html'
           s=open(p,encoding='utf-8').read()
-          tags=['<script src="artifact-loader.js"></script>\n','<script src="technology-loader.js"></script>\n','<script src="resource-loader.js"></script>\n','<script src="institution-loader.js"></script>\n','<script src="military-loader.js"></script>\n','<script src="treasury-loader.js"></script>\n']
+          tags=['<script src="artifact-loader.js"></script>\n','<script src="technology-loader.js"></script>\n','<script src="resource-loader.js"></script>\n','<script src="institution-loader.js"></script>\n','<script src="military-loader.js"></script>\n','<script src="treasury-loader.js"></script>\n','<script src="workforce-loader.js"></script>\n']
           for tag in tags:
               if tag not in s:
                   s=s.replace('</body>',tag+'</body>')
