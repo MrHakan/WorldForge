@@ -4,9 +4,9 @@
 
 **Live:** https://mrhakan.github.io/WorldForge/
 
-## Current release — v1.9 Institutions, Industry & Great Works
+## Current release — v2.0 Armies, Fleets, Sieges & Military Logistics
 
-WorldForge is a connected emergent-history machine. Geography drives climate; climate changes harvests; technology changes productivity; settlements produce and exchange physical commodities; institutions transform those materials into processed goods, knowledge, health, logistics and strategic assets; and Great Works can preserve — or catastrophically erase — parts of civilization's memory.
+WorldForge is a connected emergent-history machine. Geography drives climate; climate changes harvests; technology changes production and transport; settlements exchange physical commodities; institutions transform those resources into food, weapons, ships and logistics; and wars now materialize into moving armies, fleets, supply lines, battles, sieges and blockades whose consequences feed back into markets, settlements, institutions, history and the Living Wiki.
 
 ### Version line
 
@@ -29,6 +29,7 @@ WorldForge is a connected emergent-history machine. Geography drives climate; cl
 17. **v1.7 Hall of Discovery** — realm technology, adoption, diffusion, printing and endless procedural breakthroughs.
 18. **v1.8 World Market** — physical commodity stocks, production, consumption, prices, shortages, road/sea cargo flows, famine and supply-chain feedback.
 19. **v1.9 Civic Foundry** — persistent institutions, industrial transformation chains, granaries, libraries, universities, hospitals, museums, shipyards, strategic assets and material-built Great Works.
+20. **v2.0 War Room** — physical field armies and fleets, operational movement, food/equipment supply, attrition, battles, sieges, blockades, settlement capture and military map overlays.
 
 ## Living world chain
 
@@ -43,103 +44,132 @@ Seed / geography
                          ├─ Grain → Mill → Flour → Bakery → Bread
                          ├─ Timber → Sawmill → Lumber
                          ├─ Iron + Coal → Foundry → Steel
-                         ├─ Steel + Lumber → Smithy → Tools / Weapons
-                         ├─ Steel + Lumber → Shipyard → Ships
-                         └─ Libraries / Universities / Hospitals / Museums
-                             └─ Great Works
-                                 ├─ Knowledge preservation / loss
-                                 ├─ Artifact custody / loss
-                                 ├─ Research / health / logistics
-                                 └─ Strategic weapons / ships / tools
-                                     └─ Politics / war / history / quests / wiki
+                         ├─ Steel + Lumber → Smithy → Weapons
+                         └─ Steel + Lumber → Shipyard → Ships
+                             └─ Realm logistics / strategic assets
+                                 └─ Armies & fleets
+                                     ├─ Food / weapons / ship consumption
+                                     ├─ Roads / ports / supply lines
+                                     ├─ Battles / attrition / morale
+                                     ├─ Sieges / settlement capture
+                                     └─ Naval battles / blockades
+                                         └─ Market shortages / institution damage / population loss
+                                             └─ Politics / history / knowledge / quests / Living Wiki
 ```
 
-## v1.9 Civic Foundry
+## v2.0 War Room
 
-Institutions are persistent simulation entities rather than UI decorations. Every settlement begins with civic infrastructure appropriate to its geography, population and resource base, and larger settlements can develop additional facilities as population and technology advance.
+History wars are no longer only abstract score changes. Every active war can produce persistent operational forces for its belligerents. The military layer mirrors the existing History war state instead of replacing it, so strategic outcomes remain part of the same timeline, diplomacy and historical record.
 
-### Extraction, production and processing
+### Field armies
 
-The institutional economy extends the v1.8 World Market with processed goods:
+Armies have persistent identity and state:
 
-- Flour
-- Bread
-- Lumber
-- Steel
-- Tools
-- Weapons
-- Ships
-- Prepared Medicine
-- Manuscripts
+- realm and war
+- home settlement and current map position
+- operational target and road route
+- manpower
+- morale and readiness
+- equipment quality
+- food supply level
+- explicit supply origin and supply path
+- supply distance
+- casualties, battles and sieges
 
-Facilities consume actual local stocks. A foundry cannot create steel without iron and coal; a shipyard cannot create hulls without lumber and steel; a bakery cannot create bread without flour and salt. Outputs remain persistent in the settlement market state and become inputs for later systems.
+Armies draw **Grain and Livestock** from friendly markets and use processed **Weapons** produced by the Civic Foundry. Long or broken supply lines reduce supply efficiency. Undersupplied armies suffer real attrition and lose morale/readiness rather than receiving a decorative penalty.
 
-### Civic and knowledge institutions
+### Fleets and naval warfare
 
-The simulation includes managed farms, ranches, fisheries, lumber camps, mines, granaries, warehouses, market halls, mills, bakeries, sawmills, foundries, smithies and shipyards alongside hospitals, libraries, universities, museums, temple archives and observatories.
+Coastal realms with shipbuilding capacity can field persistent war fleets. Fleets consume provisions, use physical **Ships** produced by shipyards, move toward enemy coastal objectives, fight naval battles and lose hulls.
 
-Their effects are causal:
+Navigation technology and realm logistics improve operational reach. A fleet without a viable friendly port or provisions gradually loses readiness.
 
-- **Granaries** accumulate staple reserves during secure years and release them during shortages.
-- **Warehouses and market halls** reduce local market stress.
-- **Hospitals** consume physical inputs and improve settlement resilience.
-- **Universities and observatories** add real research progress and realm innovation capacity.
-- **Libraries and temple archives** preserve documentary Knowledge sources and strengthen archival survival.
-- **Museums** place important artifacts into protected institutional collections.
-- **Smithies and shipyards** create weapons and ships that are exposed as realm strategic assets for the military simulation layer.
+### Battles
 
-### Great Works
+Opposing armies and fleets that physically meet on the operational map resolve deterministic battles. Combat strength combines force size, morale, readiness, equipment, realm military capability, technology and supply.
 
-Realms can commission multi-year projects whose construction consumes physical materials over time. The current Great Work catalog includes:
+Battle outcomes create first-class historical events and adjust the same war score used by the History engine. Losses persist on the force entity and in the campaign record.
 
-- Great Library
-- Grand University
-- Royal Hospital
-- Imperial Shipyard
-- National Museum
-- Sacred Archive
-- Great Observatory
-- Great Granary
+### Sieges
 
-A Great Work is both a historical event and a persistent institution. Construction progress, supplied materials, settlement, realm, condition, collections and completion year survive save/export round-trips and appear as first-class Universal Encyclopedia articles.
+When a field army reaches an enemy settlement it can establish a persistent siege. Siege pressure:
 
-### Destruction and historical memory
+- consumes or denies local food reserves
+- lowers food security and food-days
+- raises market stress
+- creates military casualties
+- can damage local institutions
+- eventually allows an operational settlement capture
 
-Institutions can be damaged by fire, crime and wartime destruction. Catastrophic destruction has real downstream consequences. If a library holding documentary evidence burns, its preserved sources are marked destroyed and removed from the live claim-evidence graph. A museum loss can scatter artifacts and alter their provenance.
+A successful siege changes the settlement's realm ownership, political map cells, population and prosperity and records the conquest in the original History war.
 
-This closes a major causal loop:
+### Blockades
+
+War fleets at enemy coastal settlements can establish blockades. Blockade strength depends on the attacking fleet and any defending naval force. A blockade physically removes part of inbound/import-dependent cargo from the local market, increases market stress and reduces food security.
+
+This closes the maritime logistics loop:
 
 ```text
-Historical event
- → written evidence / artifact
- → archive or museum custody
- → centuries of preservation
- → war / fire / collapse
- → institution destroyed
- → evidence disappears
- → public history becomes weaker, disputed or lost
- → later archaeology can challenge it again
+Enemy fleet reaches port
+ → blockade established
+ → imported cargo denied
+ → grain / strategic stocks fall
+ → prices and market stress rise
+ → food security falls
+ → siege / unrest / economic pressure increases
+ → war score and history respond
 ```
 
-### Strategic assets
+### Operational map overlay
 
-Institutions aggregate realm-level **weapons, ships, tools, research, health and logistics** capacity. These values intentionally form the handoff point for the next military/logistics layer, where armies and fleets can consume the same physical economy rather than using abstract combat points.
+The normal WorldForge map can now show live military state:
+
+- moving army markers
+- moving fleet markers
+- army supply lines
+- operational target lines
+- siege rings
+- blockade arcs
+- force-size labels at higher zoom
+- low-supply indicators
+
+Historical replay remains readable: the live operations overlay is suppressed when viewing a non-present historical snapshot.
+
+### The War Room
+
+The v2.0 workspace provides:
+
+- campaign selector
+- campaign war-score and operation summaries
+- active/retired field armies
+- fleets and hull losses
+- manpower, morale, readiness and supply
+- realm weapons/ships/logistics overview
+- active and historical sieges
+- blockades and cargo-denial totals
+- recent land and naval battles
+- map-overlay toggle
+- standalone **Campaign Ledger HTML export**
+
+Armies, fleets, sieges and battles are also first-class Universal Encyclopedia article types with chronology and cross-links to realms and settlements.
 
 ### Endless-world compatibility
 
-Current facilities and collections remain detailed because they affect present simulation. Old annual institutional summaries compact into 250-year archive blocks. Great Works, surviving institutions and major destruction events remain persistent historical anchors while routine annual telemetry is bounded.
+Operational entities remain detailed while they can affect the current simulation. Annual military telemetry compacts into 250-year archive blocks after the detailed retention window, and old battle/siege/blockade ledgers are bounded. Major History events and campaign consequences remain available through the existing deep-history architecture.
+
+## v1.9 Civic Foundry
+
+Institutions are persistent simulation entities. Raw World Market commodities become processed Flour, Bread, Lumber, Steel, Tools, Weapons, Ships, Prepared Medicine and Manuscripts. Granaries buffer food shocks; universities research technology; libraries preserve documentary evidence; museums protect artifacts; and shipyards/smithies create the physical strategic assets now consumed by v2.0 warfare.
+
+Great Works include the Great Library, Grand University, Royal Hospital, Imperial Shipyard, National Museum, Sacred Archive, Great Observatory and Great Granary. Catastrophic institutional destruction can erase preserved Knowledge evidence or scatter artifacts.
 
 ## v1.8 World Market
 
-Every settlement owns a persistent market containing Grain, Rice, Fish, Livestock, Timber, Iron, Copper, Salt, Coal and Wine. Weather and technology affect production; road and maritime networks move physical cargo; shortages affect prices, food security, prosperity, crime and stability. The calibrated peacetime economy remains sustainable while drought, war, isolation and transport failure can still produce real famine.
-
-## v1.7 Hall of Discovery
-
-Technology exists per realm with gradual adoption, research, trade/scholarship/espionage diffusion and open-ended Synthesis breakthroughs. Printing spreads documentary evidence; metallurgy and engineering improve material culture; food, trade and navigation capabilities feed directly into the physical economy and institutions.
+Every settlement owns a persistent market containing Grain, Rice, Fish, Livestock, Timber, Iron, Copper, Salt, Coal and Wine. Weather and technology affect production; road and maritime networks move physical cargo; shortages affect prices, food security, prosperity, crime and stability.
 
 ## Knowledge, artifacts and public memory
 
-History can leave behind persistent books and artifacts; institutions can preserve those objects; wars and disasters can destroy their surviving evidence; rediscovery can alter public knowledge; and the Living Wiki presents that changing historical perspective.
+History can leave behind persistent books and artifacts; institutions can preserve those objects; wars and sieges can destroy their surviving evidence; rediscovery can alter public knowledge; and the Living Wiki presents that changing historical perspective.
 
 ## Main workspaces
 
@@ -157,7 +187,8 @@ History can leave behind persistent books and artifacts; institutions can preser
 - Treasury of Memory
 - Hall of Discovery
 - World Market with physical commodity stocks and supply-chain flows
-- **Civic Foundry** with institutions, production chains, Great Works, realm strategic assets and Civic Ledger HTML export
+- Civic Foundry with institutions, production chains and Great Works
+- **War Room** with moving armies/fleets, supply lines, battles, sieges, blockades and Campaign Ledger export
 - local save/load and `.worldforge.json` import/export
 
 ## Architecture
@@ -178,11 +209,13 @@ artifact-engine.js           persistent material culture and written works
 technology-engine.js         research, adoption, diffusion and endless innovation
 resource-engine.js           physical production, inventory, prices and cargo flows
 institution-engine.js        institutions, industry, Great Works and strategic assets
+military-engine.js           armies, fleets, supply, combat, sieges and blockades
 wiki-engine.js               cross-linked encyclopedia
 artifact-wiki-adapter.js     artifact encyclopedia integration
 technology-wiki-adapter.js   technology encyclopedia integration
 resource-wiki-adapter.js     commodity and settlement-market encyclopedia integration
 institution-wiki-adapter.js  institution, processed-good and Great Work encyclopedia integration
+military-wiki-adapter.js     army, fleet, siege and battle encyclopedia integration
 creator-suite-engine.js      authoring toolkit
 canon-bridge-engine.js       authoring ↔ simulation bridge
 living-wiki-engine.js        adaptive historical presentation
@@ -194,6 +227,8 @@ Browser UI layers are split into matching `*-ui.js` and CSS modules. Later syste
 
 ## Testing and deployment
 
-Every push to `main` runs JavaScript syntax validation plus the complete regression chain from **v0.1 through v1.9** before GitHub Pages deployment. v1.9 tests cover deterministic chunk-independent institution progression, physical processing chains, Great Work material construction, Universal Wiki integration, library-based Knowledge preservation and catastrophic evidence loss, strategic realm assets, bounded historical compaction and save/export round-trips.
+Every push to `main` runs JavaScript syntax validation plus the complete regression chain from **v0.1 through v2.0** before GitHub Pages deployment. v2.0 tests cover physical force creation, real food/equipment consumption, map movement, explicit supply paths, deterministic field and naval combat, siege creation, blockade cargo denial, Universal Encyclopedia integration, caller-chunk determinism and save/export round-trips.
+
+The endless-core suite continues to exercise a **12,500-year** boundary run with epoch rebasing and bounded archival history.
 
 Everything runs locally in the browser; generated worlds are not uploaded by the application.
