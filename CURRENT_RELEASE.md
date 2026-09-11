@@ -1,9 +1,9 @@
 # Current WorldForge Release
 
-## v4.2 — Living Ruins & Archaeology
+## v4.3 — Heritage, Museums, Relics & Archaeological Expeditions
 
-The current release turns v4.1's historical landscape into an archaeological system. Ruins, battlefields, older Great Works, monuments and deteriorated infrastructure can now enter a deterministic lifecycle from pristine to damaged, ruined, overgrown and excavated states.
+The current release extends v4.2 Living Ruins & Archaeology into a cultural-heritage layer. Archaeological sites can enter heritage registers, museums curate collections, relics retain provenance and custody, field expeditions operate at sites, and restitution or heritage-security incidents can emerge from conflict, transfer and conservation pressure.
 
-Core systems: living ruin lifecycle; bounded archaeological sites; modeled burial depth, integrity, vegetation and survey confidence; deterministic artifact finds and inscriptions; settlement historical stratigraphy; then-vs-now pixel reconstruction; five-stage lifecycle visualization; Archaeology & Historical Layers cards in the Worldbuilding Atelier; archaeology ledger export; `archaeological_site`, `artifact_find`, `inscription`, `historical_layer` and `historical_reconstruction` Universal Encyclopedia types; v4.1/v4.1.1 compatibility; deterministic save/export reconstruction; and dedicated v4.2 regression coverage.
+Core systems: five-level heritage protection registry; modeled conservation risk and protection budgets; local/regional/national museums; deterministic museum placement in Pixel Civilization; relic custody and provenance chains; museum display/storage state; archaeological expeditions with permits, teams, budgets, risk and progress; restitution claims between realms; looting, smuggling, wartime-removal and rescue incidents; relic pixel cards; Heritage, Museums & Relics cards in the Worldbuilding Atelier; heritage ledger export; `heritage_site`, `museum`, `relic`, `archaeological_expedition`, `restitution_claim` and `heritage_incident` Universal Encyclopedia types; v4.2 compatibility; deterministic save/export reconstruction; and dedicated v4.3 regression coverage.
 
-See [`V4.2.md`](V4.2.md) for complete release notes and architecture details.
+See [`V4.3.md`](V4.3.md) for complete release notes and architecture details.
