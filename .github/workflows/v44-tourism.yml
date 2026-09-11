@@ -1,0 +1,46 @@
+name: Validate WorldForge v4.4 Tourism, Pilgrimage & Cultural Economy
+
+on:
+  push:
+    branches: ["main", "v4.4-tourism-pilgrimage-cultural-economy"]
+  pull_request:
+    branches: ["main"]
+
+permissions:
+  contents: read
+
+jobs:
+  validate-v44:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Check v4.4 JavaScript syntax
+        run: |
+          node --check tourism-engine.js
+          node --check tourism-pixel-renderer.js
+          node --check tourism-wiki-adapter.js
+          node --check tourism-ui.js
+          node --check worldbuilding-loader.js
+          node --check tests/tourism-v44.mjs
+      - name: Validate v4.4 tourism hooks
+        run: |
+          grep -q "pilgrimage_route" tourism-engine.js
+          grep -q "overtourism" tourism-engine.js
+          grep -q "conservationShare" tourism-engine.js
+          grep -q "data-worldforge-tourism" tourism-pixel-renderer.js
+          grep -q "tourism_destination" tourism-wiki-adapter.js
+          grep -q "TOURISM, PILGRIMAGE & CULTURAL ECONOMY" tourism-ui.js
+          grep -q "tourism-engine.js" worldbuilding-loader.js
+      - name: Run v4.0 worldbuilding compatibility regression
+        run: node tests/worldbuilding.mjs
+      - name: Run v4.1 historical landscape regression
+        run: node tests/worldbuilding-v41.mjs
+      - name: Run v4.1.1 pixel diversity regression
+        run: node tests/pixel-art-polish.mjs
+      - name: Run v4.2 archaeology regression
+        run: node tests/archaeology-v42.mjs
+      - name: Run v4.3 heritage regression
+        run: node tests/heritage-v43.mjs
+      - name: Run v4.4 tourism regression
+        run: node tests/tourism-v44.mjs
