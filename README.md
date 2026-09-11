@@ -4,9 +4,9 @@
 
 **Live:** https://mrhakan.github.io/WorldForge/
 
-## Current release — v1.8 Resources, Agriculture & Supply Chains
+## Current release — v1.9 Institutions, Industry & Great Works
 
-WorldForge is a connected emergent-history machine. Geography drives climate; climate changes harvests; technology changes productivity and transport; settlements physically produce, consume, stock and exchange commodities; shortages alter prices, prosperity, crime and stability; and those pressures feed back into history, knowledge, artifacts, quests and the Living Wiki.
+WorldForge is a connected emergent-history machine. Geography drives climate; climate changes harvests; technology changes productivity; settlements produce and exchange physical commodities; institutions transform those materials into processed goods, knowledge, health, logistics and strategic assets; and Great Works can preserve — or catastrophically erase — parts of civilization's memory.
 
 ### Version line
 
@@ -28,6 +28,7 @@ WorldForge is a connected emergent-history machine. Geography drives climate; cl
 16. **v1.6 Treasury of Memory** — persistent artifacts, books, provenance, copying, loss, rediscovery and material evidence.
 17. **v1.7 Hall of Discovery** — realm technology, adoption, diffusion, printing and endless procedural breakthroughs.
 18. **v1.8 World Market** — physical commodity stocks, production, consumption, prices, shortages, road/sea cargo flows, famine and supply-chain feedback.
+19. **v1.9 Civic Foundry** — persistent institutions, industrial transformation chains, granaries, libraries, universities, hospitals, museums, shipyards, strategic assets and material-built Great Works.
 
 ## Living world chain
 
@@ -36,75 +37,109 @@ Seed / geography
  └─ Climate / calendar / weather
      └─ Agricultural & mineral suitability
          └─ Technology / production capability
-             └─ Commodity production
-                 └─ Local inventories & consumption
-                     └─ Prices / shortages / surpluses
-                         └─ Road & maritime supply chains
-                             └─ Food security / market stress
-                                 └─ Prosperity / crime / migration / stability
-                                     └─ Politics / war / history
-                                         └─ Artifacts / knowledge / quests / wiki
+             └─ Raw commodity production
+                 └─ Local stocks / prices / supply chains
+                     └─ Institutions & industrial facilities
+                         ├─ Grain → Mill → Flour → Bakery → Bread
+                         ├─ Timber → Sawmill → Lumber
+                         ├─ Iron + Coal → Foundry → Steel
+                         ├─ Steel + Lumber → Smithy → Tools / Weapons
+                         ├─ Steel + Lumber → Shipyard → Ships
+                         └─ Libraries / Universities / Hospitals / Museums
+                             └─ Great Works
+                                 ├─ Knowledge preservation / loss
+                                 ├─ Artifact custody / loss
+                                 ├─ Research / health / logistics
+                                 └─ Strategic weapons / ships / tools
+                                     └─ Politics / war / history / quests / wiki
 ```
 
-## v1.8 World Market
+## v1.9 Civic Foundry
 
-Every settlement now owns a persistent market rather than inheriting a purely abstract economy. The initial commodity catalog contains:
+Institutions are persistent simulation entities rather than UI decorations. Every settlement begins with civic infrastructure appropriate to its geography, population and resource base, and larger settlements can develop additional facilities as population and technology advance.
 
-- Grain
-- Rice
-- Fish
-- Livestock
-- Timber
-- Iron
-- Copper
-- Salt
-- Coal
-- Wine
+### Extraction, production and processing
 
-Each commodity tracks local inventory, production, consumption, imports, exports, shortage and price. Production potential is derived from the settlement's biome, moisture, temperature, elevation, coast/river access and founding resource deposits.
+The institutional economy extends the v1.8 World Market with processed goods:
 
-### Agriculture and climate
+- Flour
+- Bread
+- Lumber
+- Steel
+- Tools
+- Weapons
+- Ships
+- Prepared Medicine
+- Manuscripts
 
-Grain, rice, livestock and wine respond to the Living Almanac. Crop yield, drought, flood and other weather pressure alter actual output before local consumption is applied. Food security is then calculated from remaining physical reserves across staple commodities.
+Facilities consume actual local stocks. A foundry cannot create steel without iron and coal; a shipyard cannot create hulls without lumber and steel; a bakery cannot create bread without flour and salt. Outputs remain persistent in the settlement market state and become inputs for later systems.
 
-A bad harvest therefore follows a causal chain:
+### Civic and knowledge institutions
+
+The simulation includes managed farms, ranches, fisheries, lumber camps, mines, granaries, warehouses, market halls, mills, bakeries, sawmills, foundries, smithies and shipyards alongside hospitals, libraries, universities, museums, temple archives and observatories.
+
+Their effects are causal:
+
+- **Granaries** accumulate staple reserves during secure years and release them during shortages.
+- **Warehouses and market halls** reduce local market stress.
+- **Hospitals** consume physical inputs and improve settlement resilience.
+- **Universities and observatories** add real research progress and realm innovation capacity.
+- **Libraries and temple archives** preserve documentary Knowledge sources and strengthen archival survival.
+- **Museums** place important artifacts into protected institutional collections.
+- **Smithies and shipyards** create weapons and ships that are exposed as realm strategic assets for the military simulation layer.
+
+### Great Works
+
+Realms can commission multi-year projects whose construction consumes physical materials over time. The current Great Work catalog includes:
+
+- Great Library
+- Grand University
+- Royal Hospital
+- Imperial Shipyard
+- National Museum
+- Sacred Archive
+- Great Observatory
+- Great Granary
+
+A Great Work is both a historical event and a persistent institution. Construction progress, supplied materials, settlement, realm, condition, collections and completion year survive save/export round-trips and appear as first-class Universal Encyclopedia articles.
+
+### Destruction and historical memory
+
+Institutions can be damaged by fire, crime and wartime destruction. Catastrophic destruction has real downstream consequences. If a library holding documentary evidence burns, its preserved sources are marked destroyed and removed from the live claim-evidence graph. A museum loss can scatter artifacts and alter their provenance.
+
+This closes a major causal loop:
 
 ```text
-Drought
- → Grain/Rice output falls
- → Local stock declines
- → Coverage falls below demand
- → Price rises
- → Food security drops
- → Market stress rises
- → Prosperity and stability weaken
- → Unemployment/crime pressure rises
- → Severe cases become famine history
+Historical event
+ → written evidence / artifact
+ → archive or museum custody
+ → centuries of preservation
+ → war / fire / collapse
+ → institution destroyed
+ → evidence disappears
+ → public history becomes weaker, disputed or lost
+ → later archaeology can challenge it again
 ```
 
-### Technology and production
+### Strategic assets
 
-v1.7 technology is part of the same calculation. Food technologies improve agricultural production; engineering and metallurgy improve extraction; navigation and trade capabilities increase transport capacity. This means technological divergence now produces real economic divergence between civilizations.
-
-### Supply chains
-
-Roads act as cargo edges. A shipment occurs when one market has usable surplus while a connected market has enough shortage or price pressure. Cargo is physically removed from the exporter and added to the importer, with transport loss.
-
-Coastal settlements can also exchange goods by sea once participating realms possess sufficient navigation capability. War reduces cross-realm transport capacity; city crime also lowers overland logistics efficiency.
-
-The live flow ledger records commodity, origin, destination, quantity, price gap, method and year. Shortages and strong surplus exports can become historical **commodity_shortage**, **famine** and **trade_boom** events.
+Institutions aggregate realm-level **weapons, ships, tools, research, health and logistics** capacity. These values intentionally form the handoff point for the next military/logistics layer, where armies and fleets can consume the same physical economy rather than using abstract combat points.
 
 ### Endless-world compatibility
 
-Current markets remain detailed because their stocks affect the next simulation step. Historical annual economic summaries use the same bounded-history strategy as climate, artifacts and technology: old detailed years compact into 250-year archive blocks. Recent cargo flows and shocks are capped while long-run aggregate trends survive.
+Current facilities and collections remain detailed because they affect present simulation. Old annual institutional summaries compact into 250-year archive blocks. Great Works, surviving institutions and major destruction events remain persistent historical anchors while routine annual telemetry is bounded.
+
+## v1.8 World Market
+
+Every settlement owns a persistent market containing Grain, Rice, Fish, Livestock, Timber, Iron, Copper, Salt, Coal and Wine. Weather and technology affect production; road and maritime networks move physical cargo; shortages affect prices, food security, prosperity, crime and stability. The calibrated peacetime economy remains sustainable while drought, war, isolation and transport failure can still produce real famine.
 
 ## v1.7 Hall of Discovery
 
-Technology exists per realm with gradual adoption, research, trade/scholarship/espionage diffusion and open-ended Synthesis breakthroughs. Printing spreads documentary evidence; metallurgy and engineering improve material culture; food, trade and navigation capabilities now feed directly into the v1.8 physical economy.
+Technology exists per realm with gradual adoption, research, trade/scholarship/espionage diffusion and open-ended Synthesis breakthroughs. Printing spreads documentary evidence; metallurgy and engineering improve material culture; food, trade and navigation capabilities feed directly into the physical economy and institutions.
 
 ## Knowledge, artifacts and public memory
 
-History can leave behind persistent books and artifacts; rediscovery can alter public knowledge; printing can spread surviving evidence; and economic crises now become objective events that can later be remembered, disputed, propagandized or forgotten.
+History can leave behind persistent books and artifacts; institutions can preserve those objects; wars and disasters can destroy their surviving evidence; rediscovery can alter public knowledge; and the Living Wiki presents that changing historical perspective.
 
 ## Main workspaces
 
@@ -121,7 +156,8 @@ History can leave behind persistent books and artifacts; rediscovery can alter p
 - Living Almanac
 - Treasury of Memory
 - Hall of Discovery
-- **World Market** with commodity board, local market inspection, supply-chain flows, shortage chronicle and Economic Ledger HTML export
+- World Market with physical commodity stocks and supply-chain flows
+- **Civic Foundry** with institutions, production chains, Great Works, realm strategic assets and Civic Ledger HTML export
 - local save/load and `.worldforge.json` import/export
 
 ## Architecture
@@ -141,10 +177,12 @@ knowledge-engine.js          claims, sources, rumours and public memory
 artifact-engine.js           persistent material culture and written works
 technology-engine.js         research, adoption, diffusion and endless innovation
 resource-engine.js           physical production, inventory, prices and cargo flows
+institution-engine.js        institutions, industry, Great Works and strategic assets
 wiki-engine.js               cross-linked encyclopedia
 artifact-wiki-adapter.js     artifact encyclopedia integration
 technology-wiki-adapter.js   technology encyclopedia integration
 resource-wiki-adapter.js     commodity and settlement-market encyclopedia integration
+institution-wiki-adapter.js  institution, processed-good and Great Work encyclopedia integration
 creator-suite-engine.js      authoring toolkit
 canon-bridge-engine.js       authoring ↔ simulation bridge
 living-wiki-engine.js        adaptive historical presentation
@@ -156,6 +194,6 @@ Browser UI layers are split into matching `*-ui.js` and CSS modules. Later syste
 
 ## Testing and deployment
 
-Every push to `main` runs JavaScript syntax validation plus the complete regression chain from **v0.1 through v1.8** before GitHub Pages deployment. v1.8 tests cover deterministic chunk-independent economic simulation, commodity stock/price validity, road cargo flow, physical famine generation, Wiki integration, historical compaction and save/export round-trips.
+Every push to `main` runs JavaScript syntax validation plus the complete regression chain from **v0.1 through v1.9** before GitHub Pages deployment. v1.9 tests cover deterministic chunk-independent institution progression, physical processing chains, Great Work material construction, Universal Wiki integration, library-based Knowledge preservation and catastrophic evidence loss, strategic realm assets, bounded historical compaction and save/export round-trips.
 
 Everything runs locally in the browser; generated worlds are not uploaded by the application.
