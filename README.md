@@ -4,17 +4,20 @@
 
 **Live:** https://mrhakan.github.io/WorldForge/
 
-## Current release — v4.0 World Building & Pixel Civilization
+## Current release — v4.1 Historical Landscape & Architecture
 
-WorldForge is one causal simulation rather than a collection of disconnected generators. Geography shapes climate and resources; resources feed markets and institutions; institutions create jobs and strategic assets; households and housing create demographic and urban pressure; municipal systems, emergencies, food security and politics feed social stability; diplomacy and military power shape the international order; and v4.0 projects that simulation into a deterministic visual civilization layer.
+WorldForge is one causal simulation rather than a collection of disconnected generators. Geography shapes climate and resources; resources feed markets and institutions; institutions create jobs and strategic assets; households and housing create demographic and urban pressure; municipal systems, emergencies, food security and politics feed social stability; diplomacy and military power shape the international order; and the v4.x line turns that accumulated simulation into a deterministic visual civilization.
 
-The v4.0 worldbuilding system creates a compact visual profile for every settlement from existing simulation state. Population, prosperity, trade, housing pressure, slums, municipal services, culture, geography, guard strength and realm importance determine settlement type, districts, structure composition, fortifications and visual identity.
+v4.1 makes two major improvements to that visual layer:
 
-Pixel previews are deterministic and derived rather than stored as heavyweight entities. The renderer uses crisp-edge SVG primitives and aggregate district/structure counts, allowing WorldForge to visualize cities, ports, fortresses, frontier settlements and villages without simulating every individual building as a persistent object.
+1. **culture-specific architecture is structural rather than just a palette change**;
+2. **history remains visible in the landscape** through bounded ruins, battlefields, Great Works and strategic infrastructure.
+
+A northern settlement can now render longhouses, timber halls and beacon towers while an imperial settlement uses courtyard houses, villas and formal stone civic architecture. Historical Adventure sites can become visible ruins, Great Works become landmarks, and major settlement-bound battles can leave battlefield markers. Important geography can also materialize bridges, canals, lighthouses and fortified harbors when the underlying simulation supports them.
 
 ## Current major systems
 
-- deterministic procedural geography, terrain, climate, biomes, rivers, resources, settlements, realms and roads;
+- deterministic geography, terrain, climate, biomes, rivers, resources, settlements, realms and roads;
 - long-running history with migration, trade, diplomacy, war, conquest, collapse and historical replay;
 - people, houses, inheritance, rulers, heirs and succession crises;
 - cities, districts, businesses, corruption, guards, gangs and crime;
@@ -43,7 +46,8 @@ Pixel previews are deterministic and derived rather than stored as heavyweight e
 - politics, legitimacy, factions, unrest and internal instability;
 - diplomacy, treaties, rivalries and international relations;
 - great-power ranking, blocs, spheres of influence, balancing and world-order polarity;
-- settlement worldbuilding, districts, structure archetypes and deterministic pixel previews.
+- settlement worldbuilding, districts, aggregate structures and deterministic pixel previews;
+- culture-specific architectural families and history-derived landscape landmarks.
 
 ## Version line
 
@@ -78,67 +82,60 @@ Pixel previews are deterministic and derived rather than stored as heavyweight e
 29. **v2.9 Diplomacy & International Relations** — bilateral relations, treaties, rivalries and diplomatic state.
 30. **v3.0 Geopolitical Blocs & World Orders** — great powers, blocs, spheres of influence, balancing, congresses and polarity.
 31. **v4.0 World Building & Pixel Civilization** — simulation-driven settlement identities, districts, structures and deterministic pixel settlement previews.
+32. **v4.1 Historical Landscape & Architecture** — culture-specific architectural forms plus ruins, battlefields, Great Works and infrastructure landmarks derived from simulation history.
 
-## v4.0 World Building & Pixel Civilization
+## v4.1 Historical Landscape & Architecture
 
-Every settlement receives a compact worldbuilding profile containing:
+### Eight architectural families
 
-- settlement type;
-- culture and biome visual style;
-- wealth, defense and importance tiers;
-- condition, service, housing and slum pressure;
-- normalized districts;
-- aggregate structure inventory;
-- deterministic preview seed;
-- visual identity text derived from simulation state.
+The visual renderer resolves stable simulation archetypes into culture-specific forms:
 
-### Settlement and district logic
+- **Imperial Masonry** — courtyard houses, villas, formal civic halls and columned temples;
+- **Northern Timber** — longhouses, great halls, timber shrines and beacon towers;
+- **Maritime Stucco** — waterfront houses, sea villas, quayside warehouses and coastal temples;
+- **Highland Stone** — stone houses, tower houses, hill towers and mountain gates;
+- **Frontier Stockade** — timber dwellings, trading posts, palisades and stockade gates;
+- **Mercantile Urban** — row houses, guild houses, covered markets and exchange halls;
+- **Riverine Timber** — stilt houses, river manors, waterside warehouses and quays;
+- **Steppe Court** — yurt clusters, caravan houses, khan halls, shrines and earthworks.
 
-WorldForge can visually distinguish capitals, port cities, fortress cities, frontier outposts, cities, towns, villages and hamlets. Existing City districts are reused where available and normalized into worldbuilding district archetypes. Smaller settlements receive deterministic fallback layouts rather than requiring a separate heavyweight urban simulation.
+The simulation still stores compact base archetypes such as `house`, `warehouse`, `temple`, `watchtower` and `wall_segment`. Culture changes how those archetypes are rendered rather than multiplying persistent simulation entities.
 
-Current district archetypes include:
+### Historical landscape
 
-- Old Town;
-- Residential;
-- Market;
-- Harbor;
-- Temple;
-- Military;
-- Noble;
-- Civic;
-- Industrial;
-- Slums;
-- Outskirts.
+Every settlement may contain up to ten derived landmark summaries. Sources include:
 
-### Structure archetypes
+- active Adventure sites → ruins or battlefields;
+- active Institution Great Works → monumental landmarks;
+- major settlement-bound wars, battles, conquests, sieges, collapses, fires, famines and disasters → battlefield, ruin or memorial landscape;
+- geography + trade + public services + defense → lighthouses, bridges, canals and fortified ports;
+- major capitals → civic monuments.
 
-The first v4.0 registry provides reusable structures across housing, commerce, religion, industry, agriculture, civic infrastructure, defense and maritime activity. Examples include houses by wealth class, merchant houses, market stalls, warehouses, workshops, temples, civic halls, wells, granaries, farms, barracks, watchtowers, wall segments, gates, docks and shipyards.
-
-Fortified settlements are guaranteed to expose visible defensive structures. Coastal and river settlements can gain harbor districts and maritime structures when their simulation state supports them.
-
-### Pixel renderer
-
-The current renderer produces deterministic SVG settlement previews using crisp-edge primitives. It draws district structure composition together with roads, waterways, coastlines and fortifications. The same world, year and settlement state produce the same preview.
-
-The renderer is intentionally derived and lightweight:
-
-- previews are not serialized into world saves;
-- no persistent entity is created for every individual building;
-- compact district and structure counts drive rendering;
-- runtime indexes live in `WeakMap` caches outside serialized state.
+Each landmark stores a source reference, origin year, age, condition, importance and deterministic visual position.
 
 ### Worldbuilding Atelier
 
-The browser UI adds a **Worldbuilding Atelier** with:
+The browser workspace now shows:
 
-- settlement selection;
-- deterministic pixel preview;
-- visual identity and settlement metadata;
-- district breakdown;
+- settlement and district KPIs;
+- deterministic pixel settlement scene;
+- visual identity;
+- architectural family, materials, roof form and street pattern;
+- historical-landscape cards;
+- landmark origin, age, condition and importance;
 - structure inventory;
 - JSON Worldbuilding Ledger export.
 
-Worldbuilding is also integrated into the Universal Encyclopedia with article types for settlement worldbuilding, districts, structure archetypes and visual identity.
+### Universal Encyclopedia
+
+The worldbuilding adapter includes:
+
+- `settlement_worldbuilding`;
+- `settlement_visual_identity`;
+- `district_profile`;
+- `structure_archetype`;
+- `architecture_style`;
+- `historical_landmark`.
 
 ## Causal simulation chain
 
@@ -157,10 +154,10 @@ Seed / geography
   → diplomacy / military / treasury
   → great powers / blocs / spheres / world order
   → settlement worldbuilding
-  → districts / structures / pixel civilization
+  → culture-specific architecture
+  → historical landscape
+  → deterministic pixel civilization
 ```
-
-The later layers derive from earlier simulation state rather than replacing it. Visual worldbuilding therefore reflects the same population, economy, institutions, politics and history used elsewhere in WorldForge.
 
 ## Architecture
 
@@ -191,9 +188,9 @@ nutrition-engine.js           food security, famine and relief
 politics-engine.js            legitimacy, factions and unrest
 diplomacy-engine.js           bilateral international relations
 world-order-engine.js         great powers, blocs and world order
-worldbuilding-engine.js       settlement worldbuilding profiles
-structure-archetypes.js       reusable visual structure registry
-pixel-structure-renderer.js   deterministic crisp-edge settlement renderer
+worldbuilding-engine.js       settlement, architecture and landmark profiles
+structure-archetypes.js       base structures + architecture families
+pixel-structure-renderer.js   culture-specific structures + landmark renderer
 worldbuilding-ui.js           Worldbuilding Atelier
 worldbuilding-wiki-adapter.js Encyclopedia worldbuilding integration
 *-ui.js / *-loader.js         browser workspaces and compatibility bootstraps
@@ -201,27 +198,29 @@ worldbuilding-wiki-adapter.js Encyclopedia worldbuilding integration
 
 ## Determinism and performance
 
-WorldForge is designed for long-running deterministic worlds. New systems should preserve:
+WorldForge is designed for long-running deterministic worlds. New systems preserve:
 
 - deterministic output from the same seed and simulation path;
 - caller chunking consistency such as `4 years == 2 + 2`;
-- same-year idempotency where annual systems can be called more than once;
+- same-year idempotency for annual systems;
 - bounded historical detail with archival compaction;
-- compact aggregate state rather than unnecessary entity explosion;
+- compact aggregate state rather than entity explosion;
 - runtime-only indexes and caches outside saved world data.
 
-v4.0 follows those rules by storing one compact worldbuilding profile per settlement plus bounded district/structure summaries while generating pixel previews on demand.
+v4.1 stores at most ten landmarks per settlement and keeps Adventure-site, Great Work and event indexes in runtime-only `WeakMap` caches. Pixel scenes remain derived output and are not serialized.
 
 ## Testing and deployment
 
-GitHub Actions contains the historical deterministic regression chain for the original v0.1→v2.2 stack plus dedicated compatibility workflows for v2.3 through v4.0.
+GitHub Actions contains the historical deterministic regression chain for the original v0.1→v2.2 stack plus dedicated compatibility workflows for later releases.
 
-The v4.0 regression verifies settlement coverage, district/structure coverage, deterministic crisp-edge SVG output, Universal Encyclopedia integration, runtime-cache reuse, same-year idempotency, deterministic caller chunking, Workforce and World Order compatibility, save/export round trips, maritime harbor behavior and fortified-settlement visual invariants.
+The v4.1 gate runs Institution/Great Work regression, v3.0 World Order regression, v4.0 worldbuilding compatibility and a dedicated v4.1 suite covering architecture families, history→landmark causality, deterministic rendering, cache reuse, same-year idempotency, caller chunking and save/export round trips.
 
-`main` is the deployment source for GitHub Pages. A release is considered complete only after the relevant dedicated workflow gates and the Pages validation/deployment succeed.
+`main` is the authoritative deployment source for GitHub Pages. A release is considered complete only after PR compatibility gates and the post-merge Pages validation/deployment succeed.
 
-## Direction after v4.0
+See [`V4.1.md`](V4.1.md) for detailed release notes.
 
-The next visual-development line focuses on deeper historical landscape and architecture rather than a parallel simulation. Planned work includes culture-specific architecture families, historical landmarks, ruins, abandoned settlements, battlefields, monuments, bridges, canals, lighthouses, fortified ports and a richer world → settlement → district visual zoom hierarchy.
+## Next visual direction
+
+The next logical visual milestone is a true **world → settlement → district zoom hierarchy** with a reusable sprite atlas, larger landmark compositions, route/road continuity and time-aware visual evolution while preserving the aggregate simulation model.
 
 Everything runs locally in the browser; generated worlds are not uploaded by the application.

@@ -1,0 +1,49 @@
+name: Validate WorldForge v4.1 Historical Landscape & Architecture
+
+on:
+  push:
+    branches: ["main", "v4.1-historical-landscape-architecture"]
+  pull_request:
+    branches: ["main"]
+
+permissions:
+  contents: read
+
+jobs:
+  validate-v41:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Check v4.1 JavaScript syntax
+        run: |
+          node --check structure-archetypes.js
+          node --check pixel-structure-renderer.js
+          node --check worldbuilding-engine.js
+          node --check worldbuilding-wiki-adapter.js
+          node --check worldbuilding-loader.js
+          node --check worldbuilding-ui.js
+          node --check tests/worldbuilding-v41.mjs
+      - name: Validate v4.1 architecture and landscape hooks
+        run: |
+          grep -q "ARCHITECTURE_FAMILIES" structure-archetypes.js
+          grep -q "CULTURE_VARIANTS" structure-archetypes.js
+          grep -q "data-worldforge-renderer=\"v4.1\"" pixel-structure-renderer.js
+          grep -q "data-architecture-family" pixel-structure-renderer.js
+          grep -q "landmarkGlyph" pixel-structure-renderer.js
+          grep -q "historicalLandmarks" worldbuilding-engine.js
+          grep -q "maxLandmarks" worldbuilding-engine.js
+          grep -q "indexedHistoricalSites" worldbuilding-engine.js
+          grep -q "indexedGreatWorks" worldbuilding-engine.js
+          grep -q "historical_landmark" worldbuilding-wiki-adapter.js
+          grep -q "architecture_style" worldbuilding-wiki-adapter.js
+          grep -q "HISTORICAL LANDSCAPE" worldbuilding-ui.js
+          grep -q "requestAnimationFrame" worldbuilding-ui.js
+      - name: Run institution and Great Work regression
+        run: node tests/institutions.mjs
+      - name: Run v3.0 world-order regression
+        run: node tests/world-order.mjs
+      - name: Run v4.0 worldbuilding compatibility regression
+        run: node tests/worldbuilding.mjs
+      - name: Run v4.1 historical landscape regression
+        run: node tests/worldbuilding-v41.mjs

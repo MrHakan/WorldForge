@@ -1,9 +1,9 @@
 # Current WorldForge Release
 
-## v4.0 — World Building & Pixel Civilization Layer
+## v4.1 — Historical Landscape & Architecture
 
-The current release turns WorldForge's existing simulation state into deterministic visual settlements. Population, prosperity, housing pressure, municipal service quality, geography, culture and geopolitical importance now drive settlement identity, district composition, structure inventories and crisp pixel-art previews.
+The current release extends the Pixel Civilization layer with culture-specific architectural forms and a bounded historical landscape. Settlement previews can now retain visible traces of Adventure ruins, major battles, Great Works and important infrastructure such as lighthouses, bridges, canals, fortified ports and monuments.
 
-Core systems: compact settlement worldbuilding profiles; culture- and biome-aware visual identities; simulation-derived district plans; reusable structure archetypes; deterministic SVG pixel renderer; fortification, harbor, slum, civic, temple, market, industrial and residential visual logic; Worldbuilding Atelier; Universal Encyclopedia integration; bounded save state; runtime indexing; and dedicated v4.0 deterministic regression coverage.
+Core systems: eight architecture families; culture-specific structure variants; history-derived landmarks; Adventure and Institution integration; deterministic landmark positions; Historical Landscape cards in the Worldbuilding Atelier; `historical_landmark` and `architecture_style` Universal Encyclopedia types; v4.0 save/profile migration; runtime-only historical indexes; bounded landmark state; and dedicated v4.1 deterministic regression coverage.
 
-See [`V4.0.md`](V4.0.md) for complete release notes and architecture details.
+See [`V4.1.md`](V4.1.md) for complete release notes and architecture details.
