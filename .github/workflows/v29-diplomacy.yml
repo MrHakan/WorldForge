@@ -1,0 +1,51 @@
+name: Validate WorldForge v2.9 Diplomacy & International Relations
+
+on:
+  push:
+    branches: ["main", "v2.9-diplomacy-international-relations"]
+  pull_request:
+    branches: ["main"]
+
+permissions:
+  contents: read
+
+jobs:
+  validate-v29:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Check v2.8 and v2.9 JavaScript syntax
+        run: |
+          node --check politics-engine.js
+          node --check politics-loader.js
+          node --check politics-ui.js
+          node --check diplomacy-engine.js
+          node --check diplomacy-wiki-adapter.js
+          node --check diplomacy-loader.js
+          node --check diplomacy-ui.js
+          node --check tests/politics.mjs
+          node --check tests/diplomacy.mjs
+      - name: Validate v2.9 runtime files and optimization hooks
+        run: |
+          test -f diplomacy-engine.js
+          test -f diplomacy-wiki-adapter.js
+          test -f diplomacy-loader.js
+          test -f diplomacy-ui.js
+          test -f diplomacy.css
+          grep -q "WorldForgeDiplomacy" diplomacy-engine.js
+          grep -q "diplomatic_relation" diplomacy-wiki-adapter.js
+          grep -q "realm_diplomacy" diplomacy-wiki-adapter.js
+          grep -q "diplomacy-loader.js" politics-loader.js
+          grep -q "new WeakMap" diplomacy-engine.js
+          grep -q "requestAnimationFrame" diplomacy-ui.js
+          grep -q "lastAppliedYear" diplomacy-engine.js
+          grep -q "__diplomacyBridge" diplomacy-engine.js
+          grep -q "TREATY_TYPES" diplomacy-engine.js
+          grep -q "trade_agreement" diplomacy-engine.js
+          grep -q "humanitarian_aid" diplomacy-engine.js
+          grep -q "warRisk" diplomacy-engine.js
+      - name: Run v2.8 politics regression
+        run: node tests/politics.mjs
+      - name: Run v2.9 diplomacy regression
+        run: node tests/diplomacy.mjs
