@@ -1,0 +1,35 @@
+name: v4.5 Urban Evolution
+
+on:
+  push:
+    branches: [main, v4.5-living-cities]
+    paths:
+      - 'urban-evolution-engine.js'
+      - 'V4.5.md'
+      - '.github/workflows/v45-urban-evolution.yml'
+  pull_request:
+    paths:
+      - 'urban-evolution-engine.js'
+      - 'V4.5.md'
+      - '.github/workflows/v45-urban-evolution.yml'
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Syntax check
+        run: node --check urban-evolution-engine.js
+      - name: Contract smoke test
+        run: |
+          node <<'NODE'
+          const fs=require('fs');
+          const src=fs.readFileSync('urban-evolution-engine.js','utf8');
+          for(const token of ["VERSION='4.5.0'","stable","growing","declining","ruined","rebuilding","wall_expansion","reconstruction","world.urbanEvolution"]){
+            if(!src.includes(token)) throw new Error(`Missing v4.5 contract token: ${token}`);
+          }
+          console.log('v4.5 urban evolution contract OK');
+          NODE
