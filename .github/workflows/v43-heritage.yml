@@ -1,0 +1,47 @@
+name: Validate WorldForge v4.3 Heritage Museums & Relics
+
+on:
+  push:
+    branches: ["main", "v4.3-heritage-museums-relics"]
+  pull_request:
+    branches: ["main"]
+
+permissions:
+  contents: read
+
+jobs:
+  validate-v43:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Check v4.3 JavaScript syntax
+        run: |
+          node --check heritage-engine.js
+          node --check heritage-pixel-renderer.js
+          node --check heritage-wiki-adapter.js
+          node --check heritage-ui.js
+          node --check worldbuilding-loader.js
+          node --check tests/heritage-v43.mjs
+      - name: Validate v4.3 heritage hooks
+        run: |
+          grep -q "world_heritage" heritage-engine.js
+          grep -q "restitution" heritage-engine.js
+          grep -q "wartime_removal" heritage-engine.js
+          grep -q "rescue_operation" heritage-engine.js
+          grep -q "data-heritage-overlay" heritage-pixel-renderer.js
+          grep -q "data-worldforge-relic-card" heritage-pixel-renderer.js
+          grep -q "heritage_site" heritage-wiki-adapter.js
+          grep -q "restitution_claim" heritage-wiki-adapter.js
+          grep -q "HERITAGE, MUSEUMS & RELICS" heritage-ui.js
+          grep -q "heritage-engine.js" worldbuilding-loader.js
+      - name: Run v4.0 worldbuilding compatibility regression
+        run: node tests/worldbuilding.mjs
+      - name: Run v4.1 historical landscape regression
+        run: node tests/worldbuilding-v41.mjs
+      - name: Run v4.1.1 pixel diversity regression
+        run: node tests/pixel-art-polish.mjs
+      - name: Run v4.2 archaeology compatibility regression
+        run: node tests/archaeology-v42.mjs
+      - name: Run v4.3 heritage regression
+        run: node tests/heritage-v43.mjs
