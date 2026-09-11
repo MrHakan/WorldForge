@@ -1,0 +1,15 @@
+(function(root,factory){
+ const api=factory(root&&root.WorldForgePixelRenderer,root&&root.WorldForgeCityActivity,root&&root.WorldForgeWorldbuilding);
+ if(typeof module!=='undefined'&&module.exports)module.exports=api;if(root)root.WorldForgeCityActivityPixel=api;
+})(typeof window!=='undefined'?window:globalThis,function(Renderer,Activity,Worldbuilding){
+'use strict';if(!Renderer||!Activity||!Worldbuilding)throw new Error('WorldForge v4.7 City Activity Pixel dependencies missing');
+const VERSION='4.7.0',BASE=Renderer.renderSettlement,n=v=>Math.round(Number(v)||0),clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+const rect=(x,y,w,h,c,o='')=>`<rect x="${n(x)}" y="${n(y)}" width="${Math.max(1,n(w))}" height="${Math.max(1,n(h))}" fill="${c}" ${o}/>`;
+const line=(x1,y1,x2,y2,c,w=1,o='')=>`<line x1="${n(x1)}" y1="${n(y1)}" x2="${n(x2)}" y2="${n(y2)}" stroke="${c}" stroke-width="${Math.max(1,n(w))}" ${o}/>`;
+function inject(svg,markup){return String(svg).replace(/^<svg\b/,`<svg data-worldforge-city-activity="${VERSION}"`).replace(/<\/svg>\s*$/,`${markup}</svg>`)}
+function dots(count,W,H,kind){let o='';const limit=Math.min(14,Math.max(0,count));for(let i=0;i<limit;i++){const x=W*(.15+((i*37)%70)/100),y=H*(.7+((i*19)%12)/100);o+=kind==='worker'?rect(x,y,2,3,'#d9c9a2','opacity=".8"'):rect(x,y,4,2,'#9b6b43','opacity=".78"')}return o}
+function boats(count,W,H){let o='';for(let i=0;i<Math.min(8,count);i++){const x=W*(.08+((i*23)%36)/100),y=H*(.81+((i*13)%8)/100);o+=`<g data-port-boat="1">${rect(x,y,7,2,'#754f32')}${line(x+1,y,x+4,y-5,'#d7d0b5',1)}${rect(x+4,y-5,1,5,'#d7d0b5')}</g>`}return o}
+function renderSettlement(profile,opt={}){const svg=BASE(profile,opt),A=profile.cityActivity;if(!A)return inject(svg,'<g data-city-activity-overlay="empty"></g>');const W=Math.max(320,Number(opt.width)||720),H=Math.max(220,Number(opt.height)||440);let o=`<g data-city-activity-overlay="v4.7" data-traffic="${A.traffic}" data-maintenance="${A.maintenance}">`;o+=dots(A.workers,W,H,'worker')+dots(A.carts,W,H,'cart');if(A.boats)o+=boats(A.boats,W,H);if(A.maintenance>.55)o+=`<g data-maintenance-zone="1">${rect(W*.68,H*.68,16,3,'#c8a85a')}${line(W*.69,H*.68,W*.71,H*.61,'#8b7442',2)}${line(W*.73,H*.68,W*.75,H*.61,'#8b7442',2)}</g>`;if(A.festival)o+=`<g data-festival="1">${line(W*.38,H*.22,W*.58,H*.22,'#d0ac64',1,'stroke-dasharray="2 2"')}${rect(W*.47,H*.18,3,3,'#d56f6f')}${rect(W*.51,H*.18,3,3,'#6ba3b5')}</g>`;if(A.nightLights>.58)o+=`<g data-night-lights="${A.nightLights}">${rect(W*.35,H*.44,2,2,'#f1cf74','opacity=".8"')}${rect(W*.55,H*.39,2,2,'#f1cf74','opacity=".8"')}${rect(W*.63,H*.48,2,2,'#f1cf74','opacity=".8"')}</g>`;o+='</g>';return inject(svg,o)}
+const baseView=Worldbuilding.settlementView.bind(Worldbuilding);Worldbuilding.settlementView=function(world,sid){const v=baseView(world,sid);try{v.cityActivity=Activity.settlementView(world,sid)}catch(_){}return v};
+Worldbuilding.CITY_ACTIVITY_VERSION=VERSION;Renderer.renderSettlement=renderSettlement;Renderer.CITY_ACTIVITY_VERSION=VERSION;return{VERSION,renderSettlement};
+});
