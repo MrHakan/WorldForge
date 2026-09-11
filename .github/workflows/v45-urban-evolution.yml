@@ -5,11 +5,15 @@ on:
     branches: [main, v4.5-living-cities]
     paths:
       - 'urban-evolution-engine.js'
+      - 'urban-evolution-pixel-renderer.js'
+      - 'worldbuilding-loader.js'
       - 'V4.5.md'
       - '.github/workflows/v45-urban-evolution.yml'
   pull_request:
     paths:
       - 'urban-evolution-engine.js'
+      - 'urban-evolution-pixel-renderer.js'
+      - 'worldbuilding-loader.js'
       - 'V4.5.md'
       - '.github/workflows/v45-urban-evolution.yml'
 
@@ -22,14 +26,25 @@ jobs:
         with:
           node-version: '22'
       - name: Syntax check
-        run: node --check urban-evolution-engine.js
+        run: |
+          node --check urban-evolution-engine.js
+          node --check urban-evolution-pixel-renderer.js
+          node --check worldbuilding-loader.js
       - name: Contract smoke test
         run: |
           node <<'NODE'
           const fs=require('fs');
-          const src=fs.readFileSync('urban-evolution-engine.js','utf8');
+          const engine=fs.readFileSync('urban-evolution-engine.js','utf8');
+          const pixel=fs.readFileSync('urban-evolution-pixel-renderer.js','utf8');
+          const loader=fs.readFileSync('worldbuilding-loader.js','utf8');
           for(const token of ["VERSION='4.5.0'","stable","growing","declining","ruined","rebuilding","wall_expansion","reconstruction","world.urbanEvolution"]){
-            if(!src.includes(token)) throw new Error(`Missing v4.5 contract token: ${token}`);
+            if(!engine.includes(token)) throw new Error(`Missing v4.5 engine token: ${token}`);
           }
-          console.log('v4.5 urban evolution contract OK');
+          for(const token of ['data-urban-state','data-urban-evolution-overlay','outsideWalls','URBAN_EVOLUTION_VERSION']){
+            if(!pixel.includes(token)) throw new Error(`Missing v4.5 pixel token: ${token}`);
+          }
+          for(const token of ['urban-evolution-engine.js','urban-evolution-pixel-renderer.js','simulateUrbanYear']){
+            if(!loader.includes(token)) throw new Error(`Missing v4.5 loader token: ${token}`);
+          }
+          console.log('v4.5 urban evolution + pixel integration contract OK');
           NODE
