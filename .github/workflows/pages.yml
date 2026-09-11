@@ -62,6 +62,7 @@ jobs:
           node --check map-enhancement.js
           node --check map-finance-layer.js
           node --check workforce-engine.js
+          node --check workforce-calibration.js
           node --check workforce-wiki-adapter.js
           node --check workforce-loader.js
           node --check workforce-map-layer.js
@@ -114,6 +115,7 @@ jobs:
         run: |
           test -f index.html
           test -f workforce-engine.js
+          test -f workforce-calibration.js
           test -f workforce-wiki-adapter.js
           test -f workforce-loader.js
           test -f workforce-ui.js
@@ -126,6 +128,8 @@ jobs:
           grep -q "ship_chandler" workforce-engine.js
           grep -q "allocateConscription" workforce-engine.js
           grep -q "refugee_movement" workforce-engine.js
+          grep -q "employmentTarget" workforce-calibration.js
+          grep -q "calibratedMigration" workforce-calibration.js
           grep -q "The Labor Exchange" workforce-ui.js
           grep -q "PROFESSION REGISTRY" workforce-ui.js
           grep -q "Export Workforce Ledger" workforce-ui.js
@@ -133,6 +137,7 @@ jobs:
           grep -q "workforce-mode" workforce-map-layer.js
           grep -q "Migration flows" workforce-map-layer.js
           grep -q "Recruitment" workforce-map-layer.js
+          grep -q "workforce-calibration.js" workforce-loader.js
           grep -q "treasury-loader.js" .github/workflows/pages.yml
           grep -q "workforce-loader.js" .github/workflows/pages.yml
           ! grep -q 'id="targetYearInput"[^>]*max="5000"' index.html
