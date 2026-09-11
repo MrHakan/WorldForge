@@ -1,9 +1,9 @@
 # Current WorldForge Release
 
-## v3.0 — Geopolitical Blocs, Great Powers & World Orders
+## v4.0 — World Building & Pixel Civilization Layer
 
-The current release lifts v2.9 bilateral diplomacy into a full international-system simulation.
+The current release turns WorldForge's existing simulation state into deterministic visual settlements. Population, prosperity, housing pressure, municipal service quality, geography, culture and geopolitical importance now drive settlement identity, district composition, structure inventories and crisp pixel-art previews.
 
-Core systems: composite realm power ranking; great/major/regional/minor power tiers; prestige, influence and strategic reach; alliance-derived security blocs; trade leagues; spheres of influence and contested clients; balancing pressure and hegemonic challenge; unipolar/bipolar/multipolar/bloc-competition/fragmented world orders; arms-race, bloc-tension and proxy-risk metrics; deterministic international congresses with real diplomatic de-escalation; World Order Observatory; Universal Encyclopedia integration; and World Order Ledger export.
+Core systems: compact settlement worldbuilding profiles; culture- and biome-aware visual identities; simulation-derived district plans; reusable structure archetypes; deterministic SVG pixel renderer; fortification, harbor, slum, civic, temple, market, industrial and residential visual logic; Worldbuilding Atelier; Universal Encyclopedia integration; bounded save state; runtime indexing; and dedicated v4.0 deterministic regression coverage.
 
-See [`V3.0.md`](V3.0.md) for the complete release notes and architecture details.
+See [`V4.0.md`](V4.0.md) for complete release notes and architecture details.
