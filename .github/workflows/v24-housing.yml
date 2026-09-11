@@ -1,0 +1,49 @@
+name: Validate WorldForge v2.4 Housing
+
+on:
+  push:
+    branches: ["main", "v2.4-housing-optimization"]
+  pull_request:
+    branches: ["main"]
+
+permissions:
+  contents: read
+
+jobs:
+  validate-v24:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Check v2.3 and v2.4 JavaScript syntax
+        run: |
+          node --check household-engine.js
+          node --check household-wiki-adapter.js
+          node --check household-loader.js
+          node --check household-ui.js
+          node --check housing-engine.js
+          node --check housing-wiki-adapter.js
+          node --check housing-loader.js
+          node --check housing-ui.js
+          node --check tests/households.mjs
+          node --check tests/housing.mjs
+      - name: Validate v2.4 runtime files and optimization hooks
+        run: |
+          test -f housing-engine.js
+          test -f housing-wiki-adapter.js
+          test -f housing-loader.js
+          test -f housing-ui.js
+          test -f housing.css
+          grep -q "WorldForgeHousing" housing-engine.js
+          grep -q "Aristocratic Estates" housing-engine.js
+          grep -q "constructionDemand" housing-engine.js
+          grep -q "overcrowdingRate" housing-engine.js
+          grep -q "housing-loader.js" household-loader.js
+          grep -q "new WeakMap" household-engine.js
+          grep -q "runtimeIndexes" household-engine.js
+          grep -q "requestAnimationFrame" household-ui.js
+          grep -q "requestAnimationFrame" housing-ui.js
+      - name: Run v2.3 household regression after optimization
+        run: node tests/households.mjs
+      - name: Run v2.4 housing land urban development and optimization regression
+        run: node tests/housing.mjs
