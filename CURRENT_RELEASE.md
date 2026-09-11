@@ -1,9 +1,9 @@
 # Current WorldForge Release
 
-## v2.6 — Health, Disease, Fire & Emergency Response
+## v2.7 — Food, Nutrition, Famine & Humanitarian Relief
 
-The current release turns v2.5 municipal health and fire risks into deterministic outbreaks, quarantines, urban fires, casualties, property losses and emergency finance.
+The current release connects physical food stocks, market prices, household poverty, siege/blockade pressure and public health to aggregate nutrition, malnutrition, rationing, famine, displacement and humanitarian relief.
 
-Core systems: aggregate disease compartments, deterministic pathogen families, disease/fire hazard generation, quarantine, emergency response capacity, municipal/realm emergency spending, district alerts, canonical epidemic/fire History events and Emergency Ledger export.
+Core systems: food-basket affordability, six food-security stages, bounded famine mortality, physical relief convoys, municipal/realm humanitarian finance, refugee-camp population, canonical famine History integration, Humanitarian & Food Security Board and Humanitarian Ledger export.
 
-See [`V2.6.md`](V2.6.md) for the complete release notes and architecture details.
+See [`V2.7.md`](V2.7.md) for the complete release notes and architecture details.

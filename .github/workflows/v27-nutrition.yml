@@ -1,0 +1,49 @@
+name: Validate WorldForge v2.7 Food & Humanitarian Relief
+
+on:
+  push:
+    branches: ["main", "v2.7-food-famine-relief"]
+  pull_request:
+    branches: ["main"]
+
+permissions:
+  contents: read
+
+jobs:
+  validate-v27:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Check v2.6 and v2.7 JavaScript syntax
+        run: |
+          node --check emergency-engine.js
+          node --check emergency-loader.js
+          node --check emergency-ui.js
+          node --check nutrition-engine.js
+          node --check nutrition-wiki-adapter.js
+          node --check nutrition-loader.js
+          node --check nutrition-ui.js
+          node --check tests/emergency.mjs
+          node --check tests/nutrition.mjs
+      - name: Validate v2.7 runtime files and optimization hooks
+        run: |
+          test -f nutrition-engine.js
+          test -f nutrition-wiki-adapter.js
+          test -f nutrition-loader.js
+          test -f nutrition-ui.js
+          test -f nutrition.css
+          grep -q "WorldForgeNutrition" nutrition-engine.js
+          grep -q "famine_crisis" nutrition-wiki-adapter.js
+          grep -q "relief_operation" nutrition-wiki-adapter.js
+          grep -q "nutrition-loader.js" emergency-loader.js
+          grep -q "new WeakMap" nutrition-engine.js
+          grep -q "requestAnimationFrame" nutrition-ui.js
+          grep -q "lastAppliedYear" nutrition-engine.js
+          grep -q "__nutritionBridge" nutrition-engine.js
+          grep -q "takeFood" nutrition-engine.js
+          grep -q "refugeeCampPopulation" nutrition-engine.js
+      - name: Run v2.6 emergency regression
+        run: node tests/emergency.mjs
+      - name: Run v2.7 food nutrition famine and humanitarian regression
+        run: node tests/nutrition.mjs
