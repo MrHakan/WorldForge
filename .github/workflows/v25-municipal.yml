@@ -1,0 +1,47 @@
+name: Validate WorldForge v2.5 Municipal Services
+
+on:
+  push:
+    branches: ["main", "v2.5-municipal-services"]
+  pull_request:
+    branches: ["main"]
+
+permissions:
+  contents: read
+
+jobs:
+  validate-v25:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Check v2.4 and v2.5 JavaScript syntax
+        run: |
+          node --check housing-engine.js
+          node --check housing-loader.js
+          node --check housing-ui.js
+          node --check municipal-engine.js
+          node --check municipal-wiki-adapter.js
+          node --check municipal-loader.js
+          node --check municipal-ui.js
+          node --check tests/housing.mjs
+          node --check tests/municipal.mjs
+      - name: Validate v2.5 runtime files and optimization hooks
+        run: |
+          test -f municipal-engine.js
+          test -f municipal-wiki-adapter.js
+          test -f municipal-loader.js
+          test -f municipal-ui.js
+          test -f municipal.css
+          grep -q "WorldForgeMunicipal" municipal-engine.js
+          grep -q "Sanitation & Sewerage" municipal-engine.js
+          grep -q "maintenanceBacklog" municipal-engine.js
+          grep -q "service_inequality" municipal-wiki-adapter.js
+          grep -q "municipal-loader.js" housing-loader.js
+          grep -q "new WeakMap" municipal-engine.js
+          grep -q "requestAnimationFrame" municipal-ui.js
+          grep -q "lastAppliedYear" municipal-engine.js
+      - name: Run v2.4 housing regression
+        run: node tests/housing.mjs
+      - name: Run v2.5 municipal infrastructure public services and optimization regression
+        run: node tests/municipal.mjs
