@@ -1,0 +1,50 @@
+name: Validate WorldForge v2.8 Politics & Unrest
+
+on:
+  push:
+    branches: ["main", "v2.8-politics-unrest"]
+  pull_request:
+    branches: ["main"]
+
+permissions:
+  contents: read
+
+jobs:
+  validate-v28:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Check v2.7 and v2.8 JavaScript syntax
+        run: |
+          node --check nutrition-engine.js
+          node --check nutrition-loader.js
+          node --check nutrition-ui.js
+          node --check politics-engine.js
+          node --check politics-wiki-adapter.js
+          node --check politics-loader.js
+          node --check politics-ui.js
+          node --check tests/nutrition.mjs
+          node --check tests/politics.mjs
+      - name: Validate v2.8 runtime files and optimization hooks
+        run: |
+          test -f politics-engine.js
+          test -f politics-wiki-adapter.js
+          test -f politics-loader.js
+          test -f politics-ui.js
+          test -f politics.css
+          grep -q "WorldForgePolitics" politics-engine.js
+          grep -q "realm_politics" politics-wiki-adapter.js
+          grep -q "civil_unrest" politics-wiki-adapter.js
+          grep -q "politics-loader.js" nutrition-loader.js
+          grep -q "new WeakMap" politics-engine.js
+          grep -q "requestAnimationFrame" politics-ui.js
+          grep -q "lastAppliedYear" politics-engine.js
+          grep -q "__politicsBridge" politics-engine.js
+          grep -q "coupRisk" politics-engine.js
+          grep -q "revolutionRisk" politics-engine.js
+          grep -q "BLOC_KEYS" politics-engine.js
+      - name: Run v2.7 nutrition regression
+        run: node tests/nutrition.mjs
+      - name: Run v2.8 politics unrest regression
+        run: node tests/politics.mjs
