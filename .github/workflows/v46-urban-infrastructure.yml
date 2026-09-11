@@ -1,0 +1,50 @@
+name: v4.6 Urban Infrastructure
+
+on:
+  push:
+    branches: [main, v4.6-urban-infrastructure]
+    paths:
+      - 'urban-infrastructure-engine.js'
+      - 'urban-infrastructure-pixel-renderer.js'
+      - 'urban-infrastructure-ui.js'
+      - 'worldbuilding-loader.js'
+      - 'V4.6.md'
+      - '.github/workflows/v46-urban-infrastructure.yml'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'urban-infrastructure-engine.js'
+      - 'urban-infrastructure-pixel-renderer.js'
+      - 'urban-infrastructure-ui.js'
+      - 'worldbuilding-loader.js'
+      - 'V4.6.md'
+      - '.github/workflows/v46-urban-infrastructure.yml'
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Syntax check
+        run: |
+          node --check urban-infrastructure-engine.js
+          node --check urban-infrastructure-pixel-renderer.js
+          node --check urban-infrastructure-ui.js
+          node --check worldbuilding-loader.js
+      - name: Contract smoke test
+        run: |
+          node <<'NODE'
+          const fs=require('fs');
+          const engine=fs.readFileSync('urban-infrastructure-engine.js','utf8');
+          const pixel=fs.readFileSync('urban-infrastructure-pixel-renderer.js','utf8');
+          const ui=fs.readFileSync('urban-infrastructure-ui.js','utf8');
+          const loader=fs.readFileSync('worldbuilding-loader.js','utf8');
+          for(const token of ["VERSION='4.6.0'",'road_upgrade','waterworks','bridge','gate_expansion','fireRisk','serviceStrain','world.urbanInfrastructure']) if(!engine.includes(token)) throw new Error(`Missing engine token: ${token}`);
+          for(const token of ['data-infrastructure-overlay','data-fire-risk','data-bridge-demand','URBAN_INFRASTRUCTURE_VERSION']) if(!pixel.includes(token)) throw new Error(`Missing pixel token: ${token}`);
+          for(const token of ['URBAN INFRASTRUCTURE & CITY SERVICES','urbanInfrastructureSummary','urbanInfrastructureProjects']) if(!ui.includes(token)) throw new Error(`Missing UI token: ${token}`);
+          for(const token of ['urban-infrastructure-engine.js','urban-infrastructure-pixel-renderer.js','urban-infrastructure-ui.js','simulateInfrastructureYear']) if(!loader.includes(token)) throw new Error(`Missing loader token: ${token}`);
+          console.log('v4.6 urban infrastructure contract OK');
+          NODE
