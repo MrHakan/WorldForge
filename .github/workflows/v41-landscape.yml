@@ -2,7 +2,7 @@ name: Validate WorldForge v4.1 Historical Landscape & Architecture
 
 on:
   push:
-    branches: ["main", "v4.1-historical-landscape-architecture"]
+    branches: ["main", "v4.1-historical-landscape-architecture", "v4.1.1-pixel-diversity-polish"]
   pull_request:
     branches: ["main"]
 
@@ -19,11 +19,13 @@ jobs:
         run: |
           node --check structure-archetypes.js
           node --check pixel-structure-renderer.js
+          node --check pixel-art-polish.js
           node --check worldbuilding-engine.js
           node --check worldbuilding-wiki-adapter.js
           node --check worldbuilding-loader.js
           node --check worldbuilding-ui.js
           node --check tests/worldbuilding-v41.mjs
+          node --check tests/pixel-art-polish.mjs
       - name: Validate v4.1 architecture and landscape hooks
         run: |
           grep -q "ARCHITECTURE_FAMILIES" structure-archetypes.js
@@ -31,6 +33,10 @@ jobs:
           grep -q "data-worldforge-renderer=\"v4.1\"" pixel-structure-renderer.js
           grep -q "data-architecture-family" pixel-structure-renderer.js
           grep -q "landmarkGlyph" pixel-structure-renderer.js
+          grep -q "data-worldforge-polish" pixel-art-polish.js
+          grep -q "gable_house" pixel-art-polish.js
+          grep -q "stockade_barracks" pixel-art-polish.js
+          grep -q "caravan_house" pixel-art-polish.js
           grep -q "historicalLandmarks" worldbuilding-engine.js
           grep -q "maxLandmarks" worldbuilding-engine.js
           grep -q "indexedHistoricalSites" worldbuilding-engine.js
@@ -47,3 +53,5 @@ jobs:
         run: node tests/worldbuilding.mjs
       - name: Run v4.1 historical landscape regression
         run: node tests/worldbuilding-v41.mjs
+      - name: Run v4.1.1 pixel-art diversity regression
+        run: node tests/pixel-art-polish.mjs
