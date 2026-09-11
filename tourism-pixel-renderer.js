@@ -1,0 +1,14 @@
+(function(root,factory){
+ const api=factory(root&&root.WorldForgePixelRenderer,root&&root.WorldForgeTourism);
+ if(typeof module!=='undefined'&&module.exports)module.exports=api;if(root)root.WorldForgeTourismPixel=api;
+})(typeof window!=='undefined'?window:globalThis,function(Renderer,Tourism){
+'use strict';if(!Renderer||!Tourism)throw new Error('WorldForge v4.4 Tourism Pixel requires renderer and tourism');
+const VERSION='4.4.0',BASE=Renderer.renderSettlement,PALETTE=Renderer.palette;const n=v=>Math.round(Number(v)||0),clamp=(v,a,b)=>Math.max(a,Math.min(b,v)),esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const rect=(x,y,w,h,fill,extra='')=>`<rect x="${n(x)}" y="${n(y)}" width="${Math.max(1,n(w))}" height="${Math.max(1,n(h))}" fill="${fill}" ${extra}/>`;
+function visitorGlyph(x,y,u,p,type){let o='<g data-tourism-visitor="1">'+rect(x+u,y,2*u,3*u,p.accent)+rect(x,y+3*u,4*u,4*u,p.dark);if(type==='pilgrimage'||type==='mixed')o+=rect(x+u,y+u,u,u,p.light);return o+'</g>'}
+function innGlyph(x,y,u,p,beds){return`<g data-tourism-inn="${beds}">${rect(x,y+2*u,8*u,5*u,p.wall)}${rect(x+u,y,6*u,2*u,p.accent)}${rect(x+u,y+4*u,2*u,3*u,p.dark)}${rect(x+5*u,y+3*u,2*u,2*u,p.light)}</g>`}
+function inject(svg,markup){return String(svg).replace(/^<svg\b/,`<svg data-worldforge-tourism="${VERSION}"`).replace(/<\/svg>\s*$/,`${markup}</svg>`)}
+function renderSettlement(profile,opt={}){const W=Math.max(320,Number(opt.width)||720),H=Math.max(220,Number(opt.height)||440),p=PALETTE(profile),t=profile.tourism||{},dest=t.destinations||[],acc=t.accommodation||[];let overlay='<g data-tourism-overlay="v4.4">',i=0;for(const d of dest.slice(0,6)){const h=(String(d.id).length*31+i*71)%100,u=Math.max(1,Math.floor(W/520)),x=clamp(W*(.12+(h%65)/100),10,W-30),y=clamp(H*(.64+((h>>2)%18)/100),20,H-28);overlay+=visitorGlyph(x,y,u,p,d.type);if(d.pressureState==='overtourism')overlay+=`<text x="${n(x)}" y="${n(y-4)}" font-family="monospace" font-size="8" fill="${p.accent}">!</text>`;i++}for(const a of acc.slice(0,2)){const u=Math.max(1,Math.floor(W/440)),x=clamp(W*.78,20,W-70),y=clamp(H*(.58+(i%2)*.12),20,H-55);overlay+=innGlyph(x,y,u,p,a.beds);i++}overlay+='</g>';return inject(BASE(profile,opt),overlay)}
+function fingerprint(profile){let h=2166136261>>>0;for(const c of renderSettlement(profile,{width:480,height:300})){h^=c.charCodeAt(0);h=Math.imul(h,16777619)}return(h>>>0).toString(16).padStart(8,'0')}
+Renderer.renderSettlement=renderSettlement;Renderer.fingerprint=fingerprint;Renderer.TOURISM_VERSION=VERSION;return{VERSION,renderSettlement,visitorGlyph,innGlyph,fingerprint};
+});
