@@ -48,7 +48,7 @@ jobs:
           for(const token of ["VERSION='4.5.0'","stable","growing","declining","ruined","rebuilding","wall_expansion","reconstruction","world.urbanEvolution"]){if(!engine.includes(token))throw new Error(`Missing v4.5 engine token: ${token}`)}
           for(const token of ['data-urban-state','data-urban-evolution-overlay','outsideWalls','URBAN_EVOLUTION_VERSION']){if(!pixel.includes(token))throw new Error(`Missing v4.5 pixel token: ${token}`)}
           for(const token of ['urban_district','urban_expansion','urban_project','WorldForgeUrbanWiki']){if(!wiki.includes(token))throw new Error(`Missing v4.5 wiki token: ${token}`)}
-          for(const token of ['LIVING CITY EVOLUTION','urbanEvolutionDistricts','urbanEvolutionProjects']){if(!ui.includes(token))throw new Error(`Missing v4.5 UI token: ${token}`)}
+          for(const token of ['LIVING CITY EVOLUTION','urbanEvolutionDistricts','urbanEvolutionProjects','HISTORICAL COMPARISON','urbanEvolutionCompare','districtHistory']){if(!ui.includes(token))throw new Error(`Missing v4.5 UI token: ${token}`)}
           for(const token of ['urban-evolution-engine.js','urban-evolution-pixel-renderer.js','urban-wiki-adapter.js','urban-ui.js','simulateUrbanYear']){if(!loader.includes(token))throw new Error(`Missing v4.5 loader token: ${token}`)}
-          console.log('v4.5 urban evolution + pixel + encyclopedia + atelier contract OK');
+          console.log('v4.5 urban evolution + pixel + encyclopedia + historical comparison contract OK');
           NODE
