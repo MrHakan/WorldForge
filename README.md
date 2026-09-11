@@ -1,16 +1,49 @@
 # WorldForge
 
-**Procedural World, Civilization & Story Simulation Studio** — a deterministic, fully client-side living-world sandbox for GitHub Pages.
+**Procedural World, Civilization & Story Simulation Studio** — a deterministic, fully client-side living-world sandbox designed for long-running simulation and GitHub Pages.
 
 **Live:** https://mrhakan.github.io/WorldForge/
 
-## Current release — v2.2 Population Classes, Workforce, Professions & Conscription
+## Current release — v4.0 World Building & Pixel Civilization
 
-WorldForge is built as one causal simulation rather than a collection of unrelated generators. Geography shapes climate and resources; resources feed markets and institutions; institutions create jobs and strategic assets; wars raise moving armies and fleets; the Exchequer pays for them; and v2.2 now makes the population itself the labor source behind farms, mines, foundries, ports, hospitals, libraries, armies and migration.
+WorldForge is one causal simulation rather than a collection of disconnected generators. Geography shapes climate and resources; resources feed markets and institutions; institutions create jobs and strategic assets; households and housing create demographic and urban pressure; municipal systems, emergencies, food security and politics feed social stability; diplomacy and military power shape the international order; and v4.0 projects that simulation into a deterministic visual civilization layer.
 
-The workforce layer divides settlement populations into children, working-age residents, elders, labor-force participants, employed workers, unemployed workers and mobilized manpower. Real occupations are generated from local geography, resources, institutions, trade, urbanization, war and technology. Conscription removes people from civilian employment, vacancies raise labor pressure, and unemployment, sieges, food stress, recruitment pressure and fiscal crises can physically move people between settlements as labor migrants or refugees.
+The v4.0 worldbuilding system creates a compact visual profile for every settlement from existing simulation state. Population, prosperity, trade, housing pressure, slums, municipal services, culture, geography, guard strength and realm importance determine settlement type, districts, structure composition, fortifications and visual identity.
 
-The map was expanded alongside the system with dedicated **Workforce** and **Migration** layers, recruitment-pressure rings, specialist-job hubs, migration/refugee arrows and workforce-aware settlement tooltips.
+Pixel previews are deterministic and derived rather than stored as heavyweight entities. The renderer uses crisp-edge SVG primitives and aggregate district/structure counts, allowing WorldForge to visualize cities, ports, fortresses, frontier settlements and villages without simulating every individual building as a persistent object.
+
+## Current major systems
+
+- deterministic procedural geography, terrain, climate, biomes, rivers, resources, settlements, realms and roads;
+- long-running history with migration, trade, diplomacy, war, conquest, collapse and historical replay;
+- people, houses, inheritance, rulers, heirs and succession crises;
+- cities, districts, businesses, corruption, guards, gangs and crime;
+- cultures, religions, languages, traditions, values and schisms;
+- organizations, guilds, orders, cults, mercenaries, scholars and rebels;
+- adventure sites, ruins, mines, crypts, caves, keeps and room graphs;
+- branching quests, dialogue and story generation;
+- endless simulation with epoch rebasing and deep-history compaction;
+- Creator Studio and bidirectional Living Canon;
+- adaptive Universal Encyclopedia / Living Wiki;
+- heraldry, chronicles, era names and generated newspapers;
+- knowledge, rumours, propaganda, evidence and lost history;
+- calendar, seasons, weather and celestial phenomena;
+- artifacts, books, provenance, copying, loss and rediscovery;
+- technology, inventions, adoption and diffusion;
+- agriculture, extraction, physical stocks, prices, cargo, shortages and supply chains;
+- institutions, industry, universities, hospitals, museums, shipyards and Great Works;
+- operational armies, fleets, logistics, battles, sieges and blockades;
+- treasury, taxation, customs, debt, credit, inflation, debasement and sovereign default;
+- workforce, professions, conscription, migration and refugees;
+- households, social classes, demography and household economics;
+- housing, land ownership, rents, construction, overcrowding and urban development;
+- municipal infrastructure, public services, service inequality and municipal finance;
+- public health, disease, fire and emergency response;
+- food security, famine and humanitarian relief;
+- politics, legitimacy, factions, unrest and internal instability;
+- diplomacy, treaties, rivalries and international relations;
+- great-power ranking, blocs, spheres of influence, balancing and world-order polarity;
+- settlement worldbuilding, districts, structure archetypes and deterministic pixel previews.
 
 ## Version line
 
@@ -33,206 +66,162 @@ The map was expanded alongside the system with dedicated **Workforce** and **Mig
 17. **v1.7 Hall of Discovery** — technology, adoption, diffusion, printing and procedural breakthroughs.
 18. **v1.8 World Market** — physical stocks, production, consumption, prices, shortages, cargo, famine and supply chains.
 19. **v1.9 Civic Foundry** — institutions, industrial chains, granaries, libraries, universities, hospitals, museums, shipyards and Great Works.
-20. **v2.0 War Room** — moving armies and fleets, supply, attrition, battles, sieges, blockades and operational map overlays.
-21. **v2.1 The Exchequer + Strategic Map** — taxation, customs, war spending, debt, interest, credit, debasement, inflation, sovereign default and cartographic overhaul.
-22. **v2.2 The Labor Exchange + Population Map** — demographic labor pools, 76 professions, wages, skills, vacancies, institution staffing, conscription, migration, refugees and workforce cartography.
+20. **v2.0 War Room** — moving armies and fleets, supply, attrition, battles, sieges, blockades and operational overlays.
+21. **v2.1 The Exchequer** — taxation, customs, war spending, debt, credit, inflation, debasement and sovereign default.
+22. **v2.2 The Labor Exchange** — demographic labor pools, professions, wages, skills, vacancies, conscription, migration and refugees.
+23. **v2.3 Households & Social Classes** — household formation, class structure, income, poverty, literacy and demography.
+24. **v2.4 Housing, Land & Urban Development** — tenure, land ownership, rents, construction, overcrowding and slum pressure.
+25. **v2.5 Municipal Infrastructure & Public Services** — water, sanitation, roads, waste, fire protection, schools, healthcare, transit and lighting.
+26. **v2.6 Health, Disease, Fire & Emergency Response** — aggregate disease pressure, emergencies, response capacity and urban fire consequences.
+27. **v2.7 Food Security, Famine & Humanitarian Relief** — food stress, famine pressure and relief systems.
+28. **v2.8 Politics & Unrest** — legitimacy, factions, political pressure and domestic instability.
+29. **v2.9 Diplomacy & International Relations** — bilateral relations, treaties, rivalries and diplomatic state.
+30. **v3.0 Geopolitical Blocs & World Orders** — great powers, blocs, spheres of influence, balancing, congresses and polarity.
+31. **v4.0 World Building & Pixel Civilization** — simulation-driven settlement identities, districts, structures and deterministic pixel settlement previews.
+
+## v4.0 World Building & Pixel Civilization
+
+Every settlement receives a compact worldbuilding profile containing:
+
+- settlement type;
+- culture and biome visual style;
+- wealth, defense and importance tiers;
+- condition, service, housing and slum pressure;
+- normalized districts;
+- aggregate structure inventory;
+- deterministic preview seed;
+- visual identity text derived from simulation state.
+
+### Settlement and district logic
+
+WorldForge can visually distinguish capitals, port cities, fortress cities, frontier outposts, cities, towns, villages and hamlets. Existing City districts are reused where available and normalized into worldbuilding district archetypes. Smaller settlements receive deterministic fallback layouts rather than requiring a separate heavyweight urban simulation.
+
+Current district archetypes include:
+
+- Old Town;
+- Residential;
+- Market;
+- Harbor;
+- Temple;
+- Military;
+- Noble;
+- Civic;
+- Industrial;
+- Slums;
+- Outskirts.
+
+### Structure archetypes
+
+The first v4.0 registry provides reusable structures across housing, commerce, religion, industry, agriculture, civic infrastructure, defense and maritime activity. Examples include houses by wealth class, merchant houses, market stalls, warehouses, workshops, temples, civic halls, wells, granaries, farms, barracks, watchtowers, wall segments, gates, docks and shipyards.
+
+Fortified settlements are guaranteed to expose visible defensive structures. Coastal and river settlements can gain harbor districts and maritime structures when their simulation state supports them.
+
+### Pixel renderer
+
+The current renderer produces deterministic SVG settlement previews using crisp-edge primitives. It draws district structure composition together with roads, waterways, coastlines and fortifications. The same world, year and settlement state produce the same preview.
+
+The renderer is intentionally derived and lightweight:
+
+- previews are not serialized into world saves;
+- no persistent entity is created for every individual building;
+- compact district and structure counts drive rendering;
+- runtime indexes live in `WeakMap` caches outside serialized state.
+
+### Worldbuilding Atelier
+
+The browser UI adds a **Worldbuilding Atelier** with:
+
+- settlement selection;
+- deterministic pixel preview;
+- visual identity and settlement metadata;
+- district breakdown;
+- structure inventory;
+- JSON Worldbuilding Ledger export.
+
+Worldbuilding is also integrated into the Universal Encyclopedia with article types for settlement worldbuilding, districts, structure archetypes and visual identity.
 
 ## Causal simulation chain
 
 ```text
 Seed / geography
- └─ Climate / weather / resources
-     └─ Agriculture / extraction
-         └─ Markets / stocks / prices / cargo
-             └─ Institutions / industry / Great Works
-                 └─ Job demand / skills / wages / vacancies
-                     └─ Population labor force
-                         ├─ civilian employment
-                         ├─ specialist occupations
-                         ├─ unemployment
-                         └─ conscription / mobilization
-                             ├─ farms / mines / workshops lose workers
-                             ├─ staffing pressure changes production
-                             ├─ armies consume manpower and wages
-                             └─ migration / refugees
-                                 └─ settlement population shifts
-                                     └─ markets / prices / taxes / military capacity
-                                         └─ politics / history / knowledge / quests / Living Wiki
+  → climate / weather / resources
+  → agriculture / extraction / production
+  → markets / stocks / prices / cargo
+  → institutions / industry / Great Works
+  → workforce / professions / wages / migration
+  → households / social classes / demography
+  → housing / land / rent / construction
+  → municipal infrastructure / public services
+  → health / emergencies / food security
+  → politics / unrest
+  → diplomacy / military / treasury
+  → great powers / blocs / spheres / world order
+  → settlement worldbuilding
+  → districts / structures / pixel civilization
 ```
 
-## v2.2 The Labor Exchange
-
-### Population and labor accounting
-
-Every settlement now tracks a demographic labor structure:
-
-- total population;
-- children;
-- working-age population;
-- elders;
-- labor-force participation;
-- employed civilians;
-- unemployed residents;
-- mobilized / conscripted manpower;
-- open vacancies;
-- wage and skill indices;
-- recruitment and migration pressure.
-
-Labor demand is not a fixed percentage of population. It is generated from local conditions: settlement size and prosperity, rural or urban character, coast access, natural-resource suitability, ports and trade, capital status, active wars, technology and the physical institutions present in that settlement.
-
-### 76 real and contextual professions
-
-The initial profession registry contains 76 concrete occupations across agriculture, extraction, food processing, crafts, industry, maritime work, transport, logistics, military support, public service, finance, commerce, health, knowledge, religion, education, engineering and administration.
-
-Examples include **Field Farmer, Paddy Farmer, Shepherd, Cattle Herder, Fisher, Logger, Iron Miner, Coal Miner, Miller, Baker, Foundry Worker, Blacksmith, Armorer, Weaponsmith, Carpenter, Stone Mason, Dockworker, Shipwright, Merchant Sailor, Wagoner, Warehouse Keeper, City Guard, Merchant, Banker, Healer, Scribe, Scholar, Priest and Civil Engineer**.
-
-World context can also create more distinctive specialist or rare occupations, including:
-
-- **Harbor Pilot** — appears only in sufficiently developed coastal settlements;
-- **Ship Chandler** — supplies vessels with stores and provisions;
-- **Ship Caulker, Ropemaker and Sailmaker** — specialist shipyard trades;
-- **Lighthouse Keeper** — coastal navigation specialist;
-- **Caravan Master** — organizes long-distance overland trade;
-- **Military Quartermaster** — supports active armies and their supply chains;
-- **Siege Engineer** — depends on wartime demand and engineering capability;
-- **Army Surgeon** — combines wartime demand with hospital infrastructure;
-- **Customs Inspector** — tied to ports and trade taxation;
-- **Moneyer** — capital-based specialist responsible for coinage;
-- **Archivist, Bookbinder and Manuscript Illuminator** — tied to libraries and archives;
-- **Cartographer and Astronomer** — tied to universities / observatories;
-- **Museum Curator and Relic Keeper** — tied to collections and sacred institutions;
-- **Fire Watch** — an urban safety occupation.
-
-These professions are simulation data, not cosmetic labels. They have skill and wage levels, local worker counts, vacancies and environmental/institutional requirements.
-
-### Institution staffing and production
-
-Facilities receive a live `workforceFactor`, actual worker count and staffing gap from the local labor market. A settlement that loses workers to war, emigration or demographic pressure can therefore leave farms, foundries, hospitals, shipyards or archives understaffed.
-
-The workforce layer is deliberately compatible with the v1.9 production engine: it does not replace its resource rules, but supplies the staffing state needed for progressively deeper production effects.
-
-### Conscription
-
-Active military manpower is mapped back onto each realm's civilian labor force. Mobilization is distributed spatially across settlements rather than appearing from nowhere, with rural areas carrying somewhat more levy pressure.
-
-```text
-War begins
- → armies require manpower
- → people are mobilized from settlement labor pools
- → civilian labor availability falls
- → vacancies / wage pressure rise
- → institutions and productive sectors face staffing pressure
- → households may migrate
- → tax and production capacity can weaken
-```
-
-The labor system therefore closes the population side of the military economy introduced in v2.0 and v2.1.
-
-### Migration and refugees
-
-Population movement is now explicit between settlement endpoints. Unemployment, conscription, food insecurity, crime, fiscal strain and siege conditions create outward pressure; vacancies, prosperity and safety attract workers.
-
-Movements physically subtract population from the origin settlement and add it to the destination. The workforce-only migration step conserves total population. Cross-realm and siege-driven movements can become **refugee flows** and produce historical events.
-
-### Detailed professions for notable people
-
-Existing Society NPC occupations remain intact for compatibility, but living notable people can also receive a contextual `notableProfession` and `professionId`. A generic historical “Scholar” may therefore become an Astronomer, Cartographer or Archivist if that person's settlement actually supports the profession.
-
-### The Labor Exchange workspace
-
-The new interface includes:
-
-- world labor-force, employment and unemployment totals;
-- mobilized manpower and recruitment rate;
-- vacancy and specialist counts;
-- settlement labor-market cards;
-- children / working-age / elder demographic breakdowns;
-- wages and skill state;
-- sector summaries;
-- searchable/filterable profession registry;
-- specialist and rare-job listings;
-- migration and refugee feed;
-- standalone **Workforce Ledger** JSON export.
-
-`Profession`, `Labor Market` and `Migration` are first-class Universal Encyclopedia article types with links to settlements, realms and related occupations.
-
-## v2.2 workforce and population map
-
-The map receives another simulation-oriented pass:
-
-- a dedicated **Workforce** territory layer, shading realm labor stress from green through yellow to red;
-- a dedicated **Migration** layer;
-- directional labor-migration arrows;
-- distinct refugee-flow arrows;
-- arrow thickness based on people moved;
-- recruitment-pressure rings around settlements;
-- high-zoom levy labels;
-- employment / specialist hub rings;
-- rare-specialist markers;
-- persistent toolbar toggles for **Jobs**, **Migration flows** and **Recruitment**;
-- settlement tooltips with employed population, unemployment, vacancies, mobilized manpower and leading professions.
-
-These additions sit on top of the v2.1 strategic-map features for realm labels, ports, institutions, fiscal stress and military supply lines. Present-only labor and military overlays remain hidden during historical replay.
-
-## v2.1 The Exchequer
-
-Every realm has a persistent fiscal account recording treasury cash, debt, tax and tariff policy, wartime surcharge, borrowing rate, inflation, debasement, coin value, credit score, money supply, annual revenue/expense, current war cost and default history.
-
-Revenue is tied to population, prosperity, trade and customs. Field-army wages, fleet maintenance, logistics and sovereign interest create expenditure. Deficits can generate war bonds or bank loans, high debt weakens credit and raises borrowing costs, and severe fiscal stress can lead to debasement, inflation and sovereign default. Those shocks feed city prices, prosperity and political stability.
-
-## v2.0 War Room
-
-Active History wars can produce persistent Field Army and War Fleet entities. Armies have home settlements, map positions, operational targets, road routes, manpower, morale, readiness, equipment, food supply, supply origins and explicit supply paths. Fleets use shipyard-built hulls, provisions, ports and navigation/logistics capability.
-
-Opposing forces that meet physically resolve deterministic battles. Armies reaching hostile settlements can begin persistent sieges that consume local food and damage prosperity/institutions. Fleets at hostile ports can establish blockades that deny inbound cargo. Successful operations push the same History war state and settlement ownership used everywhere else in WorldForge.
-
-## Endless-world compatibility
-
-WorldForge has no fixed gameplay-year ceiling in the v0.9+ architecture. The absolute clock uses local epoch rebasing while routine historical telemetry is compacted into archive blocks. Workforce annual rows follow the same principle: current labor markets remain detailed while sufficiently old annual labor statistics compact into 250-year archive summaries.
-
-## Universal Encyclopedia
-
-The encyclopedia can now cross-link realms, settlements, people, houses, cultures, religions, organizations, sites, quests, events, artifacts, technologies, commodities, markets, institutions, Great Works, armies, fleets, sieges, battles, treasuries, sovereign debt instruments, professions, labor markets and population movements.
+The later layers derive from earlier simulation state rather than replacing it. Visual worldbuilding therefore reflects the same population, economy, institutions, politics and history used elsewhere in WorldForge.
 
 ## Architecture
 
 ```text
-engine.js                    founding geography
-history-engine.js            civilization/history simulation
-society-engine.js            people, houses and dynasties
-city-engine.js               cities, economy, law and crime
-culture-engine.js            culture and religion
-faction-engine.js            organizations and influence
-adventure-engine.js          historical sites and dungeon graphs
-story-engine.js              quests and dialogue
-endless-engine.js            absolute clock, rebasing and compaction
-calendar-engine.js           seasons, weather and celestial simulation
-knowledge-engine.js          claims, evidence, rumours and memory
-artifact-engine.js           persistent material/written culture
-technology-engine.js         research, adoption and diffusion
-resource-engine.js           production, stocks, prices and cargo
-institution-engine.js        institutions, industry and Great Works
-military-engine.js           armies, fleets, supply, combat and siege
-treasury-engine.js           taxes, spending, debt, credit and inflation
-workforce-engine.js          demography, jobs, conscription and migration
-workforce-calibration.js     labor-demand balance and calibrated migration
-wiki-engine.js               cross-linked encyclopedia
-workforce-wiki-adapter.js    professions, labor markets and migration articles
-renderer.js                  base Canvas world renderer
-map-enhancement.js           strategic labels, hubs and supply overlays
-map-finance-layer.js         fiscal territory layer and hover intelligence
-workforce-map-layer.js       labor stress, recruitment and migration overlays
-*-ui.js / *-loader.js        browser workspaces and compatibility bootstraps
+engine.js                     founding geography
+history-engine.js             civilization/history simulation
+society-engine.js             people, houses and dynasties
+city-engine.js                cities, economy, law and crime
+culture-engine.js             culture and religion
+faction-engine.js             organizations and influence
+adventure-engine.js           historical sites and dungeon graphs
+story-engine.js               quests and dialogue
+endless-engine.js             absolute clock, rebasing and compaction
+calendar-engine.js            seasons, weather and celestial simulation
+knowledge-engine.js           claims, evidence, rumours and memory
+artifact-engine.js            persistent material/written culture
+technology-engine.js          research, adoption and diffusion
+resource-engine.js            production, stocks, prices and cargo
+institution-engine.js         institutions, industry and Great Works
+military-engine.js            armies, fleets, supply, combat and siege
+treasury-engine.js            taxes, spending, debt, credit and inflation
+workforce-engine.js           demography, jobs, conscription and migration
+household-engine.js           households, classes and demographic economy
+housing-engine.js             housing, land, rent and urban development
+municipal-engine.js           public infrastructure and municipal finance
+emergency-engine.js           health, disease, fire and emergency response
+nutrition-engine.js           food security, famine and relief
+politics-engine.js            legitimacy, factions and unrest
+diplomacy-engine.js           bilateral international relations
+world-order-engine.js         great powers, blocs and world order
+worldbuilding-engine.js       settlement worldbuilding profiles
+structure-archetypes.js       reusable visual structure registry
+pixel-structure-renderer.js   deterministic crisp-edge settlement renderer
+worldbuilding-ui.js           Worldbuilding Atelier
+worldbuilding-wiki-adapter.js Encyclopedia worldbuilding integration
+*-ui.js / *-loader.js         browser workspaces and compatibility bootstraps
 ```
+
+## Determinism and performance
+
+WorldForge is designed for long-running deterministic worlds. New systems should preserve:
+
+- deterministic output from the same seed and simulation path;
+- caller chunking consistency such as `4 years == 2 + 2`;
+- same-year idempotency where annual systems can be called more than once;
+- bounded historical detail with archival compaction;
+- compact aggregate state rather than unnecessary entity explosion;
+- runtime-only indexes and caches outside saved world data.
+
+v4.0 follows those rules by storing one compact worldbuilding profile per settlement plus bounded district/structure summaries while generating pixel previews on demand.
 
 ## Testing and deployment
 
-Every push to `main` runs JavaScript syntax validation plus the full deterministic regression chain from **v0.1 through v2.2** before GitHub Pages deployment.
+GitHub Actions contains the historical deterministic regression chain for the original v0.1→v2.2 stack plus dedicated compatibility workflows for v2.3 through v4.0.
 
-The v2.2 regression verifies the 76-profession catalog and rare specialist jobs, settlement labor-market coverage, real mobilization from civilian labor pools, institution staffing factors, detailed professions on Society notables, agriculture/industry/knowledge employment, Universal Encyclopedia integration, population-conserving workforce migration, calibrated employment, deterministic `4 years == 2 + 2 years` caller chunking and save/export round-trips.
+The v4.0 regression verifies settlement coverage, district/structure coverage, deterministic crisp-edge SVG output, Universal Encyclopedia integration, runtime-cache reuse, same-year idempotency, deterministic caller chunking, Workforce and World Order compatibility, save/export round trips, maritime harbor behavior and fortified-settlement visual invariants.
 
-During release calibration an early technically valid model produced roughly 60% unemployment and no useful vacancy-driven migration. That balance was rejected rather than shipped. The final wartime regression fixture settles at about **2.8% unemployment**, **5.9% labor-force mobilization**, **4,407 open positions** and active refugee/labor movement, while preserving deterministic simulation behavior.
+`main` is the deployment source for GitHub Pages. A release is considered complete only after the relevant dedicated workflow gates and the Pages validation/deployment succeed.
 
-The existing 12,500-year Endless Simulation regression remains part of the same gate.
+## Direction after v4.0
+
+The next visual-development line focuses on deeper historical landscape and architecture rather than a parallel simulation. Planned work includes culture-specific architecture families, historical landmarks, ruins, abandoned settlements, battlefields, monuments, bridges, canals, lighthouses, fortified ports and a richer world → settlement → district visual zoom hierarchy.
 
 Everything runs locally in the browser; generated worlds are not uploaded by the application.
