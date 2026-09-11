@@ -1,0 +1,9 @@
+(()=>{
+'use strict';
+const A=window.WorldForgeCityActivity;if(!A)return;
+const $=s=>document.querySelector(s);let last='';
+function getWorld(){return window.WorldForgeWorldbuildingUI?.state?.world||window.WorldForgeWorldOrderUI?.state?.world||window.WorldForgeReleaseUI?.state?.world||null}
+function ensure(){const p=$('#worldbuildingPanel');if(!p||$('#cityActivitySection'))return;const h=p.querySelector('.worldbuilding-layout>div')||p;h.insertAdjacentHTML('beforeend','<div id="cityActivitySection"><div class="labor-head"><span>LIVING CITY ACTIVITY</span><b>STREETS · PORTS · TRAFFIC · MAINTENANCE</b></div><div id="cityActivitySummary" class="worldbuilding-kpis"></div><div id="cityActivityDetails" class="worldbuilding-landmarks"></div></div>')}
+function render(force=false){const w=getWorld();if(!w)return;ensure();A.initialize(w);const sid=Number(window.WorldForgeWorldbuildingUI?.state?.settlement||0),v=A.settlementView(w,sid);if(!v)return;const key=`${w.cityActivity?.revision}|${sid}`;if(!force&&key===last)return;last=key;const pct=n=>`${Math.round(Number(n||0)*100)}%`;$('#cityActivitySummary').innerHTML=[['STREET LIFE',pct(v.streetActivity)],['PORT',pct(v.portActivity)],['TRAFFIC',pct(v.traffic)],['UPKEEP',pct(v.maintenance)],['WORKERS',v.workers],['CARTS',v.carts],['BOATS',v.boats],['LIGHTS',pct(v.nightLights)]].map(x=>`<div><span>${x[0]}</span><b>${x[1]}</b></div>`).join('');$('#cityActivityDetails').innerHTML=`<article><small>${v.coastal?'COASTAL':v.river?'RIVER':'INLAND'}${v.festival?' · FESTIVAL':''}</small><h3>${v.name}</h3><p>Activity reflects trade, population, roads, logistics pressure and infrastructure strain.</p></article>`}
+setTimeout(()=>render(true),1600);document.addEventListener('worldforge:workspace-tab',()=>render(true));window.WorldForgeCityActivityUI={render};
+})();
