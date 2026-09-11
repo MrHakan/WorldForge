@@ -1,9 +1,9 @@
 # Current WorldForge Release
 
-## v2.5 — Municipal Infrastructure & Public Services
+## v2.6 — Health, Disease, Fire & Emergency Response
 
-The current release extends v2.4 housing and urban development with maintained civic infrastructure, municipal finance and district service inequality.
+The current release turns v2.5 municipal health and fire risks into deterministic outbreaks, quarantines, urban fires, casualties, property losses and emergency finance.
 
-Core systems: Water Supply, Sanitation & Sewerage, Roads & Streets, Waste Collection, Fire Protection, Schools & Education, Clinics & Public Health, Public Transport and Street Lighting.
+Core systems: aggregate disease compartments, deterministic pathogen families, disease/fire hazard generation, quarantine, emergency response capacity, municipal/realm emergency spending, district alerts, canonical epidemic/fire History events and Emergency Ledger export.
 
-See [`V2.5.md`](V2.5.md) for the complete release notes and architecture details.
+See [`V2.6.md`](V2.6.md) for the complete release notes and architecture details.
