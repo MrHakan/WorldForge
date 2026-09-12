@@ -19,16 +19,30 @@ jobs:
           node --check warfare-occupation-policy.js
           node --check warfare-campaign-planning-ui.js
           node --check warfare-strategic-reserves-ui.js
+          node --check warfare-excavation-projects.js
+          node --check warfare-relic-journeys.js
+          node --check warfare-national-memory.js
           node --check tests/warfare-lifecycle-hardening.test.js
+          node --check tests/warfare-excavation-projects.test.js
+          node --check tests/warfare-relic-journeys.test.js
+          node --check tests/warfare-national-memory.test.js
       - name: Behavioral hardening checks
         run: node tests/warfare-lifecycle-hardening.test.js
+      - name: Excavation project behavior
+        run: node tests/warfare-excavation-projects.test.js
+      - name: Relic journey behavior
+        run: node tests/warfare-relic-journeys.test.js
+      - name: National memory behavior
+        run: node tests/warfare-national-memory.test.js
       - name: Lifecycle contract
         run: |
           node - <<'NODE'
-          const fs=require('fs');
-          const life=fs.readFileSync('warfare-lifecycle.js','utf8');
-          const occ=fs.readFileSync('warfare-occupation-policy.js','utf8');
-          for(const token of ["VERSION='5.0.11'",'lastAdvancedYear','advanceCount','applyStrategicAI','applyBattlefieldRelics']) if(!life.includes(token)) throw Error(token);
+          const fs=require('fs'),read=p=>fs.readFileSync(p,'utf8');
+          const life=read('warfare-lifecycle.js'),occ=read('warfare-occupation-policy.js'),exc=read('warfare-excavation-projects.js'),journey=read('warfare-relic-journeys.js'),memory=read('warfare-national-memory.js');
+          for(const token of ["VERSION='5.0.14'",'lastAdvancedYear','advanceCount','applyStrategicAI','applyBattlefieldRelics','applyExcavationProjects','applyRelicJourneys','applyNationalMemory']) if(!life.includes(token)) throw Error(token);
           for(const token of ["VERSION='5.0.4a'",'lastAppliedYear','yearsOccupied']) if(!occ.includes(token)) throw Error(token);
-          console.log('warfare lifecycle contract OK');
+          for(const token of ["VERSION='5.0.12'",'survey','excavation','conservation','publication','museum']) if(!exc.includes(token)) throw Error(token);
+          for(const token of ["VERSION='5.0.13'",'ownershipHistory','wartime-transfer','restitution']) if(!journey.includes(token)) throw Error(token);
+          for(const token of ["VERSION='5.0.14'",'great-victory','national-tragedy','diplomaticGrievance']) if(!memory.includes(token)) throw Error(token);
+          console.log('warfare lifecycle + historical extensions contracts OK');
           NODE
