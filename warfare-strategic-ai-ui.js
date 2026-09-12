@@ -26,6 +26,7 @@ function render(force=false){
  W.applyStrategicAI?.(w,force);
  W.applyCommanders?.(w,force);
  W.applyStrategicReserves?.(w,force);
+ W.applyCampaignPlanning?.(w,force);
  const A=w.warfareSupply?.strategicAI||{};
  const S=A.stats||{};
  const C=w.warfareSupply?.commanders||{};
@@ -37,11 +38,14 @@ function render(force=false){
   return `<article><small>${esc(String(c.status||'active').toUpperCase())} · ${esc(String(c.objectiveType||'objective').toUpperCase())}</small><h3>War ${esc(c.warId)} · ${esc(c.goal)}</h3><div class="worldbuilding-mini"><span><i>TARGET</i><b>${esc(c.targetCityId??'—')}</b></span><span><i>PRIORITY</i><b>${Math.round(Number(c.priority||0)*100)}%</b></span><span><i>FRONT</i><b>${esc(c.frontId||'—')}</b></span><span><i>BALANCE</i><b>${esc(balance)}</b></span></div></article>`;
  }).join('')||'<article><small>NO ACTIVE CAMPAIGN</small><p>No strategic front is active.</p></article>';
  $('#warfareCommanderList').innerHTML=(C.leaders||[]).slice(0,16).map(c=>`<article><small>${esc(String(c.trait||'officer').toUpperCase())} · ${esc(String(c.status||'active').toUpperCase())}</small><h3>${esc(c.name)}</h3><div class="worldbuilding-mini"><span><i>ARMY</i><b>${esc(c.armyId||'—')}</b></span><span><i>SKILL</i><b>${Math.round(Number(c.skill||0)*100)}%</b></span><span><i>SENIORITY</i><b>${esc(c.seniority||0)}</b></span><span><i>PRESTIGE</i><b>${esc(c.prestige||0)}</b></span></div></article>`).join('')||'<article><small>NO COMMANDERS</small><p>No active commanders are assigned.</p></article>';
+ window.WorldForgeWarfareCampaignPlanningUI?.render(force);
 }
 Promise.all([
  loadScript('warfare-commanders.js',()=>window.WorldForgeWarfareCommanders),
  loadScript('warfare-strategic-reserves.js',()=>window.WorldForgeWarfareStrategicReserves),
- loadScript('warfare-strategic-reserves-ui.js',()=>window.WorldForgeWarfareStrategicReservesUI)
+ loadScript('warfare-strategic-reserves-ui.js',()=>window.WorldForgeWarfareStrategicReservesUI),
+ loadScript('warfare-campaign-planning.js',()=>window.WorldForgeWarfareCampaignPlanning),
+ loadScript('warfare-campaign-planning-ui.js',()=>window.WorldForgeWarfareCampaignPlanningUI)
 ]).then(()=>render(true)).catch(()=>render(true));
 document.addEventListener('visibilitychange',()=>{if(!document.hidden)render(true)});
 window.WorldForgeWarfareStrategicAIUI={render};
