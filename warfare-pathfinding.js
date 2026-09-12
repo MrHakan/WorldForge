@@ -17,9 +17,6 @@ function pointAlong(path,progress){if(!path?.points?.length)return null;if(path.
 function apply(w){const S=w.warfareSupply||Warfare.initialize(w);if(!S?.armies)return S;for(const a of S.armies){if(!a.targetCityId)continue;const path=shortestPath(w,a.homeCityId,a.targetCityId);if(!path)continue;a.route=path.nodes;a.routePoints=path.points;a.routeCost=path.cost;a.routeDistance=path.distance;a.routeRoadQuality=path.roadQuality;a.routeTerrainPenalty=path.terrainPenalty;a.marchCost=round(clamp(.08+path.terrainPenalty*.56+(1-path.roadQuality)*.24,.04,.72));a.marchSpeed=round(clamp(.09+a.mobility*.28+path.roadQuality*.15-path.terrainPenalty*.18,.03,.38));a.position=pointAlong(path,a.marchProgress);a.pathfindingVersion=VERSION;}
 for(const l of S.supplyLines||[]){const a=S.armies.find(x=>x.id===l.armyId);if(!a?.routePoints)continue;l.route=a.route;l.points=a.routePoints;l.pathCost=a.routeCost;l.roadQuality=a.routeRoadQuality;l.terrainPenalty=a.routeTerrainPenalty;l.reliability=round(clamp(Number(l.reliability||0)*.72+a.routeRoadQuality*.18+(1-a.routeTerrainPenalty)*.1,0,1));}
 S.pathfinding={version:VERSION,updatedYear:S.currentYear,routedArmies:S.armies.filter(a=>Array.isArray(a.route)&&a.route.length>1).length};return S;}
-const baseInitialize=Warfare.initialize?.bind(Warfare),baseSim=Warfare.simulateWarfareYear?.bind(Warfare);
-if(baseInitialize)Warfare.initialize=function(w,force=false){const s=baseInitialize(w,force);return apply(w)||s};
-if(baseSim)Warfare.simulateWarfareYear=function(w,y){const s=baseSim(w,y);return apply(w)||s};
 Warfare.shortestMilitaryPath=shortestPath;Warfare.applyMilitaryPathfinding=apply;Warfare.PATHFINDING_VERSION=VERSION;
 return{VERSION,buildGraph,shortestPath,pointAlong,apply};
 });
