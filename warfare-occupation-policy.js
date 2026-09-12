@@ -5,7 +5,7 @@
 })(typeof window!=='undefined'?window:globalThis,function(Warfare){
 'use strict';
 if(!Warfare)throw new Error('WorldForge v5.0 Occupation Policy requires Warfare & Supply');
-const VERSION='5.0.4a',clamp=(v,a,b)=>Math.max(a,Math.min(b,v)),round=(v,d=3)=>Number(Number(v).toFixed(d));
+const VERSION='5.0.4',clamp=(v,a,b)=>Math.max(a,Math.min(b,v)),round=(v,d=3)=>Number(Number(v).toFixed(d));
 const POLICIES=['military-rule','conciliatory','collaboration','extraction'];
 function state(S){S.occupationPolicy=S.occupationPolicy||{version:VERSION,lastAppliedYear:null,settlements:[],history:[],stats:{occupied:0,highResistance:0,collaborating:0,liberated:0}};S.occupationPolicy.version=VERSION;S.occupationPolicy.settlements=S.occupationPolicy.settlements||[];S.occupationPolicy.history=S.occupationPolicy.history||[];return S.occupationPolicy}
 function policyFor(o,prev){if(prev?.policy)return prev.policy;const r=Number(o.resistance||0),a=Number(o.administrativeControl||0);return r>.72?'military-rule':a<.42?'collaboration':r<.38?'extraction':'conciliatory'}
