@@ -1,6 +1,6 @@
 (()=>{
 'use strict';
-const W=window.WorldForgeWarfareSupply;if(!W)return;
+const VERSION='5.0.5',W=window.WorldForgeWarfareSupply;if(!W)return;
 const $=s=>document.querySelector(s);let last='';
 function world(){return window.WorldForgeWorldbuildingUI?.state?.world||window.WorldForgeWorldOrderUI?.state?.world||window.WorldForgeReleaseUI?.state?.world||null}
 function fallbackPoint(id,index,total,Wd,Hd){const a=(Math.PI*2*index)/Math.max(1,total);return{x:Wd/2+Math.cos(a)*Wd*.33,y:Hd/2+Math.sin(a)*Hd*.29,id}}
@@ -11,7 +11,7 @@ function render(force=false){
  const A=w.warfareSupply?.strategicAI||{},R=w.warfareSupply?.strategicReserves||{},P=w.warfareSupply?.campaignPlanning||{},O=w.warfareSupply?.occupationPolicy||{},rev=w.warfareSupply?.revision||0;
  const key=`${rev}|${panel.clientWidth}|${panel.clientHeight}|${A.lastAppliedYear||''}|${R.lastAppliedYear||''}|${P.lastAppliedYear||''}|${O.lastAppliedYear||''}|${A.fronts?.length||0}|${P.plans?.length||0}|${O.settlements?.length||0}`;
  if(!force&&key===last)return;last=key;
- let svg=$('#worldforgeStrategicMapOverlay');if(!svg){svg=document.createElementNS('http://www.w3.org/2000/svg','svg');svg.id='worldforgeStrategicMapOverlay';svg.setAttribute('aria-hidden','true');Object.assign(svg.style,{position:'absolute',inset:'0',width:'100%',height:'100%',pointerEvents:'none',zIndex:'7'});if(getComputedStyle(panel).position==='static')panel.style.position='relative';panel.appendChild(svg)}
+ let svg=$('#worldforgeStrategicMapOverlay');if(!svg){svg=document.createElementNS('http://www.w3.org/2000/svg','svg');svg.id='worldforgeStrategicMapOverlay';svg.dataset.version=VERSION;svg.setAttribute('aria-hidden','true');Object.assign(svg.style,{position:'absolute',inset:'0',width:'100%',height:'100%',pointerEvents:'none',zIndex:'7'});if(getComputedStyle(panel).position==='static')panel.style.position='relative';panel.appendChild(svg)}
  const Wd=Math.max(1,panel.clientWidth),Hd=Math.max(1,panel.clientHeight),cities=w.cities?.cities||[],pts=new Map(cities.map((c,i)=>[Number(c.id),cityPoint(c,i,cities.length,Wd,Hd)]));svg.setAttribute('viewBox',`0 0 ${Wd} ${Hd}`);
  const defs='<defs><marker id="wfStrategicArrow" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto"><path d="M0 0 L7 3.5 L0 7 Z" fill="currentColor"/></marker><pattern id="wfOccupationHatch" width="8" height="8" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><line x1="0" y1="0" x2="0" y2="8" stroke="currentColor" stroke-width="2" opacity=".18"/></pattern></defs>';
  const fronts=(A.fronts||[]).map(f=>{const a=pts.get(Number(f.attackerAnchorCityId)),b=pts.get(Number(f.defenderAnchorCityId));if(!a||!b)return'';const mx=(a.x+b.x)/2,my=(a.y+b.y)/2,r=10+Math.round(Number(f.collapseRisk||0)*12),dash=f.status==='contested'?'5 4':f.status==='attacker-advantage'?'12 4':'3 5';return `<g data-strategic-front="${f.id}" data-front-status="${f.status}" data-collapse-risk="${Number(f.collapseRisk||0).toFixed(2)}"><line x1="${a.x}" y1="${a.y}" x2="${b.x}" y2="${b.y}" stroke="currentColor" stroke-width="${f.status==='contested'?3:2}" stroke-dasharray="${dash}" opacity=".62"/><circle cx="${mx}" cy="${my}" r="${r}" fill="none" stroke="currentColor" stroke-width="1.4" stroke-dasharray="2 4" opacity="${f.status==='contested'?.58:.32}"/></g>`}).join('');
@@ -20,5 +20,5 @@ function render(force=false){
  const occupations=(O.settlements||[]).map(o=>{const p=pts.get(Number(o.settlementId));if(!p)return'';const r=12+Number(o.liberationRisk||0)*16;return `<g data-occupation-zone="${o.settlementId}" data-occupation-policy="${o.policy}" data-resistance="${Number(o.resistance||0).toFixed(2)}"><circle cx="${p.x}" cy="${p.y}" r="${r.toFixed(1)}" fill="url(#wfOccupationHatch)" stroke="currentColor" stroke-width="1.2" opacity="${.28+Number(o.resistance||0)*.32}"/><circle cx="${p.x}" cy="${p.y}" r="${(r+4).toFixed(1)}" fill="none" stroke="currentColor" stroke-dasharray="2 4" opacity=".32"/></g>`}).join('');
  svg.innerHTML=defs+occupations+fronts+campaigns+reinforcements;
 }
-window.addEventListener('resize',()=>render(true));document.addEventListener('visibilitychange',()=>{if(!document.hidden)render(true)});setTimeout(()=>render(true),1800);window.WorldForgeWarfareStrategicMapOverlay={render};
+window.addEventListener('resize',()=>render(true));document.addEventListener('visibilitychange',()=>{if(!document.hidden)render(true)});setTimeout(()=>render(true),1800);window.WorldForgeWarfareStrategicMapOverlay={VERSION,render};
 })();
