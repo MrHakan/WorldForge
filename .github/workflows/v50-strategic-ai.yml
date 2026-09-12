@@ -2,10 +2,12 @@ name: v5.0 Strategic AI
 
 on:
   push:
-    branches: [main, v5.0-strategic-ai-core, v5.0-commanders-leadership]
+    branches: [main, v5.0-strategic-ai-core, v5.0-commanders-leadership, v5.0-strategic-reserves]
     paths:
       - 'warfare-strategic-ai.js'
       - 'warfare-commanders.js'
+      - 'warfare-strategic-reserves.js'
+      - 'warfare-strategic-reserves-ui.js'
       - 'warfare-strategic-ai-ui.js'
       - 'worldbuilding-loader.js'
       - 'V5.0.md'
@@ -25,6 +27,8 @@ jobs:
         run: |
           node --check warfare-strategic-ai.js
           node --check warfare-commanders.js
+          node --check warfare-strategic-reserves.js
+          node --check warfare-strategic-reserves-ui.js
           node --check warfare-strategic-ai-ui.js
           node --check worldbuilding-loader.js
       - name: Contract smoke test
@@ -33,11 +37,15 @@ jobs:
           const fs=require('fs');
           const ai=fs.readFileSync('warfare-strategic-ai.js','utf8');
           const commanders=fs.readFileSync('warfare-commanders.js','utf8');
+          const reserves=fs.readFileSync('warfare-strategic-reserves.js','utf8');
+          const reservesUi=fs.readFileSync('warfare-strategic-reserves-ui.js','utf8');
           const ui=fs.readFileSync('warfare-strategic-ai-ui.js','utf8');
           const loader=fs.readFileSync('worldbuilding-loader.js','utf8');
           for(const token of ["VERSION='5.0.0'",'buildFront','campaignFor','occupationRows','strategicRole','frontId','occupiedSettlements','STRATEGIC_AI_VERSION']) if(!ai.includes(token)) throw new Error(`Missing strategic AI token: ${token}`);
           for(const token of ["VERSION='5.0.1'",'TRAITS','makeCommander','commanderId','commanderTrait','commandModifier','activeCommanders','COMMANDERS_VERSION']) if(!commanders.includes(token)) throw new Error(`Missing commander token: ${token}`);
-          for(const token of ['STRATEGIC AI & FRONTS','FRONTS','CAMPAIGNS','CONTESTED','OCCUPIED','COMMANDERS','VETERANS','warfare-commanders.js']) if(!ui.includes(token)) throw new Error(`Missing strategic UI token: ${token}`);
+          for(const token of ["VERSION='5.0.2'",'frontNeed','requestFor','collapseRisk','reinforcementFrontId','reinforcementPriority','reservesCommitted','STRATEGIC_RESERVES_VERSION']) if(!reserves.includes(token)) throw new Error(`Missing reserves token: ${token}`);
+          for(const token of ['STRATEGIC RESERVES','REINFORCEMENTS','COLLAPSE RISK','POWER NEEDED','FULFILLED']) if(!reservesUi.includes(token)) throw new Error(`Missing reserves UI token: ${token}`);
+          for(const token of ['STRATEGIC AI & FRONTS','COMMANDERS','VETERANS','warfare-commanders.js','warfare-strategic-reserves.js','warfare-strategic-reserves-ui.js']) if(!ui.includes(token)) throw new Error(`Missing strategic UI token: ${token}`);
           for(const token of ['warfare-strategic-ai.js','warfare-strategic-ai-ui.js','STRATEGIC_AI_VERSION']) if(!loader.includes(token)) throw new Error(`Missing loader token: ${token}`);
-          console.log('v5.0 strategic AI + commanders contract OK');
+          console.log('v5.0 strategic AI + commanders + reserves contract OK');
           NODE
