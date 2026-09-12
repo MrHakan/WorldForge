@@ -2,7 +2,7 @@ name: v5.0 Warfare Lifecycle Hardening
 
 on:
   push:
-    branches: [v5.0-warfare-lifecycle-hardening, main]
+    branches: [v5.0-warfare-lifecycle-hardening, v5.0-simulation-hook-registry, main]
   pull_request:
     branches: [main]
 
@@ -15,6 +15,7 @@ jobs:
         with: {node-version: '22'}
       - name: Syntax check
         run: |
+          node --check warfare-hooks.js
           node --check warfare-lifecycle.js
           node --check warfare-occupation-policy.js
           node --check warfare-strategic-ai-ui.js
@@ -25,10 +26,14 @@ jobs:
           node --check warfare-excavation-projects.js
           node --check warfare-relic-journeys.js
           node --check warfare-national-memory.js
+          node --check worldbuilding-loader.js
+          node --check tests/warfare-hook-registry.test.js
           node --check tests/warfare-lifecycle-hardening.test.js
           node --check tests/warfare-excavation-projects.test.js
           node --check tests/warfare-relic-journeys.test.js
           node --check tests/warfare-national-memory.test.js
+      - name: Hook registry behavior
+        run: node tests/warfare-hook-registry.test.js
       - name: Behavioral hardening checks
         run: node tests/warfare-lifecycle-hardening.test.js
       - name: Excavation project behavior
@@ -41,13 +46,17 @@ jobs:
         run: |
           node - <<'NODE'
           const fs=require('fs'),read=p=>fs.readFileSync(p,'utf8');
-          const life=read('warfare-lifecycle.js'),occ=read('warfare-occupation-policy.js'),exc=read('warfare-excavation-projects.js'),journey=read('warfare-relic-journeys.js'),memory=read('warfare-national-memory.js');
+          const hooks=read('warfare-hooks.js'),life=read('warfare-lifecycle.js'),loader=read('worldbuilding-loader.js'),occ=read('warfare-occupation-policy.js'),exc=read('warfare-excavation-projects.js'),journey=read('warfare-relic-journeys.js'),memory=read('warfare-national-memory.js');
           const presentation=['warfare-strategic-ai-ui.js','warfare-strategic-map-overlay.js','warfare-occupation-policy-ui.js','warfare-campaign-planning-ui.js','warfare-strategic-reserves-ui.js'].map(read);
-          for(const token of ["VERSION='5.0.14'",'lastAdvancedYear','advanceCount','applyStrategicAI','applyBattlefieldRelics','applyExcavationProjects','applyRelicJourneys','applyNationalMemory']) if(!life.includes(token)) throw Error(token);
+          for(const token of ["VERSION='5.0.15'",'capturedInitialize','capturedSimulate','registerHook','registerKnownHooks','runAnnual','lastSimulatedYear','warfareHookDispatches']) if(!hooks.includes(token)) throw Error(`hooks:${token}`);
+          for(const token of ['mobilization','pathfinding','naval','diplomacy-war-state','postwar-recovery','war-goals-peace','strategic-ai','commanders','strategic-reserves','campaign-planning','occupation-policy','national-memory']) if(!hooks.includes(token)) throw Error(`hook-order:${token}`);
+          for(const token of ["VERSION='5.0.15'",'lastAdvancedYear','advanceCount','Hooks?.runAnnual','Hooks?.activate']) if(!life.includes(token)) throw Error(`lifecycle:${token}`);
+          if(life.includes('simulateWarfareYear=function')) throw Error('lifecycle must not wrap simulateWarfareYear');
+          for(const token of ['warfare-hooks.js','warfare-excavation-projects.js','warfare-relic-journeys.js','warfare-national-memory.js','warfare-lifecycle.js','WorldForgeWarfareHooks.activate()']) if(!loader.includes(token)) throw Error(`loader:${token}`);
           for(const token of ["VERSION='5.0.4'",'lastAppliedYear','yearsOccupied']) if(!occ.includes(token)) throw Error(token);
           for(const token of ["VERSION='5.0.12'",'survey','excavation','conservation','publication','museum']) if(!exc.includes(token)) throw Error(token);
           for(const token of ["VERSION='5.0.13'",'ownershipHistory','wartime-transfer','restitution']) if(!journey.includes(token)) throw Error(token);
           for(const token of ["VERSION='5.0.14'",'great-victory','national-tragedy','contested-memory','diplomaticGrievance','winnerSide']) if(!memory.includes(token)) throw Error(token);
           for(const src of presentation) for(const forbidden of ['applyStrategicAI?.(','applyCommanders?.(','applyStrategicReserves?.(','applyCampaignPlanning?.(','applyOccupationPolicy?.(']) if(src.includes(forbidden)) throw Error(`presentation mutation: ${forbidden}`);
-          console.log('warfare lifecycle + historical extensions contracts OK');
+          console.log('warfare hook registry + lifecycle contracts OK');
           NODE
