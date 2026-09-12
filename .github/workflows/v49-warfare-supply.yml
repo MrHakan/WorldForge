@@ -2,7 +2,7 @@ name: v4.9 Warfare Supply
 
 on:
   push:
-    branches: [main, v4.9-warfare-supply-lines]
+    branches: [main, v4.9-warfare-supply-lines, v4.9-army-map-interactions]
     paths:
       - 'warfare-supply-engine.js'
       - 'warfare-mobilization.js'
@@ -54,8 +54,8 @@ jobs:
           for(const token of ["VERSION='4.9.4'",'buildGraph','shortestPath','pointAlong','roadQuality','terrainPenalty','routePoints','PATHFINDING_VERSION']) if(!pathfinding.includes(token)) throw new Error(`Missing pathfinding token: ${token}`);
           for(const token of ["VERSION='4.9.5'",'assignMission','nearestHostileFleet','naval-interception','resolveBattles','movementProgress','activeInterceptions','seaControl','NAVAL_VERSION']) if(!naval.includes(token)) throw new Error(`Missing naval token: ${token}`);
           for(const token of ["VERSION='4.9.6'",'warPairs','atWar','nearestWarTarget','demobilizeArmy','retargetArmy','sanitizeNaval','activeWars','DIPLOMACY_WAR_VERSION']) if(!diplomacy.includes(token)) throw new Error(`Missing diplomacy integration token: ${token}`);
-          for(const token of ['WARFARE & SUPPLY LINES','FOOD RESERVE','AMMUNITION','EQUIPMENT','MORALE','EXPERIENCE','COMBAT POWER','MANPOWER','CASUALTIES','RELIEF BATTLES','FLEETS','NAVAL BATTLES','INTERCEPTIONS']) if(!ui.includes(token)) throw new Error(`Missing UI token: ${token}`);
-          for(const token of ['worldforgeSupplyOverlay','data-supply-status','data-army-state','data-fleet-status','data-route-nodes','data-route-quality','data-fleet-mission','data-naval-battle']) if(!overlay.includes(token)) throw new Error(`Missing overlay token: ${token}`);
+          for(const token of ['WARFARE & SUPPLY LINES','ARMY INSPECTOR','SELECTED ARMY','Focus Home','Focus Target','selectedArmyId','focusCity','FOOD RESERVE','AMMUNITION','EQUIPMENT','MORALE','EXPERIENCE','COMBAT POWER','MANPOWER','CASUALTIES','RELIEF BATTLES','FLEETS','NAVAL BATTLES','INTERCEPTIONS']) if(!ui.includes(token)) throw new Error(`Missing UI token: ${token}`);
+          for(const token of ['worldforgeSupplyOverlay','data-supply-status','data-army-id','data-selected','data-army-state','data-fleet-status','data-route-nodes','data-route-quality','data-fleet-mission','data-naval-battle','selectArmy']) if(!overlay.includes(token)) throw new Error(`Missing overlay token: ${token}`);
           for(const token of ['warfare-supply-engine.js','warfare-mobilization.js','warfare-pathfinding.js','warfare-naval.js','warfare-diplomacy.js','warfare-supply-ui.js','warfare-supply-overlay.js','simulateWarfareYear']) if(!loader.includes(token)) throw new Error(`Missing loader token: ${token}`);
           console.log('v4.9 warfare supply contract OK');
           NODE
