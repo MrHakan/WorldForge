@@ -7,6 +7,7 @@ on:
       - 'warfare-supply-engine.js'
       - 'warfare-mobilization.js'
       - 'warfare-pathfinding.js'
+      - 'warfare-naval.js'
       - 'warfare-supply-ui.js'
       - 'warfare-supply-overlay.js'
       - 'workspace-navigation.js'
@@ -29,6 +30,7 @@ jobs:
           node --check warfare-supply-engine.js
           node --check warfare-mobilization.js
           node --check warfare-pathfinding.js
+          node --check warfare-naval.js
           node --check warfare-supply-ui.js
           node --check warfare-supply-overlay.js
           node --check workspace-navigation.js
@@ -40,14 +42,16 @@ jobs:
           const engine=fs.readFileSync('warfare-supply-engine.js','utf8');
           const mobilization=fs.readFileSync('warfare-mobilization.js','utf8');
           const pathfinding=fs.readFileSync('warfare-pathfinding.js','utf8');
+          const naval=fs.readFileSync('warfare-naval.js','utf8');
           const ui=fs.readFileSync('warfare-supply-ui.js','utf8');
           const overlay=fs.readFileSync('warfare-supply-overlay.js','utf8');
           const loader=fs.readFileSync('worldbuilding-loader.js','utf8');
           for(const token of ["VERSION='4.9.3'",'foodReserve','ammoReserve','equipment','morale','experience','combatPower','marchProgress','marchCost','supplyLines','fortification','manpower','casualties','resolveRelief','fleetFor','simulateWarfareYear']) if(!engine.includes(token)) throw new Error(`Missing engine token: ${token}`);
           for(const token of ["VERSION='4.9.4'",'Peacetime Levy','Limited Mobilization','General Mobilization','Emergency Levy','activatedManpower','mobilizationLaw','reinforcementPriority','realmView']) if(!mobilization.includes(token)) throw new Error(`Missing mobilization token: ${token}`);
           for(const token of ["VERSION='4.9.4'",'buildGraph','shortestPath','pointAlong','roadQuality','terrainPenalty','routePoints','PATHFINDING_VERSION']) if(!pathfinding.includes(token)) throw new Error(`Missing pathfinding token: ${token}`);
-          for(const token of ['WARFARE & SUPPLY LINES','FOOD RESERVE','AMMUNITION','EQUIPMENT','MORALE','EXPERIENCE','COMBAT POWER','MANPOWER','CASUALTIES','RELIEF BATTLES','FLEETS']) if(!ui.includes(token)) throw new Error(`Missing UI token: ${token}`);
-          for(const token of ['worldforgeSupplyOverlay','data-supply-status','data-army-state','data-fleet-status','data-route-nodes','data-route-quality']) if(!overlay.includes(token)) throw new Error(`Missing overlay token: ${token}`);
-          for(const token of ['warfare-supply-engine.js','warfare-mobilization.js','warfare-pathfinding.js','warfare-supply-ui.js','warfare-supply-overlay.js','simulateWarfareYear']) if(!loader.includes(token)) throw new Error(`Missing loader token: ${token}`);
+          for(const token of ["VERSION='4.9.5'",'assignMission','nearestHostileFleet','naval-interception','resolveBattles','movementProgress','activeInterceptions','seaControl','NAVAL_VERSION']) if(!naval.includes(token)) throw new Error(`Missing naval token: ${token}`);
+          for(const token of ['WARFARE & SUPPLY LINES','FOOD RESERVE','AMMUNITION','EQUIPMENT','MORALE','EXPERIENCE','COMBAT POWER','MANPOWER','CASUALTIES','RELIEF BATTLES','FLEETS','NAVAL BATTLES','INTERCEPTIONS']) if(!ui.includes(token)) throw new Error(`Missing UI token: ${token}`);
+          for(const token of ['worldforgeSupplyOverlay','data-supply-status','data-army-state','data-fleet-status','data-route-nodes','data-route-quality','data-fleet-mission','data-naval-battle']) if(!overlay.includes(token)) throw new Error(`Missing overlay token: ${token}`);
+          for(const token of ['warfare-supply-engine.js','warfare-mobilization.js','warfare-pathfinding.js','warfare-naval.js','warfare-supply-ui.js','warfare-supply-overlay.js','simulateWarfareYear']) if(!loader.includes(token)) throw new Error(`Missing loader token: ${token}`);
           console.log('v4.9 warfare supply contract OK');
           NODE
