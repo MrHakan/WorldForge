@@ -51,7 +51,6 @@ function realmView(w,id){apply(w);return ensure(w).realms[realmId(id)]||null}
 function summary(w){const m=apply(w);return{year:yearOf(w),revision:m?.revision||0,...(m?.stats||{})}}
 function patch(){
  if(Warfare.__mobilizationPatched)return;Warfare.__mobilizationPatched=true;
- for(const name of ['initialize','simulateWarfareYear']){const original=Warfare[name];if(typeof original!=='function')continue;Warfare[name]=function(w,...args){const out=original.call(this,w,...args);apply(w,false);return out}}
  if(typeof Warfare.summary==='function'){const original=Warfare.summary;Warfare.summary=function(w,...args){const out=original.call(this,w,...args);apply(w,false);return{...out,mobilization:summary(w)}}}
  if(typeof Warfare.cityMilitaryView==='function'){const original=Warfare.cityMilitaryView;Warfare.cityMilitaryView=function(w,id,...args){const out=original.call(this,w,id,...args);apply(w,false);const city=(w.cities?.cities||[]).find(c=>Number(c.id)===Number(id));const owner=city?(city.kingdomId??city.realmId??city.factionId??city.ownerId??null):null;return{...out,mobilization:realmView(w,owner)}}}
 }
