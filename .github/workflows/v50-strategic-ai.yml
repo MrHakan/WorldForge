@@ -1,0 +1,39 @@
+name: v5.0 Strategic AI
+
+on:
+  push:
+    branches: [main, v5.0-strategic-ai-core]
+    paths:
+      - 'warfare-strategic-ai.js'
+      - 'warfare-strategic-ai-ui.js'
+      - 'worldbuilding-loader.js'
+      - 'V5.0.md'
+      - '.github/workflows/v50-strategic-ai.yml'
+  pull_request:
+    branches: [main]
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Syntax check
+        run: |
+          node --check warfare-strategic-ai.js
+          node --check warfare-strategic-ai-ui.js
+          node --check worldbuilding-loader.js
+      - name: Contract smoke test
+        run: |
+          node <<'NODE'
+          const fs=require('fs');
+          const ai=fs.readFileSync('warfare-strategic-ai.js','utf8');
+          const ui=fs.readFileSync('warfare-strategic-ai-ui.js','utf8');
+          const loader=fs.readFileSync('worldbuilding-loader.js','utf8');
+          for(const token of ["VERSION='5.0.0'",'buildFront','campaignFor','occupationRows','strategicRole','frontId','occupiedSettlements','STRATEGIC_AI_VERSION']) if(!ai.includes(token)) throw new Error(`Missing strategic AI token: ${token}`);
+          for(const token of ['STRATEGIC AI & FRONTS','FRONTS','CAMPAIGNS','CONTESTED','OCCUPIED']) if(!ui.includes(token)) throw new Error(`Missing strategic UI token: ${token}`);
+          for(const token of ['warfare-strategic-ai.js','warfare-strategic-ai-ui.js','STRATEGIC_AI_VERSION']) if(!loader.includes(token)) throw new Error(`Missing loader token: ${token}`);
+          console.log('v5.0 strategic AI contract OK');
+          NODE
