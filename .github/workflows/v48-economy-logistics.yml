@@ -8,6 +8,7 @@ on:
       - 'economy-logistics-ui.js'
       - 'trade-route-overlay.js'
       - 'workspace-navigation.js'
+      - 'workspace-navigation.css'
       - 'worldbuilding-loader.js'
       - 'V4.8.md'
       - '.github/workflows/v48-economy-logistics.yml'
@@ -36,10 +37,12 @@ jobs:
           const engine=fs.readFileSync('economy-logistics-engine.js','utf8');
           const ui=fs.readFileSync('economy-logistics-ui.js','utf8');
           const overlay=fs.readFileSync('trade-route-overlay.js','utf8');
+          const navCss=fs.readFileSync('workspace-navigation.css','utf8');
           const loader=fs.readFileSync('worldbuilding-loader.js','utf8');
-          for(const token of ["VERSION='4.8.0'",'pricePressure','warehouse','dock','caravan','routeView']) if(!engine.includes(token)) throw new Error(`Missing engine token: ${token}`);
-          for(const token of ['REGIONAL ECONOMY & LOGISTICS','PRICE PRESSURE','economyRouteList']) if(!ui.includes(token)) throw new Error(`Missing UI token: ${token}`);
-          for(const token of ['worldforgeTradeOverlay','data-route-mode','data-good']) if(!overlay.includes(token)) throw new Error(`Missing overlay token: ${token}`);
+          for(const token of ["VERSION='4.8.0'",'pricePressure','stockpile','foodSecurity','famineRisk','warehouse','dock','caravan','setRouteDisruption','routeView']) if(!engine.includes(token)) throw new Error(`Missing engine token: ${token}`);
+          for(const token of ['REGIONAL ECONOMY & LOGISTICS','FOOD SECURITY','FAMINE RISK','STOCKPILE','economyRouteList']) if(!ui.includes(token)) throw new Error(`Missing UI token: ${token}`);
+          for(const token of ['worldforgeTradeOverlay','tradeRouteControls','data-route-mode','data-good','data-status']) if(!overlay.includes(token)) throw new Error(`Missing overlay token: ${token}`);
+          for(const token of ['isolation:isolate','z-index:1','@media(max-width:1200px)']) if(!navCss.includes(token)) throw new Error(`Missing workspace fix token: ${token}`);
           for(const token of ['economy-logistics-engine.js','economy-logistics-ui.js','trade-route-overlay.js','simulateEconomyYear']) if(!loader.includes(token)) throw new Error(`Missing loader token: ${token}`);
           console.log('v4.8 economy logistics contract OK');
           NODE
