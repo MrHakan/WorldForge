@@ -2,7 +2,7 @@ name: v5.0 Warfare Lifecycle Hardening
 
 on:
   push:
-    branches: [v5.0-warfare-lifecycle-hardening, v5.0-simulation-hook-registry, main]
+    branches: [v5.0-warfare-lifecycle-hardening, v5.0-simulation-hook-registry, v5.0-legacy-wrapper-cleanup, main]
   pull_request:
     branches: [main]
 
@@ -28,12 +28,15 @@ jobs:
           node --check warfare-national-memory.js
           node --check worldbuilding-loader.js
           node --check tests/warfare-hook-registry.test.js
+          node --check tests/warfare-legacy-wrapper-source.test.js
           node --check tests/warfare-lifecycle-hardening.test.js
           node --check tests/warfare-excavation-projects.test.js
           node --check tests/warfare-relic-journeys.test.js
           node --check tests/warfare-national-memory.test.js
       - name: Hook registry behavior
         run: node tests/warfare-hook-registry.test.js
+      - name: Legacy wrapper source cleanup
+        run: node tests/warfare-legacy-wrapper-source.test.js
       - name: Behavioral hardening checks
         run: node tests/warfare-lifecycle-hardening.test.js
       - name: Excavation project behavior

@@ -6,7 +6,7 @@ WorldForge now separates annual warfare simulation from presentation refreshes a
 - `warfare-hooks.js` captures the base Warfare & Supply `initialize` and `simulateWarfareYear` functions immediately after the core engine loads.
 - Annual mutating systems are registered as deterministic ordered hooks.
 - After all warfare modules load, `WorldForgeWarfareHooks.activate()` restores the captured base simulation boundary and installs one dispatcher.
-- Legacy module wrappers that were installed during script loading are therefore bypassed at runtime rather than being stacked around one another.
+- Legacy per-module `initialize` / `simulateWarfareYear` monkey patches have been removed from the warfare modules themselves; the registry is now the sole annual orchestration boundary.
 - `initialize()` prepares state only. Annual hooks run after a real `simulateWarfareYear` pass.
 - The dispatcher advances at most once for a given simulation year unless an explicit manual force run is requested.
 
@@ -37,10 +37,12 @@ The order is explicit and stable instead of being an accidental consequence of n
 - Resize, visibility, map-layer toggles and selection changes cannot advance simulation state.
 - Occupation resistance, collaboration, control and `yearsOccupied` evolve at most once per simulation year.
 - `warfare-lifecycle.js` remains as a compatibility facade and delegates to the hook registry; it no longer wraps `simulateWarfareYear`.
+- Summary and city-view adapters remain module-local because they are read-only query enrichment, not annual simulation progression.
 
 ## Regression guarantees
-- Legacy wrappers installed after the hook registry captures the base engine are bypassed when the registry activates.
+- Warfare feature modules are forbidden from reassigning `Warfare.initialize` or `Warfare.simulateWarfareYear`.
 - Hooks execute by `(order, id)` deterministically.
 - A repeated same-year simulation does not re-run annual hooks.
 - Advancing to a new year runs the hook chain exactly once.
 - Historical warfare extensions are loaded centrally by `worldbuilding-loader.js`; relic collections no longer bootstrap scripts as a side effect.
+- `tests/warfare-legacy-wrapper-source.test.js` statically guards the cleaned module set against lifecycle monkey-patch regressions.
