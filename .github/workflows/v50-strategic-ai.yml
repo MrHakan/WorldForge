@@ -2,7 +2,7 @@ name: v5.0 Strategic AI
 
 on:
   push:
-    branches: [main, v5.0-strategic-ai-core, v5.0-commanders-leadership, v5.0-strategic-reserves, v5.0-campaign-reassessment, v5.0-occupation-resistance, v5.0-strategic-map-overlay, v5.0-strategic-map-controls]
+    branches: [main, v5.0-strategic-ai-core, v5.0-commanders-leadership, v5.0-strategic-reserves, v5.0-campaign-reassessment, v5.0-occupation-resistance, v5.0-strategic-map-overlay, v5.0-strategic-map-controls, v5.0-commander-legacies]
   pull_request:
     branches: [main]
 
@@ -17,6 +17,8 @@ jobs:
         run: |
           node --check warfare-strategic-ai.js
           node --check warfare-commanders.js
+          node --check warfare-commander-legacies.js
+          node --check warfare-commander-legacies-ui.js
           node --check warfare-strategic-reserves.js
           node --check warfare-strategic-reserves-ui.js
           node --check warfare-campaign-planning.js
@@ -27,13 +29,17 @@ jobs:
           node --check warfare-strategic-map-controls.js
           node --check warfare-strategic-ai-ui.js
           node --check worldbuilding-loader.js
+          node --check tests/warfare-commanders-v50.mjs
+      - name: Commander lifecycle behavior
+        run: node tests/warfare-commanders-v50.mjs
       - name: Contract smoke test
         run: |
           node <<'NODE'
           const fs=require('fs'),read=x=>fs.readFileSync(x,'utf8');
-          const map=read('warfare-strategic-map-overlay.js'),controls=read('warfare-strategic-map-controls.js'),ui=read('warfare-strategic-ai-ui.js');
-          for(const t of ["VERSION='5.0.6'",'layers:{fronts:true,campaigns:true,reinforcements:true,occupations:true}','toggleLayer','selectFront','selectCampaign','clearSelection','data-selected'])if(!map.includes(t))throw Error(t);
-          for(const t of ['STRATEGIC MAP','Fronts','Campaigns','Reinforcements','Occupations','aria-pressed','Clear'])if(!controls.includes(t))throw Error(t);
-          for(const t of ['warfare-strategic-map-controls.js','data-campaign-id','data-front-id','selectCampaign','selectFront','5.0.6'])if(!ui.includes(t))throw Error(t);
-          console.log('v5.0 strategic map controls contract OK');
+          const c=read('warfare-commanders.js'),l=read('warfare-commander-legacies.js'),lu=read('warfare-commander-legacies-ui.js'),ui=read('warfare-strategic-ai-ui.js');
+          for(const t of ["VERSION='5.0.7'",'riskProfile','casualtyPressure','woundHistory','recoveryUntilYear','deathYear','successorOf','lastProcessedBattleCount','commanderBaseCombatPower','commanderAdjustedCombatPower','legacyFor','fallenCommanders','commanderSuccessions'])if(!c.includes(t))throw Error(t);
+          for(const t of ["VERSION='5.0.8'",'battlefield-monument','commander-statue','memorialEligible','commanderMemorials','heritageStatus'])if(!l.includes(t))throw Error(t);
+          for(const t of ['COMMANDER LEGACIES','WOUNDS','FALLEN','SUCCESSION','MEMORIALS'])if(!lu.includes(t))throw Error(t);
+          for(const t of ['warfare-commander-legacies.js','warfare-commander-legacies-ui.js','WOUNDED','FALLEN','LEGACIES','SUCCESSOR OF'])if(!ui.includes(t))throw Error(t);
+          console.log('v5.0 commander lifecycle + legacies contract OK');
           NODE
