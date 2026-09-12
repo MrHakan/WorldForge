@@ -36,10 +36,11 @@ jobs:
         run: |
           node <<'NODE'
           const fs=require('fs'),read=x=>fs.readFileSync(x,'utf8');
-          const c=read('warfare-commanders.js'),l=read('warfare-commander-legacies.js'),lu=read('warfare-commander-legacies-ui.js'),ui=read('warfare-strategic-ai-ui.js');
+          const c=read('warfare-commanders.js'),l=read('warfare-commander-legacies.js'),lu=read('warfare-commander-legacies-ui.js'),ui=read('warfare-strategic-ai-ui.js'),loader=read('worldbuilding-loader.js');
           for(const t of ["VERSION='5.0.7'",'riskProfile','casualtyPressure','woundHistory','recoveryUntilYear','deathYear','successorOf','lastProcessedBattleCount','commanderBaseCombatPower','commanderAdjustedCombatPower','legacyFor','fallenCommanders','commanderSuccessions'])if(!c.includes(t))throw Error(t);
           for(const t of ["VERSION='5.0.8'",'battlefield-monument','commander-statue','memorialEligible','commanderMemorials','heritageStatus'])if(!l.includes(t))throw Error(t);
           for(const t of ['COMMANDER LEGACIES','WOUNDS','FALLEN','SUCCESSION','MEMORIALS'])if(!lu.includes(t))throw Error(t);
           for(const t of ['warfare-commander-legacies.js','warfare-commander-legacies-ui.js','WOUNDED','FALLEN','LEGACIES','SUCCESSOR OF'])if(!ui.includes(t))throw Error(t);
+          for(const t of ['warfare-commanders.js','warfare-commander-legacies.js','warfare-strategic-reserves.js','warfare-campaign-planning.js','warfare-occupation-policy.js','applyCommanderLegacies'])if(!loader.includes(t))throw Error(`loader:${t}`);
           console.log('v5.0 commander lifecycle + legacies contract OK');
           NODE
