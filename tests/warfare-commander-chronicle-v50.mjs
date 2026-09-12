@@ -1,0 +1,10 @@
+import assert from 'node:assert/strict';
+globalThis.WorldForgeWarfareSupply={summary:()=>({}),registerSimulationHook:()=>{}};
+const {default:Chronicle}=await import('../warfare-commander-chronicle.js');
+const w={cities:{cities:[{id:2,name:'Red Ford'}]},warfareSupply:{currentYear:120,battles:[{id:'battle:1',type:'relief',targetCityId:2,attackerArmyId:'a1',defenderArmyId:'a2',attackerCasualties:40,defenderCasualties:25,outcome:'siege-broken'}],commanders:{leaders:[{id:'cmd:a1:1',name:'Commander Hale',armyId:'a1',appointedYear:120,successorOf:'cmd:a1:0'},{id:'cmd:a2:0',name:'Commander Vale',armyId:'a2'}],fallen:[{id:'cmd:a1:0',name:'Commander Orr',armyId:'a1',realmId:1,deathYear:120,causeOfDeath:'killed-in-action'}],retired:[],woundHistory:[{commanderId:'cmd:a2:0',armyId:'a2',year:120,severity:'moderate',recoveryUntilYear:122}],stats:{}}}};
+Chronicle.apply(w);const C=w.warfareSupply.commanders;
+assert.equal(C.stats.namedBattles,1);assert.equal(C.chronicle.filter(x=>x.battleId).length,1);
+const battle=C.chronicle.find(x=>x.battleId);assert.equal(battle.locationName,'Red Ford');assert.equal(battle.attackerCommanderName,'Commander Orr');assert.equal(battle.defenderCommanderName,'Commander Vale');assert.deepEqual(battle.fallenCommanderIds,['cmd:a1:0']);
+assert(C.chronicle.some(x=>x.type==='fallen'&&x.commanderId==='cmd:a1:0'));assert(C.chronicle.some(x=>x.type==='wounded'&&x.commanderId==='cmd:a2:0'));assert(C.chronicle.some(x=>x.type==='succession'&&x.commanderId==='cmd:a1:1'));
+const snapshot=JSON.stringify(C.chronicle);Chronicle.apply(w);assert.equal(JSON.stringify(C.chronicle),snapshot,'same-year reapply must be idempotent');
+console.log('v5.0 commander chronicle behavior OK');
