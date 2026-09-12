@@ -1,0 +1,34 @@
+name: v5.0 Warfare Lifecycle Hardening
+
+on:
+  push:
+    branches: [v5.0-warfare-lifecycle-hardening, main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: {node-version: '22'}
+      - name: Syntax check
+        run: |
+          node --check warfare-lifecycle.js
+          node --check warfare-occupation-policy.js
+          node --check warfare-campaign-planning-ui.js
+          node --check warfare-strategic-reserves-ui.js
+          node --check tests/warfare-lifecycle-hardening.test.js
+      - name: Behavioral hardening checks
+        run: node tests/warfare-lifecycle-hardening.test.js
+      - name: Lifecycle contract
+        run: |
+          node - <<'NODE'
+          const fs=require('fs');
+          const life=fs.readFileSync('warfare-lifecycle.js','utf8');
+          const occ=fs.readFileSync('warfare-occupation-policy.js','utf8');
+          for(const token of ["VERSION='5.0.11'",'lastAdvancedYear','advanceCount','applyStrategicAI','applyBattlefieldRelics']) if(!life.includes(token)) throw Error(token);
+          for(const token of ["VERSION='5.0.4a'",'lastAppliedYear','yearsOccupied']) if(!occ.includes(token)) throw Error(token);
+          console.log('warfare lifecycle contract OK');
+          NODE
