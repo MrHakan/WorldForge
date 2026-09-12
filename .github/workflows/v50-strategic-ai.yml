@@ -2,7 +2,7 @@ name: v5.0 Strategic AI
 
 on:
   push:
-    branches: [main, v5.0-strategic-ai-core, v5.0-commanders-leadership, v5.0-strategic-reserves, v5.0-campaign-reassessment, v5.0-occupation-resistance, v5.0-strategic-map-overlay, v5.0-strategic-map-controls, v5.0-commander-legacies, v5.0-battlefields-war-scars, v5.0-battlefield-relics]
+    branches: [main, v5.0-strategic-ai-core, v5.0-commanders-leadership, v5.0-strategic-reserves, v5.0-campaign-reassessment, v5.0-occupation-resistance, v5.0-strategic-map-overlay, v5.0-strategic-map-controls, v5.0-commander-legacies, v5.0-battlefields-war-scars, v5.0-battlefield-relics, v5.0-simulation-hook-registry]
   pull_request:
     branches: [main]
 
@@ -15,6 +15,7 @@ jobs:
         with: {node-version: '22'}
       - name: Syntax check
         run: |
+          node --check warfare-hooks.js
           node --check warfare-strategic-ai.js
           node --check warfare-commanders.js
           node --check warfare-commander-legacies.js
@@ -47,7 +48,7 @@ jobs:
         run: |
           node <<'NODE'
           const fs=require('fs'),read=x=>fs.readFileSync(x,'utf8');
-          const c=read('warfare-commanders.js'),l=read('warfare-commander-legacies.js'),lu=read('warfare-commander-legacies-ui.js'),b=read('warfare-battlefield-history-v2.js'),bu=read('warfare-battlefield-history-ui.js'),r=read('warfare-battlefield-relics.js'),ru=read('warfare-battlefield-relics-ui.js'),rc=read('warfare-relic-collections.js'),ui=read('warfare-strategic-ai-ui.js'),loader=read('worldbuilding-loader.js');
+          const c=read('warfare-commanders.js'),l=read('warfare-commander-legacies.js'),lu=read('warfare-commander-legacies-ui.js'),b=read('warfare-battlefield-history-v2.js'),bu=read('warfare-battlefield-history-ui.js'),r=read('warfare-battlefield-relics.js'),ru=read('warfare-battlefield-relics-ui.js'),rc=read('warfare-relic-collections.js'),ui=read('warfare-strategic-ai-ui.js'),hooks=read('warfare-hooks.js'),loader=read('worldbuilding-loader.js');
           for(const t of ["VERSION='5.0.7'",'riskProfile','casualtyPressure','woundHistory','recoveryUntilYear','deathYear','successorOf','lastProcessedBattleCount','commanderBaseCombatPower','commanderAdjustedCombatPower','legacyFor','fallenCommanders','commanderSuccessions'])if(!c.includes(t))throw Error(t);
           for(const t of ["VERSION='5.0.8'",'battlefield-monument','commander-statue','memorialEligible','commanderMemorials','heritageStatus'])if(!l.includes(t))throw Error(t);
           for(const t of ['COMMANDER LEGACIES','WOUNDS','FALLEN','SUCCESSION','MEMORIALS'])if(!lu.includes(t))throw Error(t);
@@ -57,6 +58,7 @@ jobs:
           for(const t of ['BATTLEFIELD EXCAVATIONS & WAR RELICS','PROVENANCE','COMMANDER LINKED','MUSEUM','HERITAGE'])if(!ru.includes(t))throw Error(t);
           for(const t of ["VERSION='5.0.11'",'relicCollections','permanent-display','study-collection','provenanceVerified','applyRelicCollections'])if(!rc.includes(t))throw Error(t);
           for(const t of ['warfare-commander-legacies.js','warfare-commander-legacies-ui.js','WOUNDED','FALLEN','LEGACIES','SUCCESSOR OF'])if(!ui.includes(t))throw Error(t);
-          for(const t of ['warfare-commanders.js','warfare-commander-legacies.js','warfare-battlefield-history-v2.js','warfare-battlefield-history-ui.js','warfare-battlefield-relics.js','warfare-battlefield-relics-ui.js','warfare-relic-collections.js','warfare-strategic-reserves.js','warfare-campaign-planning.js','warfare-occupation-policy.js','applyCommanderLegacies','applyBattlefieldHistory','applyBattlefieldRelics','applyRelicCollections'])if(!loader.includes(t))throw Error(`loader:${t}`);
-          console.log('v5.0 commander + battlefield history + relic collection contracts OK');
+          for(const t of ['warfare-commanders.js','warfare-commander-legacies.js','warfare-battlefield-history-v2.js','warfare-battlefield-history-ui.js','warfare-battlefield-relics.js','warfare-battlefield-relics-ui.js','warfare-relic-collections.js','warfare-strategic-reserves.js','warfare-campaign-planning.js','warfare-occupation-policy.js','warfare-hooks.js','WorldForgeWarfareHooks.activate()'])if(!loader.includes(t))throw Error(`loader:${t}`);
+          for(const t of ['applyCommanderLegacies','applyBattlefieldHistory','applyBattlefieldRelics','applyRelicCollections','strategic-reserves','campaign-planning','occupation-policy'])if(!hooks.includes(t))throw Error(`hooks:${t}`);
+          console.log('v5.0 commander + battlefield history + registry contracts OK');
           NODE
