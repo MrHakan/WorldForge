@@ -1,0 +1,16 @@
+import fs from 'node:fs';
+import vm from 'node:vm';
+import assert from 'node:assert/strict';
+global.window=global;
+const Warfare={initialize:w=>w.warfareSupply,simulateWarfareYear:(w,y)=>{w.warfareSupply.currentYear=y;return w.warfareSupply},summary:()=>({}),cityMilitaryView:()=>({})};
+global.WorldForgeWarfareSupply=Warfare;
+vm.runInThisContext(fs.readFileSync('warfare-commanders.js','utf8'),{filename:'warfare-commanders.js'});
+const C=global.WorldForgeWarfareCommanders;assert.ok(C);assert.equal(C.VERSION,'5.0.7');
+function world(){return{seed:'COMMANDER-TEST',history:{currentYear:100},warfareSupply:{currentYear:100,armies:[{id:'army:1',ownerId:1,homeCityId:1,size:1000,supply:.8,morale:.62,experience:.3,combatPower:700,battleCount:0,casualties:0,status:'ready',strategicRole:'offensive',movementState:'marching'}],stats:{}}}}
+const w=world(),a=w.warfareSupply.armies[0];C.apply(w,true);const first={power:a.combatPower,morale:a.morale,prestige:w.warfareSupply.commanders.leaders[0].prestige,id:a.commanderId};
+C.apply(w,true);assert.equal(a.combatPower,first.power,'repeated same-year force apply must not compound combat power');assert.equal(a.morale,first.morale,'repeated same-year force apply must not compound morale');assert.equal(w.warfareSupply.commanders.leaders[0].prestige,first.prestige,'repeated same-year force apply must not inflate prestige');assert.equal(a.commanderId,first.id,'commander identity must remain stable');
+a.battleCount=2;C.apply(w,true);const afterBattle=w.warfareSupply.commanders.leaders[0].prestige;assert.ok(afterBattle>first.prestige,'new battles should increase prestige once');C.apply(w,true);assert.equal(w.warfareSupply.commanders.leaders[0].prestige,afterBattle,'same battle count must not increase prestige twice');
+const leader=w.warfareSupply.commanders.leaders[0];assert.ok(C.modifier(leader,a)>=.85&&C.modifier(leader,a)<=1.25,'modifier must remain bounded');const legacy=C.legacyFor({...leader,prestige:80,battles:8,skill:.8,appointedYear:80},'retired',100);assert.ok(legacy&&legacy.memorialEligible,'high-prestige commander should create memorial-eligible legacy');
+const successor=C.succession(w.warfareSupply.commanders,w,a,101,leader);assert.notEqual(successor.id,leader.id,'succession must create a unique commander id');assert.equal(successor.successorOf,leader.id,'successor must reference predecessor');
+let fatalYear=null;const risky={...leader,id:'cmd:risk',lastProcessedBattleCount:0};const riskyArmy={...a,battleCount:6,casualties:900,size:100,status:'critical',movementState:'relief'};for(let y=101;y<5000;y++){const r=C.riskProfile(risky,riskyArmy,y);if(r.roll<r.deathChance){fatalYear=y;break}}assert.ok(fatalYear,'deterministic risk profile should eventually yield a fatal year under extreme casualty pressure');
+console.log('WorldForge v5.0 commander lifecycle behavioral tests passed.');
