@@ -19,7 +19,7 @@ jobs:
           node --check warfare-commanders.js
           node --check warfare-commander-legacies.js
           node --check warfare-commander-legacies-ui.js
-          node --check warfare-battlefield-history.js
+          node --check warfare-battlefield-history-v2.js
           node --check warfare-battlefield-history-ui.js
           node --check warfare-strategic-reserves.js
           node --check warfare-strategic-reserves-ui.js
@@ -41,13 +41,13 @@ jobs:
         run: |
           node <<'NODE'
           const fs=require('fs'),read=x=>fs.readFileSync(x,'utf8');
-          const c=read('warfare-commanders.js'),l=read('warfare-commander-legacies.js'),lu=read('warfare-commander-legacies-ui.js'),b=read('warfare-battlefield-history.js'),bu=read('warfare-battlefield-history-ui.js'),ui=read('warfare-strategic-ai-ui.js'),loader=read('worldbuilding-loader.js');
+          const c=read('warfare-commanders.js'),l=read('warfare-commander-legacies.js'),lu=read('warfare-commander-legacies-ui.js'),b=read('warfare-battlefield-history-v2.js'),bu=read('warfare-battlefield-history-ui.js'),ui=read('warfare-strategic-ai-ui.js'),loader=read('worldbuilding-loader.js');
           for(const t of ["VERSION='5.0.7'",'riskProfile','casualtyPressure','woundHistory','recoveryUntilYear','deathYear','successorOf','lastProcessedBattleCount','commanderBaseCombatPower','commanderAdjustedCombatPower','legacyFor','fallenCommanders','commanderSuccessions'])if(!c.includes(t))throw Error(t);
           for(const t of ["VERSION='5.0.8'",'battlefield-monument','commander-statue','memorialEligible','commanderMemorials','heritageStatus'])if(!l.includes(t))throw Error(t);
           for(const t of ['COMMANDER LEGACIES','WOUNDS','FALLEN','SUCCESSION','MEMORIALS'])if(!lu.includes(t))throw Error(t);
-          for(const t of ["VERSION='5.0.9'",'battlefieldHistory','archaeologyEligible','heritageEligible','warfareBattlefields','historicalBattlefields','warScars'])if(!b.includes(t))throw Error(t);
+          for(const t of ["VERSION='5.0.9a'",'battlefieldHistory','archaeologyEligible','heritageEligible','warfareBattlefields','historicalBattlefields','warScars'])if(!b.includes(t))throw Error(t);
           for(const t of ['BATTLEFIELDS & WAR SCARS','MEMORY','ARCHAEOLOGY','HERITAGE','REMEMBERED DEAD'])if(!bu.includes(t))throw Error(t);
           for(const t of ['warfare-commander-legacies.js','warfare-commander-legacies-ui.js','WOUNDED','FALLEN','LEGACIES','SUCCESSOR OF'])if(!ui.includes(t))throw Error(t);
-          for(const t of ['warfare-commanders.js','warfare-commander-legacies.js','warfare-battlefield-history.js','warfare-battlefield-history-ui.js','warfare-strategic-reserves.js','warfare-campaign-planning.js','warfare-occupation-policy.js','applyCommanderLegacies','applyBattlefieldHistory'])if(!loader.includes(t))throw Error(`loader:${t}`);
+          for(const t of ['warfare-commanders.js','warfare-commander-legacies.js','warfare-battlefield-history-v2.js','warfare-battlefield-history-ui.js','warfare-strategic-reserves.js','warfare-campaign-planning.js','warfare-occupation-policy.js','applyCommanderLegacies','applyBattlefieldHistory'])if(!loader.includes(t))throw Error(`loader:${t}`);
           console.log('v5.0 commander + battlefield history contracts OK');
           NODE
