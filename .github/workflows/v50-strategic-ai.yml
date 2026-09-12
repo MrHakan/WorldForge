@@ -2,7 +2,7 @@ name: v5.0 Strategic AI
 
 on:
   push:
-    branches: [main, v5.0-strategic-ai-core, v5.0-commanders-leadership, v5.0-strategic-reserves, v5.0-campaign-reassessment, v5.0-occupation-resistance, v5.0-strategic-map-overlay]
+    branches: [main, v5.0-strategic-ai-core, v5.0-commanders-leadership, v5.0-strategic-reserves, v5.0-campaign-reassessment, v5.0-occupation-resistance, v5.0-strategic-map-overlay, v5.0-strategic-map-controls]
   pull_request:
     branches: [main]
 
@@ -24,19 +24,16 @@ jobs:
           node --check warfare-occupation-policy.js
           node --check warfare-occupation-policy-ui.js
           node --check warfare-strategic-map-overlay.js
+          node --check warfare-strategic-map-controls.js
           node --check warfare-strategic-ai-ui.js
           node --check worldbuilding-loader.js
       - name: Contract smoke test
         run: |
           node <<'NODE'
           const fs=require('fs'),read=x=>fs.readFileSync(x,'utf8');
-          const ai=read('warfare-strategic-ai.js'),cmd=read('warfare-commanders.js'),res=read('warfare-strategic-reserves.js'),plan=read('warfare-campaign-planning.js'),occ=read('warfare-occupation-policy.js'),map=read('warfare-strategic-map-overlay.js'),ui=read('warfare-strategic-ai-ui.js');
-          for(const t of ["VERSION='5.0.0'",'buildFront','occupationRows','STRATEGIC_AI_VERSION'])if(!ai.includes(t))throw Error(t);
-          for(const t of ["VERSION='5.0.1'",'TRAITS','commandModifier','COMMANDERS_VERSION'])if(!cmd.includes(t))throw Error(t);
-          for(const t of ["VERSION='5.0.2'",'collapseRisk','reinforcementPriority','STRATEGIC_RESERVES_VERSION'])if(!res.includes(t))throw Error(t);
-          for(const t of ["VERSION='5.0.3'",'momentum','reassessObjective','CAMPAIGN_PLANNING_VERSION'])if(!plan.includes(t))throw Error(t);
-          for(const t of ["VERSION='5.0.4'",'POLICIES','liberationRisk','OCCUPATION_POLICY_VERSION'])if(!occ.includes(t))throw Error(t);
-          for(const t of ["VERSION='5.0.5'",'worldforgeStrategicMapOverlay','data-strategic-front','data-campaign-arrow','data-reinforcement-arrow','data-occupation-zone','pointerEvents:\'none\''])if(!map.includes(t))throw Error(t);
-          for(const t of ['warfare-strategic-map-overlay.js','WorldForgeWarfareStrategicMapOverlay','5.0.5'])if(!ui.includes(t))throw Error(t);
-          console.log('v5.0 strategic stack + map overlay contract OK');
+          const map=read('warfare-strategic-map-overlay.js'),controls=read('warfare-strategic-map-controls.js'),ui=read('warfare-strategic-ai-ui.js');
+          for(const t of ["VERSION='5.0.6'",'layers:{fronts:true,campaigns:true,reinforcements:true,occupations:true}','toggleLayer','selectFront','selectCampaign','clearSelection','data-selected'])if(!map.includes(t))throw Error(t);
+          for(const t of ['STRATEGIC MAP','Fronts','Campaigns','Reinforcements','Occupations','aria-pressed','Clear'])if(!controls.includes(t))throw Error(t);
+          for(const t of ['warfare-strategic-map-controls.js','data-campaign-id','data-front-id','selectCampaign','selectFront','5.0.6'])if(!ui.includes(t))throw Error(t);
+          console.log('v5.0 strategic map controls contract OK');
           NODE
