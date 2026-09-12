@@ -2,7 +2,7 @@ name: v4.9 Warfare Supply
 
 on:
   push:
-    branches: [main, v4.9-warfare-supply-lines, v4.9-army-map-interactions, v4.9-postwar-consequences, v4.9-war-goals-peace-terms]
+    branches: [main, v4.9-warfare-supply-lines, v4.9-army-map-interactions, v4.9-postwar-consequences, v4.9-war-goals-peace-terms, v4.9-pixel-war-consequences]
     paths:
       - 'warfare-supply-engine.js'
       - 'warfare-mobilization.js'
@@ -11,6 +11,7 @@ on:
       - 'warfare-diplomacy.js'
       - 'warfare-postwar.js'
       - 'warfare-peace.js'
+      - 'warfare-pixel-renderer.js'
       - 'warfare-supply-ui.js'
       - 'warfare-postwar-ui.js'
       - 'warfare-peace-ui.js'
@@ -39,6 +40,7 @@ jobs:
           node --check warfare-diplomacy.js
           node --check warfare-postwar.js
           node --check warfare-peace.js
+          node --check warfare-pixel-renderer.js
           node --check warfare-supply-ui.js
           node --check warfare-postwar-ui.js
           node --check warfare-peace-ui.js
@@ -56,6 +58,7 @@ jobs:
           const diplomacy=fs.readFileSync('warfare-diplomacy.js','utf8');
           const postwar=fs.readFileSync('warfare-postwar.js','utf8');
           const peace=fs.readFileSync('warfare-peace.js','utf8');
+          const pixel=fs.readFileSync('warfare-pixel-renderer.js','utf8');
           const ui=fs.readFileSync('warfare-supply-ui.js','utf8');
           const postwarUi=fs.readFileSync('warfare-postwar-ui.js','utf8');
           const peaceUi=fs.readFileSync('warfare-peace-ui.js','utf8');
@@ -68,10 +71,11 @@ jobs:
           for(const token of ["VERSION='4.9.6'",'warPairs','atWar','nearestWarTarget','demobilizeArmy','retargetArmy','sanitizeNaval','activeWars','DIPLOMACY_WAR_VERSION']) if(!diplomacy.includes(token)) throw new Error(`Missing diplomacy integration token: ${token}`);
           for(const token of ["VERSION='4.9.7'",'endedWars','displacedThisYear','refugeeCampPopulation','reconstructionPressure','returnedManpower','applyPostWarRecovery','POSTWAR_VERSION']) if(!postwar.includes(token)) throw new Error(`Missing post-war token: ${token}`);
           for(const token of ["VERSION='4.9.8'",'GOALS','goalFor','warScore','termsFor','peace_treaty','reparations','borderAdjustment','applyWarGoalsAndPeace','PEACE_VERSION']) if(!peace.includes(token)) throw new Error(`Missing peace token: ${token}`);
+          for(const token of ["VERSION='4.9.9'",'siege-camp','damaged-walls','refugee-camp','blockaded-port','reconstruction','WARFARE_PIXEL_VERSION']) if(!pixel.includes(token)) throw new Error(`Missing warfare pixel token: ${token}`);
           for(const token of ['WARFARE & SUPPLY LINES','ARMY INSPECTOR','SELECTED ARMY','Focus Home','Focus Target','selectedArmyId','focusCity','FOOD RESERVE','AMMUNITION','EQUIPMENT','MORALE','EXPERIENCE','COMBAT POWER','MANPOWER','CASUALTIES','RELIEF BATTLES','FLEETS','NAVAL BATTLES','INTERCEPTIONS']) if(!ui.includes(token)) throw new Error(`Missing UI token: ${token}`);
           for(const token of ['POST-WAR RECOVERY','DEMOBILIZATION','DISPLACEMENT','REFUGEES','RECONSTRUCTION','MANPOWER RETURNED']) if(!postwarUi.includes(token)) throw new Error(`Missing post-war UI token: ${token}`);
           for(const token of ['WAR GOALS & PEACE TERMS','WAR SCORE','PEACE SETTLEMENT','REPARATIONS','BORDER ADJUSTMENT']) if(!peaceUi.includes(token)) throw new Error(`Missing peace UI token: ${token}`);
           for(const token of ['worldforgeSupplyOverlay','data-supply-status','data-army-id','data-selected','data-army-state','data-fleet-status','data-route-nodes','data-route-quality','data-fleet-mission','data-naval-battle','selectArmy']) if(!overlay.includes(token)) throw new Error(`Missing overlay token: ${token}`);
-          for(const token of ['warfare-supply-engine.js','warfare-mobilization.js','warfare-pathfinding.js','warfare-naval.js','warfare-diplomacy.js','warfare-postwar.js','warfare-peace.js','warfare-supply-ui.js','warfare-postwar-ui.js','warfare-peace-ui.js','warfare-supply-overlay.js','simulateWarfareYear']) if(!loader.includes(token)) throw new Error(`Missing loader token: ${token}`);
+          for(const token of ['warfare-supply-engine.js','warfare-mobilization.js','warfare-pathfinding.js','warfare-naval.js','warfare-diplomacy.js','warfare-postwar.js','warfare-peace.js','warfare-pixel-renderer.js','warfare-supply-ui.js','warfare-postwar-ui.js','warfare-peace-ui.js','warfare-supply-overlay.js','simulateWarfareYear']) if(!loader.includes(token)) throw new Error(`Missing loader token: ${token}`);
           console.log('v4.9 warfare supply contract OK');
           NODE
