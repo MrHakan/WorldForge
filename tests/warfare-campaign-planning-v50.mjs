@@ -1,0 +1,16 @@
+import fs from 'node:fs';
+import vm from 'node:vm';
+import assert from 'node:assert/strict';
+global.window=global;
+const Warfare={initialize:w=>w.warfareSupply,summary:()=>({})};
+global.WorldForgeWarfareSupply=Warfare;
+vm.runInThisContext(fs.readFileSync('warfare-campaign-planning.js','utf8'),{filename:'warfare-campaign-planning.js'});
+const C=global.WorldForgeWarfareCampaignPlanning;assert.equal(C.VERSION,'5.0.18');
+function world(){return{history:{currentYear:100},warfareSupply:{currentYear:100,armies:[{id:'a1',ownerId:1,supply:.8},{id:'a2',ownerId:2,supply:.8}],strategicAI:{fronts:[{id:'f1',balance:.35,status:'attacker-advantage',attackerArmyIds:['a1'],defenderArmyIds:['a2'],reinforcementFulfillment:.8,collapseRisk:.1}],campaigns:[{id:'c1',warId:'w1',frontId:'f1',goal:'conquest',objectiveType:'capture-capital',targetCityId:9,priority:.7}]},strategicReserves:{requests:[]},stats:{}}}}
+const w=world();C.apply(w,true);let p=w.warfareSupply.campaignPlanning.plans[0];assert.equal(p.startedYear,100);assert.equal(p.objectiveType,'capture-capital');const first=JSON.stringify(p);C.apply(w,true);assert.equal(JSON.stringify(w.warfareSupply.campaignPlanning.plans[0]),first,'same-year force apply must be idempotent');
+w.warfareSupply.currentYear=w.history.currentYear=101;w.warfareSupply.strategicAI.fronts[0].balance=-.7;w.warfareSupply.strategicAI.fronts[0].collapseRisk=.78;C.apply(w,true);p=w.warfareSupply.campaignPlanning.plans[0];assert.equal(p.objectiveType,'hold-line','critical collapse must immediately force hold-line');assert.equal(p.phase,'recover');assert.equal(p.reassessmentReason,'front-collapse-risk');
+w.warfareSupply.currentYear=w.history.currentYear=102;w.warfareSupply.strategicAI.fronts[0].balance=.05;w.warfareSupply.strategicAI.fronts[0].collapseRisk=.15;C.apply(w,true);p=w.warfareSupply.campaignPlanning.plans[0];assert.ok(['cooldown-hold','continue-plan'].includes(p.reassessmentReason));assert.equal(p.objectiveType,'hold-line','cooldown must prevent oscillating back to attack');
+w.warfareSupply.currentYear=w.history.currentYear=104;w.warfareSupply.strategicAI.fronts[0].balance=.8;w.warfareSupply.strategicAI.fronts[0].collapseRisk=.02;w.warfareSupply.strategicAI.fronts[0].reinforcementFulfillment=1;w.warfareSupply.armies.forEach(a=>a.supply=.95);C.apply(w,true);p=w.warfareSupply.campaignPlanning.plans[0];assert.equal(p.objectiveType,'capture-capital','recovered conquest campaign should resume territorial objective after cooldown');assert.ok(['offensive','exploit'].includes(p.phase));
+w.warfareSupply.currentYear=w.history.currentYear=105;w.warfareSupply.strategicAI.campaigns[0].targetCityId=12;C.apply(w,true);p=w.warfareSupply.campaignPlanning.plans[0];assert.equal(p.targetCityId,12);assert.equal(p.reassessmentReason,'target-changed','target change must bypass cooldown');
+w.warfareSupply.currentYear=w.history.currentYear=106;w.warfareSupply.strategicAI.campaigns=[];w.warfareSupply.strategicAI.fronts=[];C.apply(w,true);assert.equal(w.warfareSupply.campaignPlanning.plans.length,0);assert.equal(w.warfareSupply.campaignPlanning.history.at(-1).status,'closed');assert.equal(w.warfareSupply.campaignPlanning.history.at(-1).reassessmentReason,'war-ended');
+console.log('WorldForge v5.0 advanced campaign planning behavioral tests passed.');
