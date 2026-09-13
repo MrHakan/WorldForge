@@ -2,7 +2,7 @@ name: v5.0 Strategic AI
 
 on:
   push:
-    branches: [main, v5.0-strategic-ai-core, v5.0-commanders-leadership, v5.0-strategic-reserves, v5.0-campaign-reassessment, v5.0-occupation-resistance, v5.0-strategic-map-overlay, v5.0-strategic-map-controls, v5.0-commander-legacies, v5.0-battlefields-war-scars, v5.0-battlefield-relics, v5.0-simulation-hook-registry, v5.0-commander-wounds-succession, v5.0-reserves-hardening, v5.0-campaign-planning-advanced, v5.0-multi-front-campaigns]
+    branches: [main, v5.0-strategic-ai-core, v5.0-commanders-leadership, v5.0-strategic-reserves, v5.0-campaign-reassessment, v5.0-occupation-resistance, v5.0-strategic-map-overlay, v5.0-strategic-map-controls, v5.0-commander-legacies, v5.0-battlefields-war-scars, v5.0-battlefield-relics, v5.0-simulation-hook-registry, v5.0-commander-wounds-succession, v5.0-reserves-hardening, v5.0-campaign-planning-advanced, v5.0-multi-front-campaigns, v5.0-strategic-theater-command]
   pull_request:
     branches: [main]
 
@@ -28,6 +28,7 @@ jobs:
           node --check warfare-relic-collections.js
           node --check warfare-strategic-reserves.js
           node --check warfare-strategic-reserves-ui.js
+          node --check warfare-theater-command.js
           node --check warfare-campaign-planning.js
           node --check warfare-campaign-planning-ui.js
           node --check warfare-occupation-policy.js
@@ -41,6 +42,7 @@ jobs:
           node --check tests/warfare-strategic-reserves-v50.mjs
           node --check tests/warfare-campaign-planning-v50.mjs
           node --check tests/warfare-multifront-strategic-ai-v50.mjs
+          node --check tests/warfare-theater-command-v50.mjs
           node --check tests/warfare-battlefield-history-v50.mjs
           node --check tests/warfare-battlefield-relics.test.js
       - name: Commander lifecycle behavior
@@ -51,6 +53,8 @@ jobs:
         run: node tests/warfare-strategic-reserves-v50.mjs
       - name: Multi-front strategic allocation behavior
         run: node tests/warfare-multifront-strategic-ai-v50.mjs
+      - name: Strategic theater command behavior
+        run: node tests/warfare-theater-command-v50.mjs
       - name: Campaign planning behavior
         run: node tests/warfare-campaign-planning-v50.mjs
       - name: Battlefield history behavior
@@ -61,7 +65,7 @@ jobs:
         run: |
           node <<'NODE'
           const fs=require('fs'),read=x=>fs.readFileSync(x,'utf8');
-          const sa=read('warfare-strategic-ai.js'),c=read('warfare-commanders.js'),cc=read('warfare-commander-chronicle.js'),l=read('warfare-commander-legacies.js'),lu=read('warfare-commander-legacies-ui.js'),b=read('warfare-battlefield-history-v2.js'),r=read('warfare-battlefield-relics.js'),rc=read('warfare-relic-collections.js'),sr=read('warfare-strategic-reserves.js'),cp=read('warfare-campaign-planning.js'),cpu=read('warfare-campaign-planning-ui.js'),ui=read('warfare-strategic-ai-ui.js'),hooks=read('warfare-hooks.js'),loader=read('worldbuilding-loader.js');
+          const sa=read('warfare-strategic-ai.js'),c=read('warfare-commanders.js'),cc=read('warfare-commander-chronicle.js'),l=read('warfare-commander-legacies.js'),lu=read('warfare-commander-legacies-ui.js'),b=read('warfare-battlefield-history-v2.js'),r=read('warfare-battlefield-relics.js'),rc=read('warfare-relic-collections.js'),sr=read('warfare-strategic-reserves.js'),tc=read('warfare-theater-command.js'),cp=read('warfare-campaign-planning.js'),cpu=read('warfare-campaign-planning-ui.js'),ui=read('warfare-strategic-ai-ui.js'),hooks=read('warfare-hooks.js'),loader=read('worldbuilding-loader.js');
           for(const t of ["VERSION='5.0.19'",'usedAttackers','usedDefenders','theaterRole','primaryCampaigns','secondaryCampaigns'])if(!sa.includes(t))throw Error(`strategic-ai:${t}`);
           for(const t of ["VERSION='5.0.7'",'riskProfile','woundHistory','recoveryUntilYear','deathYear','successorOf','lastProcessedBattleCount','commanderBaseCombatPower','commanderAdjustedCombatPower','legacyFor'])if(!c.includes(t))throw Error(t);
           for(const t of ["VERSION='5.0.16'",'battleRecord','careerRecord','fallenCommanderIds','chronicleEvents','namedBattles','commander-chronicle'])if(!cc.includes(t))throw Error(`chronicle:${t}`);
@@ -71,9 +75,11 @@ jobs:
           for(const t of ["VERSION='5.0.10'",'battlefieldRelics','protectedContext','provenance','commanderLinked'])if(!r.includes(t))throw Error(t);
           for(const t of ["VERSION='5.0.11'",'relicCollections','provenanceVerified','applyRelicCollections'])if(!rc.includes(t))throw Error(t);
           for(const t of ["VERSION='5.0.17'",'reconcileAssignments','distanceToFront','request-resolved','reinforcementFulfillment'])if(!sr.includes(t))throw Error(`reserves:${t}`);
+          for(const t of ["VERSION='5.0.21'",'PROMOTION_MARGIN','primaryByWar','primary-promoted','reserve-transfer','breakthrough-opened','exploitationFronts'])if(!tc.includes(t))throw Error(`theater-command:${t}`);
           for(const t of ["VERSION='5.0.20'",'campaignKey','theaterRole','primaryCampaignPlans','secondaryCampaignPlans','front-closed','war-ended'])if(!cp.includes(t))throw Error(`campaign:${t}`);
-          for(const t of ['MULTI-FRONT','PRIMARY','SECONDARY','NEXT REVIEW'])if(!cpu.includes(t))throw Error(`campaign-ui:${t}`);
+          for(const t of ['THEATER COMMAND','PROMOTIONS','TRANSFERS','BREAKTHROUGHS','COMMAND SCORE'])if(!cpu.includes(t))throw Error(`campaign-ui:${t}`);
+          for(const t of ['theater-command',"VERSION='5.0.22'"])if(!hooks.includes(t))throw Error(`hooks:${t}`);
+          for(const t of ['warfare-theater-command.js',"WorldForgeWarfareTheaterCommand?.VERSION==='5.0.21'","WorldForgeWarfareStrategicAI?.VERSION==='5.0.19'","WorldForgeWarfareStrategicReserves?.VERSION==='5.0.17'","WorldForgeWarfareCampaignPlanning?.VERSION==='5.0.20'",'WorldForgeWarfareHooks.activate()'])if(!loader.includes(t))throw Error(`loader:${t}`);
           for(const t of ['warfare-commander-chronicle.js','COMMANDER CHRONICLE','NAMED BATTLES','CHRONICLE'])if(!ui.includes(t))throw Error(`ui:${t}`);
-          for(const t of ['warfare-commanders.js','warfare-commander-legacies.js','warfare-battlefield-history-v2.js','warfare-battlefield-relics.js','warfare-relic-collections.js','warfare-hooks.js','WorldForgeWarfareHooks.activate()'])if(!loader.includes(t))throw Error(`loader:${t}`);
-          console.log('v5.0 multi-front strategic + campaign planning contracts OK');
+          console.log('v5.0 strategic theater command + multi-front campaign contracts OK');
           NODE
