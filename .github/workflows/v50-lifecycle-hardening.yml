@@ -51,15 +51,15 @@ jobs:
           const fs=require('fs'),read=p=>fs.readFileSync(p,'utf8');
           const hooks=read('warfare-hooks.js'),life=read('warfare-lifecycle.js'),loader=read('worldbuilding-loader.js'),occ=read('warfare-occupation-policy.js'),exc=read('warfare-excavation-projects.js'),journey=read('warfare-relic-journeys.js'),memory=read('warfare-national-memory.js');
           const presentation=['warfare-strategic-ai-ui.js','warfare-strategic-map-overlay.js','warfare-occupation-policy-ui.js','warfare-campaign-planning-ui.js','warfare-strategic-reserves-ui.js'].map(read);
-          for(const token of ["VERSION='5.0.15'",'capturedInitialize','capturedSimulate','registerHook','registerKnownHooks','runAnnual','lastSimulatedYear','warfareHookDispatches']) if(!hooks.includes(token)) throw Error(`hooks:${token}`);
-          for(const token of ['mobilization','pathfinding','naval','diplomacy-war-state','postwar-recovery','war-goals-peace','strategic-ai','commanders','strategic-reserves','campaign-planning','occupation-policy','national-memory']) if(!hooks.includes(token)) throw Error(`hook-order:${token}`);
+          for(const token of ["VERSION='5.0.22'",'capturedInitialize','capturedSimulate','registerHook','registerKnownHooks','runAnnual','lastSimulatedYear','warfareHookDispatches']) if(!hooks.includes(token)) throw Error(`hooks:${token}`);
+          for(const token of ['mobilization','pathfinding','naval','diplomacy-war-state','postwar-recovery','war-goals-peace','strategic-ai','commanders','strategic-reserves','theater-command','campaign-planning','occupation-policy','national-memory']) if(!hooks.includes(token)) throw Error(`hook-order:${token}`);
           for(const token of ["VERSION='5.0.15'",'lastAdvancedYear','advanceCount','Hooks?.runAnnual','Hooks?.activate']) if(!life.includes(token)) throw Error(`lifecycle:${token}`);
           if(life.includes('simulateWarfareYear=function')) throw Error('lifecycle must not wrap simulateWarfareYear');
-          for(const token of ['warfare-hooks.js','warfare-excavation-projects.js','warfare-relic-journeys.js','warfare-national-memory.js','warfare-lifecycle.js','WorldForgeWarfareHooks.activate()']) if(!loader.includes(token)) throw Error(`loader:${token}`);
+          for(const token of ['warfare-hooks.js','warfare-theater-command.js','warfare-excavation-projects.js','warfare-relic-journeys.js','warfare-national-memory.js','warfare-lifecycle.js','WorldForgeWarfareHooks.activate()']) if(!loader.includes(token)) throw Error(`loader:${token}`);
           for(const token of ["VERSION='5.0.4'",'lastAppliedYear','yearsOccupied']) if(!occ.includes(token)) throw Error(token);
           for(const token of ["VERSION='5.0.12'",'survey','excavation','conservation','publication','museum']) if(!exc.includes(token)) throw Error(token);
           for(const token of ["VERSION='5.0.13'",'ownershipHistory','wartime-transfer','restitution']) if(!journey.includes(token)) throw Error(token);
           for(const token of ["VERSION='5.0.14'",'great-victory','national-tragedy','contested-memory','diplomaticGrievance','winnerSide']) if(!memory.includes(token)) throw Error(token);
-          for(const src of presentation) for(const forbidden of ['applyStrategicAI?.(','applyCommanders?.(','applyStrategicReserves?.(','applyCampaignPlanning?.(','applyOccupationPolicy?.(']) if(src.includes(forbidden)) throw Error(`presentation mutation: ${forbidden}`);
-          console.log('warfare hook registry + lifecycle contracts OK');
+          for(const src of presentation) for(const forbidden of ['applyStrategicAI?.(','applyCommanders?.(','applyStrategicReserves?.(','applyCampaignPlanning?.(','applyOccupationPolicy?.(','applyTheaterCommand?.(']) if(src.includes(forbidden)) throw Error(`presentation mutation: ${forbidden}`);
+          console.log('warfare hook registry + lifecycle + theater command contracts OK');
           NODE
