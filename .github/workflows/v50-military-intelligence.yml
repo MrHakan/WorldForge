@@ -1,0 +1,33 @@
+name: v5.0 Military Intelligence
+on:
+  push:
+    branches: [main, v5.0-fog-of-war-military-intelligence]
+  pull_request:
+    branches: [main]
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: {node-version: '22'}
+      - name: Syntax check
+        run: |
+          node --check warfare-military-intelligence.js
+          node --check warfare-military-intelligence-ui.js
+          node --check warfare-strategic-map-controls.js
+          node --check warfare-strategic-ai-ui.js
+          node --check tests/warfare-military-intelligence-v50.mjs
+      - name: Fog of war behavior
+        run: node tests/warfare-military-intelligence-v50.mjs
+      - name: Intelligence contracts
+        run: |
+          node <<'NODE'
+          const fs=require('fs'),read=x=>fs.readFileSync(x,'utf8');
+          const mi=read('warfare-military-intelligence.js'),mui=read('warfare-military-intelligence-ui.js'),controls=read('warfare-strategic-map-controls.js'),ui=read('warfare-strategic-ai-ui.js');
+          for(const t of ["VERSION='5.0.26'",'militaryIntelligence','reconLevel','hiddenMovement','estimatedSize','errorMargin','partisanContact','military-intelligence'])if(!mi.includes(t))throw Error(`military-intel:${t}`);
+          for(const t of ['applyVisibility','intelConfidence','hiddenMovement'])if(!mui.includes(t))throw Error(`military-intel-ui:${t}`);
+          for(const t of ['FOG OF WAR','CONFIDENCE','LAST SEEN','EST. SIZE','INTEL NETWORK','PARTISAN CONTACT'])if(!controls.includes(t))throw Error(`controls:${t}`);
+          for(const t of ['warfare-military-intelligence.js','warfare-military-intelligence-ui.js',"INTELLIGENCE_VERSION:'5.0.26'"])if(!ui.includes(t))throw Error(`strategic-ui:${t}`);
+          console.log('v5.0 military intelligence contracts OK');
+          NODE
