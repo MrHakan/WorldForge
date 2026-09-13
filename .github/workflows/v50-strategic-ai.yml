@@ -2,7 +2,7 @@ name: v5.0 Strategic AI
 
 on:
   push:
-    branches: [main, v5.0-strategic-ai-core, v5.0-commanders-leadership, v5.0-strategic-reserves, v5.0-campaign-reassessment, v5.0-occupation-resistance, v5.0-strategic-map-overlay, v5.0-strategic-map-controls, v5.0-commander-legacies, v5.0-battlefields-war-scars, v5.0-battlefield-relics, v5.0-simulation-hook-registry, v5.0-commander-wounds-succession, v5.0-reserves-hardening]
+    branches: [main, v5.0-strategic-ai-core, v5.0-commanders-leadership, v5.0-strategic-reserves, v5.0-campaign-reassessment, v5.0-occupation-resistance, v5.0-strategic-map-overlay, v5.0-strategic-map-controls, v5.0-commander-legacies, v5.0-battlefields-war-scars, v5.0-battlefield-relics, v5.0-simulation-hook-registry, v5.0-commander-wounds-succession, v5.0-reserves-hardening, v5.0-campaign-planning-advanced]
   pull_request:
     branches: [main]
 
@@ -39,6 +39,7 @@ jobs:
           node --check tests/warfare-commanders-v50.mjs
           node --check tests/warfare-commander-chronicle-v50.mjs
           node --check tests/warfare-strategic-reserves-v50.mjs
+          node --check tests/warfare-campaign-planning-v50.mjs
           node --check tests/warfare-battlefield-history-v50.mjs
           node --check tests/warfare-battlefield-relics.test.js
       - name: Commander lifecycle behavior
@@ -47,6 +48,8 @@ jobs:
         run: node tests/warfare-commander-chronicle-v50.mjs
       - name: Strategic reserve lifecycle behavior
         run: node tests/warfare-strategic-reserves-v50.mjs
+      - name: Campaign planning behavior
+        run: node tests/warfare-campaign-planning-v50.mjs
       - name: Battlefield history behavior
         run: node tests/warfare-battlefield-history-v50.mjs
       - name: Battlefield relic behavior
@@ -55,7 +58,7 @@ jobs:
         run: |
           node <<'NODE'
           const fs=require('fs'),read=x=>fs.readFileSync(x,'utf8');
-          const c=read('warfare-commanders.js'),cc=read('warfare-commander-chronicle.js'),l=read('warfare-commander-legacies.js'),lu=read('warfare-commander-legacies-ui.js'),b=read('warfare-battlefield-history-v2.js'),r=read('warfare-battlefield-relics.js'),rc=read('warfare-relic-collections.js'),sr=read('warfare-strategic-reserves.js'),ui=read('warfare-strategic-ai-ui.js'),hooks=read('warfare-hooks.js'),loader=read('worldbuilding-loader.js');
+          const c=read('warfare-commanders.js'),cc=read('warfare-commander-chronicle.js'),l=read('warfare-commander-legacies.js'),lu=read('warfare-commander-legacies-ui.js'),b=read('warfare-battlefield-history-v2.js'),r=read('warfare-battlefield-relics.js'),rc=read('warfare-relic-collections.js'),sr=read('warfare-strategic-reserves.js'),cp=read('warfare-campaign-planning.js'),cpu=read('warfare-campaign-planning-ui.js'),ui=read('warfare-strategic-ai-ui.js'),hooks=read('warfare-hooks.js'),loader=read('worldbuilding-loader.js');
           for(const t of ["VERSION='5.0.7'",'riskProfile','woundHistory','recoveryUntilYear','deathYear','successorOf','lastProcessedBattleCount','commanderBaseCombatPower','commanderAdjustedCombatPower','legacyFor'])if(!c.includes(t))throw Error(t);
           for(const t of ["VERSION='5.0.16'",'battleRecord','careerRecord','fallenCommanderIds','chronicleEvents','namedBattles','commander-chronicle'])if(!cc.includes(t))throw Error(`chronicle:${t}`);
           for(const t of ["VERSION='5.0.8'",'battlefield-monument','commander-statue','memorialEligible','commanderMemorials','heritageStatus'])if(!l.includes(t))throw Error(t);
@@ -64,7 +67,9 @@ jobs:
           for(const t of ["VERSION='5.0.10'",'battlefieldRelics','protectedContext','provenance','commanderLinked'])if(!r.includes(t))throw Error(t);
           for(const t of ["VERSION='5.0.11'",'relicCollections','provenanceVerified','applyRelicCollections'])if(!rc.includes(t))throw Error(t);
           for(const t of ["VERSION='5.0.17'",'reconcileAssignments','distanceToFront','request-resolved','reinforcementFulfillment'])if(!sr.includes(t))throw Error(`reserves:${t}`);
+          for(const t of ["VERSION='5.0.18'",'REVIEW_COOLDOWN_YEARS','FAILED_OFFENSIVE_LIMIT','failedOffensives','objectiveProgress','supplyReliability','nextReviewYear','war-ended'])if(!cp.includes(t))throw Error(`campaign:${t}`);
+          for(const t of ['MULTI-YEAR','RECOVERING','FAILED OFFENSIVES','NEXT REVIEW'])if(!cpu.includes(t))throw Error(`campaign-ui:${t}`);
           for(const t of ['warfare-commander-chronicle.js','COMMANDER CHRONICLE','NAMED BATTLES','CHRONICLE'])if(!ui.includes(t))throw Error(`ui:${t}`);
           for(const t of ['warfare-commanders.js','warfare-commander-legacies.js','warfare-battlefield-history-v2.js','warfare-battlefield-relics.js','warfare-relic-collections.js','warfare-hooks.js','WorldForgeWarfareHooks.activate()'])if(!loader.includes(t))throw Error(`loader:${t}`);
-          console.log('v5.0 commander chronicle + strategic reserve contracts OK');
+          console.log('v5.0 commander chronicle + strategic reserve + campaign planning contracts OK');
           NODE

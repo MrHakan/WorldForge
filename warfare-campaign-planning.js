@@ -5,17 +5,52 @@
 })(typeof window!=='undefined'?window:globalThis,function(Warfare){
 'use strict';
 if(!Warfare)throw new Error('WorldForge v5.0 Campaign Planning requires Warfare & Supply');
-const VERSION='5.0.3',clamp=(v,a,b)=>Math.max(a,Math.min(b,v)),round=(v,d=3)=>Number(Number(v).toFixed(d));
-function state(S){S.campaignPlanning=S.campaignPlanning||{version:VERSION,lastAppliedYear:null,plans:[],history:[],stats:{campaigns:0,advancing:0,stalled:0,retreating:0,reassessed:0}};S.campaignPlanning.version=VERSION;S.campaignPlanning.plans=S.campaignPlanning.plans||[];S.campaignPlanning.history=S.campaignPlanning.history||[];return S.campaignPlanning}
-function planFor(A,warId){return (A.campaigns||[]).find(c=>String(c.warId)===String(warId))||null}
-function frontFor(A,id){return (A.fronts||[]).find(f=>f.id===id)||null}
-function momentum(prev,front,reserves){const bal=Number(front?.balance||0),reinforce=Number(front?.reinforcementFulfillment||0),collapse=Number(front?.collapseRisk||0),last=Number(prev?.momentum||0);return round(clamp(last*.45+bal*.9+reinforce*.22-collapse*.35,-1,1))}
-function posture(m){return m>.28?'offensive':m<-.28?'defensive':'balanced'}
-function phase(m){return m>.18?'advancing':m<-.38?'retreating':Math.abs(m)<.1?'stalled':'contested'}
-function reassessObjective(campaign,prev,m){let objective=campaign?.objectiveType||prev?.objectiveType||'hold-line';let reason='continue-plan';if(m<-.48&&objective!=='hold-line'){objective='hold-line';reason='momentum-collapse'}else if(m>.42&&objective==='hold-line'){objective=campaign?.goal==='conquest'?'capture-capital':'seize-border';reason='momentum-opportunity'}else if(prev&&prev.targetCityId!==campaign?.targetCityId){reason='target-changed'}return{objective,reason}}
-function apply(w,force=false){const S=w.warfareSupply||Warfare.initialize(w);if(!S)return S;Warfare.applyStrategicAI?.(w,force);Warfare.applyStrategicReserves?.(w,force);const A=S.strategicAI||{},P=state(S),year=Number(S.currentYear??w.history?.currentYear??0);if(!force&&P.lastAppliedYear===year)return S;const prev=new Map(P.plans.map(x=>[String(x.warId),x])),plans=[];let reassessed=0;for(const c of A.campaigns||[]){const p=prev.get(String(c.warId)),f=frontFor(A,c.frontId),m=momentum(p,f,S.strategicReserves),r=reassessObjective(c,p,m),yearsActive=p?Number(p.yearsActive||1)+1:1;const changed=!!p&&(r.objective!==p.objectiveType||r.reason!=='continue-plan');if(changed)reassessed++;plans.push({id:`plan:${c.warId}`,warId:c.warId,frontId:c.frontId,goal:c.goal,objectiveType:r.objective,targetCityId:c.targetCityId??p?.targetCityId??null,posture:posture(m),phase:phase(m),momentum:m,priority:round(clamp(Number(c.priority||.5)+(m<0?Math.abs(m)*.12:m*.08),0,1)),yearsActive,lastReassessmentYear:changed?year:(p?.lastReassessmentYear??year),reassessmentReason:r.reason,status:'active'})}for(const p of prev.values())if(!plans.some(x=>String(x.warId)===String(p.warId)))P.history.push({...p,status:'closed',closedYear:year});P.plans=plans;P.history=P.history.slice(-180);P.lastAppliedYear=year;P.stats={campaigns:plans.length,advancing:plans.filter(x=>x.phase==='advancing').length,stalled:plans.filter(x=>x.phase==='stalled').length,retreating:plans.filter(x=>x.phase==='retreating').length,reassessed};S.stats=S.stats||{};Object.assign(S.stats,{campaignPlans:P.stats.campaigns,advancingCampaigns:P.stats.advancing,stalledCampaigns:P.stats.stalled,retreatingCampaigns:P.stats.retreating,reassessedCampaigns:P.stats.reassessed});return S}
+const VERSION='5.0.18',clamp=(v,a,b)=>Math.max(a,Math.min(b,v)),round=(v,d=3)=>Number(Number(v).toFixed(d));
+const REVIEW_COOLDOWN_YEARS=2,FAILED_OFFENSIVE_LIMIT=2;
+function state(S){
+ S.campaignPlanning=S.campaignPlanning||{version:VERSION,lastAppliedYear:null,plans:[],history:[],events:[],stats:{campaigns:0,offensive:0,defensive:0,recovering:0,reassessed:0,failedOffensives:0}};
+ const P=S.campaignPlanning;P.version=VERSION;P.plans=P.plans||[];P.history=P.history||[];P.events=P.events||[];P.stats=P.stats||{};return P;
+}
+function frontFor(A,id){return(A.fronts||[]).find(f=>String(f.id)===String(id))||null}
+function frontArmies(S,front){if(!front)return[];const ids=new Set([...(front.attackerArmyIds||[]),...(front.defenderArmyIds||[])].map(String));return(S.armies||[]).filter(a=>ids.has(String(a.id)))}
+function supplyFactor(S,front){const rows=frontArmies(S,front);if(!rows.length)return .5;return clamp(rows.reduce((n,a)=>n+Number(a.supply??.5),0)/rows.length,0,1)}
+function reinforcementFactor(S,front){const direct=Number(front?.reinforcementFulfillment);if(Number.isFinite(direct))return clamp(direct,0,1);const req=(S.strategicReserves?.requests||[]).find(r=>String(r.frontId)===String(front?.id));return clamp(Number(req?.fulfillment||0),0,1)}
+function momentum(prev,front,S){const bal=Number(front?.balance||0),reinforce=reinforcementFactor(S,front),collapse=Number(front?.collapseRisk||0),supply=supplyFactor(S,front),last=Number(prev?.momentum||0);return round(clamp(last*.42+bal*.82+(reinforce-.5)*.22+(supply-.5)*.24-collapse*.38,-1,1))}
+function posture(m,collapse,supply){if(collapse>.62||m<-.3||supply<.28)return'defensive';if(m>.3&&supply>.48)return'offensive';return'balanced'}
+function phaseFor(prev,m,collapse,supply,failed){if(collapse>.7||supply<.22)return'recover';if(failed>=FAILED_OFFENSIVE_LIMIT&&m<.12)return'hold';if(m>.5)return'exploit';if(m>.18)return'offensive';if(m<-.38)return'defensive';if(prev?.phase==='prepare'&&Number(prev.yearsActive||0)<2)return'prepare';return'hold'}
+function progress(prev,campaign,front,m){const targetChanged=prev&&String(prev.targetCityId??'')!==String(campaign?.targetCityId??'');let p=targetChanged?.08:Number(prev?.objectiveProgress||0);p+=m>.35?.16:m>.08?.07:m<-.35?-.12:m<-.1?-.05:.01;if(front?.status==='attacker-advantage')p+=.05;if(front?.status==='defender-advantage')p-=.04;return round(clamp(p,0,1))}
+function reviewDecision(campaign,prev,ctx){
+ let objective=prev?.objectiveType||campaign?.objectiveType||'hold-line',reason='continue-plan',emergency=false;
+ if(!prev)return{objective:campaign?.objectiveType||'hold-line',reason:'campaign-opened',emergency:false};
+ if(String(prev.targetCityId??'')!==String(campaign?.targetCityId??'')){objective=campaign?.objectiveType||objective;reason='target-changed';emergency=true}
+ else if(ctx.collapse>.68){objective='hold-line';reason='front-collapse-risk';emergency=true}
+ else if(ctx.supply<.25){objective='hold-line';reason='supply-failure';emergency=true}
+ else if(ctx.failed>=FAILED_OFFENSIVE_LIMIT&&ctx.m<.12){objective='hold-line';reason='repeated-offensive-failure'}
+ else if(ctx.m<-.5&&objective!=='hold-line'){objective='hold-line';reason='momentum-collapse';emergency=true}
+ else if(ctx.m>.48&&objective==='hold-line'&&ctx.supply>.5){objective=campaign?.goal==='conquest'?'capture-capital':campaign?.goal==='punitive'?'break-army':'seize-border';reason='momentum-opportunity'}
+ return{objective,reason,emergency};
+}
+function mayReview(prev,year,decision){if(!prev)return true;if(decision.emergency)return true;return year-Number(prev.lastReassessmentYear??prev.startedYear??year)>=REVIEW_COOLDOWN_YEARS}
+function event(P,year,plan,reason){const id=`campaign-event:${plan.warId}:${year}:${reason}`;if(!P.events.some(e=>e.id===id))P.events.push({id,year,warId:plan.warId,frontId:plan.frontId,reason,objectiveType:plan.objectiveType,phase:plan.phase,momentum:plan.momentum});P.events=P.events.slice(-240)}
+function apply(w,force=false){
+ const S=w.warfareSupply||Warfare.initialize(w);if(!S)return S;
+ const A=S.strategicAI||{},P=state(S),year=Number(S.currentYear??w.history?.currentYear??0);
+ if(P.lastAppliedYear===year)return S;
+ const previous=new Map(P.plans.map(x=>[String(x.warId),x])),plans=[];let reassessed=0;
+ for(const campaign of A.campaigns||[]){
+  const prev=previous.get(String(campaign.warId)),front=frontFor(A,campaign.frontId),m=momentum(prev,front,S),supply=supplyFactor(S,front),reinforce=reinforcementFactor(S,front),collapse=Number(front?.collapseRisk||0);
+  const failed=Number(prev?.failedOffensives||0)+((prev&&['offensive','exploit'].includes(prev.phase)&&m<-.12)?1:0),decision=reviewDecision(campaign,prev,{m,supply,reinforce,collapse,failed}),review=mayReview(prev,year,decision),objective=review?decision.objective:(prev?.objectiveType||campaign.objectiveType||'hold-line');
+  const yearsActive=prev?Number(prev.yearsActive||1)+1:1,phase=phaseFor(prev,m,collapse,supply,failed),phaseEnteredYear=prev?.phase===phase?Number(prev.phaseEnteredYear??year):year;
+  const changed=!!prev&&review&&(objective!==prev.objectiveType||decision.reason!=='continue-plan');if(changed)reassessed++;
+  const plan={id:`plan:${campaign.warId}`,campaignId:campaign.id||`campaign:${campaign.warId}`,warId:campaign.warId,frontId:campaign.frontId,goal:campaign.goal,objectiveType:objective,targetCityId:campaign.targetCityId??prev?.targetCityId??null,posture:posture(m,collapse,supply),phase,momentum:m,previousMomentum:Number(prev?.momentum||0),objectiveProgress:progress(prev,campaign,front,m),priority:round(clamp(Number(campaign.priority||.5)+(m<0?Math.abs(m)*.1:m*.08)+collapse*.08,0,1)),supplyReliability:round(supply),reinforcementFulfillment:round(reinforce),collapseRisk:round(collapse),failedOffensives:failed,yearsActive,startedYear:Number(prev?.startedYear??year),phaseEnteredYear,lastReassessmentYear:changed||!prev?year:Number(prev?.lastReassessmentYear??year),nextReviewYear:year+REVIEW_COOLDOWN_YEARS,reassessmentReason:review?decision.reason:'cooldown-hold',status:'active'};
+  if(changed||!prev)event(P,year,plan,plan.reassessmentReason);plans.push(plan);
+ }
+ for(const old of previous.values())if(!plans.some(x=>String(x.warId)===String(old.warId))){const closed={...old,status:'closed',closedYear:year,reassessmentReason:'war-ended'};if(!P.history.some(x=>String(x.id)===String(closed.id)&&Number(x.closedYear)===year))P.history.push(closed);event(P,year,closed,'war-ended')}
+ P.plans=plans;P.history=P.history.slice(-180);P.lastAppliedYear=year;P.stats={campaigns:plans.length,offensive:plans.filter(x=>['offensive','exploit'].includes(x.phase)).length,defensive:plans.filter(x=>['defensive','hold'].includes(x.phase)).length,recovering:plans.filter(x=>x.phase==='recover').length,reassessed,failedOffensives:plans.reduce((n,x)=>n+Number(x.failedOffensives||0),0),advancing:plans.filter(x=>x.momentum>.18).length,stalled:plans.filter(x=>Math.abs(x.momentum)<=.1).length,retreating:plans.filter(x=>x.momentum<-.38).length};
+ S.stats=S.stats||{};Object.assign(S.stats,{campaignPlans:P.stats.campaigns,offensiveCampaigns:P.stats.offensive,defensiveCampaigns:P.stats.defensive,recoveringCampaigns:P.stats.recovering,reassessedCampaigns:P.stats.reassessed,failedCampaignOffensives:P.stats.failedOffensives,advancingCampaigns:P.stats.advancing,stalledCampaigns:P.stats.stalled,retreatingCampaigns:P.stats.retreating});return S;
+}
 const baseSummary=Warfare.summary?.bind(Warfare);
-if(baseSummary)Warfare.summary=function(w){const s=baseSummary(w),P=w.warfareSupply?.campaignPlanning?.stats||{};return{...s,campaignPlans:Number(P.campaigns||0),advancingCampaigns:Number(P.advancing||0),stalledCampaigns:Number(P.stalled||0),retreatingCampaigns:Number(P.retreating||0),reassessedCampaigns:Number(P.reassessed||0)}};
+if(baseSummary)Warfare.summary=function(w){const s=baseSummary(w),P=w.warfareSupply?.campaignPlanning?.stats||{};return{...s,campaignPlans:Number(P.campaigns||0),offensiveCampaigns:Number(P.offensive||0),defensiveCampaigns:Number(P.defensive||0),recoveringCampaigns:Number(P.recovering||0),reassessedCampaigns:Number(P.reassessed||0),failedCampaignOffensives:Number(P.failedOffensives||0),advancingCampaigns:Number(P.advancing||0),stalledCampaigns:Number(P.stalled||0),retreatingCampaigns:Number(P.retreating||0)}};
 Warfare.applyCampaignPlanning=apply;Warfare.CAMPAIGN_PLANNING_VERSION=VERSION;
-return{VERSION,momentum,posture,phase,reassessObjective,apply};
+return{VERSION,REVIEW_COOLDOWN_YEARS,FAILED_OFFENSIVE_LIMIT,frontFor,supplyFactor,reinforcementFactor,momentum,posture,phaseFor,progress,reviewDecision,mayReview,apply};
 });
