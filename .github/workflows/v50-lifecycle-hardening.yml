@@ -2,7 +2,7 @@ name: v5.0 Warfare Lifecycle Hardening
 
 on:
   push:
-    branches: [v5.0-warfare-lifecycle-hardening, v5.0-simulation-hook-registry, v5.0-legacy-wrapper-cleanup, v5.0-operational-movement, main]
+    branches: [v5.0-warfare-lifecycle-hardening, v5.0-simulation-hook-registry, v5.0-legacy-wrapper-cleanup, v5.0-operational-movement, v5.0-occupation-economics-partisans, main]
   pull_request:
     branches: [main]
 
@@ -30,6 +30,7 @@ jobs:
           node --check worldbuilding-loader.js
           node --check tests/warfare-hook-registry.test.js
           node --check tests/warfare-operational-movement-v50.mjs
+          node --check tests/warfare-occupation-economics-v50.mjs
           node --check tests/warfare-legacy-wrapper-source.test.js
           node --check tests/warfare-lifecycle-hardening.test.js
           node --check tests/warfare-excavation-projects.test.js
@@ -39,6 +40,8 @@ jobs:
         run: node tests/warfare-hook-registry.test.js
       - name: Operational movement behavior
         run: node tests/warfare-operational-movement-v50.mjs
+      - name: Occupation economics behavior
+        run: node tests/warfare-occupation-economics-v50.mjs
       - name: Legacy wrapper source cleanup
         run: node tests/warfare-legacy-wrapper-source.test.js
       - name: Behavioral hardening checks
@@ -61,10 +64,10 @@ jobs:
           for(const token of ["VERSION='5.0.15'",'lastAdvancedYear','advanceCount','Hooks?.runAnnual','Hooks?.activate']) if(!life.includes(token)) throw Error(`lifecycle:${token}`);
           if(life.includes('simulateWarfareYear=function')) throw Error('lifecycle must not wrap simulateWarfareYear');
           for(const token of ['warfare-hooks.js','warfare-theater-command.js','warfare-operational-movement.js','warfare-excavation-projects.js','warfare-relic-journeys.js','warfare-national-memory.js','warfare-lifecycle.js','WorldForgeWarfareHooks.activate()']) if(!loader.includes(token)) throw Error(`loader:${token}`);
-          for(const token of ["VERSION='5.0.4'",'lastAppliedYear','yearsOccupied']) if(!occ.includes(token)) throw Error(token);
+          for(const token of ["VERSION='5.0.24'",'lastAppliedYear','yearsOccupied','economicRetention','partisanStrength','liberationCampaigns']) if(!occ.includes(token)) throw Error(`occupation:${token}`);
           for(const token of ["VERSION='5.0.12'",'survey','excavation','conservation','publication','museum']) if(!exc.includes(token)) throw Error(token);
           for(const token of ["VERSION='5.0.13'",'ownershipHistory','wartime-transfer','restitution']) if(!journey.includes(token)) throw Error(token);
           for(const token of ["VERSION='5.0.14'",'great-victory','national-tragedy','contested-memory','diplomaticGrievance','winnerSide']) if(!memory.includes(token)) throw Error(token);
           for(const src of presentation) for(const forbidden of ['applyStrategicAI?.(','applyCommanders?.(','applyStrategicReserves?.(','applyCampaignPlanning?.(','applyOccupationPolicy?.(','applyTheaterCommand?.(','applyOperationalMovement?.(']) if(src.includes(forbidden)) throw Error(`presentation mutation: ${forbidden}`);
-          console.log('warfare hook registry + lifecycle + operational movement contracts OK');
+          console.log('warfare hook registry + lifecycle + occupation economics contracts OK');
           NODE
