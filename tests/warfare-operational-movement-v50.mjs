@@ -1,0 +1,26 @@
+import assert from 'node:assert/strict';
+import {createRequire} from 'node:module';
+const require=createRequire(import.meta.url);
+const Warfare={initialize:w=>w.warfareSupply,shortestMilitaryPath:(w,from,to)=>({nodes:[Number(from),2,Number(to)],cost:120,distance:100,roadQuality:.5,terrainPenalty:.2,points:[{cityId:Number(from),x:0,y:0},{cityId:2,x:50,y:0},{cityId:Number(to),x:100,y:0}]}),pointAlongMilitaryPath:(p,t)=>({x:Number((100*t).toFixed(2)),y:0})};
+globalThis.WorldForgeWarfareSupply=Warfare;
+const Ops=require('../warfare-operational-movement.js');
+assert.equal(Ops.VERSION,'5.0.23');
+const w={history:{currentYear:10},cities:{cities:[{id:1,x:0,y:0},{id:2,x:50,y:0},{id:3,x:100,y:0}]},warfareSupply:{currentYear:10,armies:[{id:'r1',ownerId:'A',homeCityId:1,size:1000,combatPower:500,supply:.8,mobility:.5,strategicRole:'reinforcing',reinforcementFrontId:'f1',reinforcementStatus:'en-route'}],strategicAI:{fronts:[{id:'f1',attackerId:'A',defenderId:'B',attackerAnchorCityId:3,defenderAnchorCityId:2,collapseRisk:.2}]}}};
+Ops.apply(w);
+const a=w.warfareSupply.armies[0],O=w.warfareSupply.operationalMovement;
+assert.equal(a.operationalTargetCityId,3,'reinforcement should route to its side anchor');
+assert.deepEqual(a.operationalRoute,[1,2,3]);
+assert.ok(a.operationalProgress>0&&a.operationalProgress<1,'movement should advance over route');
+assert.ok(a.operationalEtaYears>=1,'en-route army should expose ETA');
+assert.equal(a.reinforcementStatus,'en-route');
+assert.ok(a.position.x>0&&a.position.x<100,'position should interpolate along route');
+assert.ok(a.size<1000,'march should apply bounded deterministic attrition');
+const progress=a.operationalProgress,size=a.size;
+Ops.apply(w,true);
+assert.equal(a.operationalProgress,progress,'same-year force apply must remain idempotent');
+assert.equal(a.size,size,'same-year apply must not double attrition');
+w.warfareSupply.currentYear=11;w.history.currentYear=11;Ops.apply(w);assert.ok(a.operationalProgress>progress,'next year should continue movement');
+w.warfareSupply.currentYear=12;w.history.currentYear=12;Ops.apply(w);assert.equal(a.reinforcementStatus,'arrived');assert.equal(a.homeCityId,3);assert.equal(a.operationalEtaYears,0);assert.ok(O.history.some(e=>e.type==='reinforcement-arrived'),'arrival event should persist');
+// Redirect an en-route army to a new front and verify route target changes deterministically.
+w.warfareSupply.armies.push({id:'r2',ownerId:'A',homeCityId:1,size:800,combatPower:400,supply:.9,mobility:.4,strategicRole:'reinforcing',reinforcementFrontId:'f1'});w.warfareSupply.currentYear=13;w.history.currentYear=13;Ops.apply(w);const b=w.warfareSupply.armies[1];assert.equal(b.operationalTargetCityId,3);w.warfareSupply.strategicAI.fronts.push({id:'f2',attackerId:'A',defenderId:'C',attackerAnchorCityId:2,defenderAnchorCityId:3,collapseRisk:.1});b.reinforcementFrontId='f2';w.warfareSupply.currentYear=14;w.history.currentYear=14;Ops.apply(w);assert.equal(b.operationalTargetCityId,2,'theater redirect should retarget route');assert.equal(b.operationalProgress,0.53,'redirected route should restart and advance on new route');
+console.log('operational movement behavior OK');
