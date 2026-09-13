@@ -77,9 +77,9 @@ jobs:
           for(const t of ["VERSION='5.0.17'",'reconcileAssignments','distanceToFront','request-resolved','reinforcementFulfillment'])if(!sr.includes(t))throw Error(`reserves:${t}`);
           for(const t of ["VERSION='5.0.21'",'PROMOTION_MARGIN','primaryByWar','primary-promoted','reserve-transfer','breakthrough-opened','exploitationFronts'])if(!tc.includes(t))throw Error(`theater-command:${t}`);
           for(const t of ["VERSION='5.0.20'",'campaignKey','theaterRole','primaryCampaignPlans','secondaryCampaignPlans','front-closed','war-ended'])if(!cp.includes(t))throw Error(`campaign:${t}`);
-          for(const t of ['MULTI-FRONT','PRIMARY','SECONDARY','NEXT REVIEW'])if(!cpu.includes(t))throw Error(`campaign-ui:${t}`);
+          for(const t of ['THEATER COMMAND','PROMOTIONS','TRANSFERS','BREAKTHROUGHS','COMMAND SCORE'])if(!cpu.includes(t))throw Error(`campaign-ui:${t}`);
           for(const t of ['theater-command',"VERSION='5.0.22'"])if(!hooks.includes(t))throw Error(`hooks:${t}`);
-          for(const t of ['warfare-theater-command.js',"VERSION==='5.0.21'","STRATEGIC_AI_VERSION==='5.0.19'","WorldForgeWarfareStrategicReserves?.VERSION==='5.0.17'","WorldForgeWarfareCampaignPlanning?.VERSION==='5.0.20'",'WorldForgeWarfareHooks.activate()'])if(!loader.includes(t))throw Error(`loader:${t}`);
+          for(const t of ['warfare-theater-command.js',"WorldForgeWarfareTheaterCommand?.VERSION==='5.0.21'","WorldForgeWarfareStrategicAI?.VERSION==='5.0.19'","WorldForgeWarfareStrategicReserves?.VERSION==='5.0.17'","WorldForgeWarfareCampaignPlanning?.VERSION==='5.0.20'",'WorldForgeWarfareHooks.activate()'])if(!loader.includes(t))throw Error(`loader:${t}`);
           for(const t of ['warfare-commander-chronicle.js','COMMANDER CHRONICLE','NAMED BATTLES','CHRONICLE'])if(!ui.includes(t))throw Error(`ui:${t}`);
           console.log('v5.0 strategic theater command + multi-front campaign contracts OK');
           NODE
