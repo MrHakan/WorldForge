@@ -5,7 +5,7 @@
 })(typeof window!=='undefined'?window:globalThis,function(Warfare,root){
 'use strict';
 if(!Warfare)throw new Error('WorldForge warfare hooks require Warfare & Supply');
-const VERSION='5.0.15';
+const VERSION='5.0.22';
 const capturedInitialize=typeof Warfare.initialize==='function'?Warfare.initialize.bind(Warfare):null;
 const capturedSimulate=typeof Warfare.simulateWarfareYear==='function'?Warfare.simulateWarfareYear.bind(Warfare):null;
 const hooks=new Map();
@@ -42,6 +42,7 @@ function registerKnownHooks(){
  add('battlefield-relics',110,Warfare.applyBattlefieldRelics,'Battlefield finds and provenance');
  add('relic-collections',120,Warfare.applyRelicCollections,'Museum and study collections');
  add('strategic-reserves',130,Warfare.applyStrategicReserves,'Reserve commitment and reinforcement requests');
+ add('theater-command',135,Warfare.applyTheaterCommand,'Primary theater selection, reserve redirection and breakthrough exploitation');
  add('campaign-planning',140,Warfare.applyCampaignPlanning,'Multi-year campaign planning');
  add('occupation-policy',150,Warfare.applyOccupationPolicy,'Occupation policy and resistance evolution');
  add('excavation-projects',160,Warfare.applyExcavationProjects,'Multi-year battlefield excavation projects');
