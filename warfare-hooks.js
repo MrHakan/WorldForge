@@ -5,73 +5,19 @@
 })(typeof window!=='undefined'?window:globalThis,function(Warfare,root){
 'use strict';
 if(!Warfare)throw new Error('WorldForge warfare hooks require Warfare & Supply');
-const VERSION='5.0.22';
+const VERSION='5.0.23';
 const capturedInitialize=typeof Warfare.initialize==='function'?Warfare.initialize.bind(Warfare):null;
 const capturedSimulate=typeof Warfare.simulateWarfareYear==='function'?Warfare.simulateWarfareYear.bind(Warfare):null;
-const hooks=new Map();
-let active=false;
+const hooks=new Map();let active=false;
 function currentYear(w,S){return Number(S?.currentYear??w?.history?.currentYear??w?.year??0)}
-function registryState(S){
- S.hookRegistry=S.hookRegistry||{version:VERSION,lastSimulatedYear:null,dispatches:0,lastOrder:[],runs:{}};
- S.hookRegistry.version=VERSION;S.hookRegistry.lastOrder=S.hookRegistry.lastOrder||[];S.hookRegistry.runs=S.hookRegistry.runs||{};
- return S.hookRegistry;
-}
-function lifecycleState(S){
- S.lifecycle=S.lifecycle||{version:VERSION,lastAdvancedYear:null,advanceCount:0};
- S.lifecycle.version=VERSION;return S.lifecycle;
-}
-function registerHook(def){
- if(!def||!def.id||typeof def.run!=='function')throw new Error('warfare hook requires id and run');
- const hook={id:String(def.id),order:Number.isFinite(Number(def.order))?Number(def.order):100,run:def.run,description:String(def.description||'')};
- hooks.set(hook.id,hook);return hook;
-}
+function registryState(S){S.hookRegistry=S.hookRegistry||{version:VERSION,lastSimulatedYear:null,dispatches:0,lastOrder:[],runs:{}};S.hookRegistry.version=VERSION;S.hookRegistry.lastOrder=S.hookRegistry.lastOrder||[];S.hookRegistry.runs=S.hookRegistry.runs||{};return S.hookRegistry}
+function lifecycleState(S){S.lifecycle=S.lifecycle||{version:VERSION,lastAdvancedYear:null,advanceCount:0};S.lifecycle.version=VERSION;return S.lifecycle}
+function registerHook(def){if(!def||!def.id||typeof def.run!=='function')throw new Error('warfare hook requires id and run');const hook={id:String(def.id),order:Number.isFinite(Number(def.order))?Number(def.order):100,run:def.run,description:String(def.description||'')};hooks.set(hook.id,hook);return hook}
 function unregisterHook(id){return hooks.delete(String(id))}
-function listHooks(){return [...hooks.values()].sort((a,b)=>a.order-b.order||a.id.localeCompare(b.id)).map(({id,order,description})=>({id,order,description}))}
-function registerKnownHooks(){
- const add=(id,order,fn,description)=>{if(typeof fn==='function')registerHook({id,order,description,run:(w)=>fn(w,false)})};
- add('mobilization',10,root?.WorldForgeWarfareMobilization?.apply,'Mobilization policy and manpower activation');
- add('pathfinding',20,Warfare.applyMilitaryPathfinding,'Military routes and supply geometry');
- add('naval',30,Warfare.applyNavalWarfare,'Fleet missions, battles and sea control');
- add('diplomacy-war-state',40,Warfare.applyDiplomacyWarState,'Hostility gating and peacetime reconciliation');
- add('postwar-recovery',50,Warfare.applyPostWarRecovery,'Demobilization, refugees and reconstruction');
- add('war-goals-peace',60,Warfare.applyWarGoalsAndPeace,'War goals, war score and peace terms');
- add('strategic-ai',70,Warfare.applyStrategicAI,'Fronts, campaigns and occupations');
- add('commanders',80,Warfare.applyCommanders,'Commander careers and leadership effects');
- add('commander-legacies',90,Warfare.applyCommanderLegacies,'Commander memorial and heritage bridge');
- add('battlefield-history',100,Warfare.applyBattlefieldHistory,'Persistent battlefields and war scars');
- add('battlefield-relics',110,Warfare.applyBattlefieldRelics,'Battlefield finds and provenance');
- add('relic-collections',120,Warfare.applyRelicCollections,'Museum and study collections');
- add('strategic-reserves',130,Warfare.applyStrategicReserves,'Reserve commitment and reinforcement requests');
- add('theater-command',135,Warfare.applyTheaterCommand,'Primary theater selection, reserve redirection and breakthrough exploitation');
- add('campaign-planning',140,Warfare.applyCampaignPlanning,'Multi-year campaign planning');
- add('occupation-policy',150,Warfare.applyOccupationPolicy,'Occupation policy and resistance evolution');
- add('excavation-projects',160,Warfare.applyExcavationProjects,'Multi-year battlefield excavation projects');
- add('relic-journeys',170,Warfare.applyRelicJourneys,'Relic custody, transfer and restitution');
- add('national-memory',180,Warfare.applyNationalMemory,'Competing national war narratives');
- return listHooks();
-}
-function runAnnual(w,options={}){
- const S=w?.warfareSupply;if(!S)return S;
- const R=registryState(S),L=lifecycleState(S),year=currentYear(w,S),force=!!options.force;
- if(!force&&Number(R.lastSimulatedYear)===year)return S;
- const order=[];
- for(const hook of [...hooks.values()].sort((a,b)=>a.order-b.order||a.id.localeCompare(b.id))){
-  hook.run(w,{year,source:options.source||'simulate',force:false});
-  order.push(hook.id);R.runs[hook.id]={year,order:hook.order};
- }
- R.lastSimulatedYear=year;R.dispatches=Number(R.dispatches||0)+1;R.lastOrder=order;
- L.lastAdvancedYear=year;L.advanceCount=Number(L.advanceCount||0)+1;
- S.stats=S.stats||{};S.stats.warfareLifecycleAdvances=L.advanceCount;S.stats.warfareHookDispatches=R.dispatches;
- return S;
-}
-function activate(){
- registerKnownHooks();
- if(active)return Warfare;
- if(capturedInitialize)Warfare.initialize=function(w,...args){return capturedInitialize(w,...args)};
- if(capturedSimulate)Warfare.simulateWarfareYear=function(w,y,...args){const out=capturedSimulate(w,y,...args);runAnnual(w,{source:'simulate'});return out};
- Warfare.registerSimulationHook=registerHook;Warfare.unregisterSimulationHook=unregisterHook;Warfare.listSimulationHooks=listHooks;Warfare.runSimulationHooks=runAnnual;Warfare.WARFARE_HOOKS_VERSION=VERSION;
- active=true;return Warfare;
-}
+function listHooks(){return[...hooks.values()].sort((a,b)=>a.order-b.order||a.id.localeCompare(b.id)).map(({id,order,description})=>({id,order,description}))}
+function registerKnownHooks(){const add=(id,order,fn,description)=>{if(typeof fn==='function')registerHook({id,order,description,run:w=>fn(w,false)})};add('mobilization',10,root?.WorldForgeWarfareMobilization?.apply,'Mobilization policy and manpower activation');add('pathfinding',20,Warfare.applyMilitaryPathfinding,'Military routes and supply geometry');add('naval',30,Warfare.applyNavalWarfare,'Fleet missions, battles and sea control');add('diplomacy-war-state',40,Warfare.applyDiplomacyWarState,'Hostility gating and peacetime reconciliation');add('postwar-recovery',50,Warfare.applyPostWarRecovery,'Demobilization, refugees and reconstruction');add('war-goals-peace',60,Warfare.applyWarGoalsAndPeace,'War goals, war score and peace terms');add('strategic-ai',70,Warfare.applyStrategicAI,'Fronts, campaigns and occupations');add('commanders',80,Warfare.applyCommanders,'Commander careers and leadership effects');add('commander-legacies',90,Warfare.applyCommanderLegacies,'Commander memorial and heritage bridge');add('battlefield-history',100,Warfare.applyBattlefieldHistory,'Persistent battlefields and war scars');add('battlefield-relics',110,Warfare.applyBattlefieldRelics,'Battlefield finds and provenance');add('relic-collections',120,Warfare.applyRelicCollections,'Museum and study collections');add('strategic-reserves',130,Warfare.applyStrategicReserves,'Reserve commitment and reinforcement requests');add('theater-command',135,Warfare.applyTheaterCommand,'Primary theater selection, reserve redirection and breakthrough exploitation');add('operational-movement',137,Warfare.applyOperationalMovement,'Reinforcement routing, travel, attrition and arrival');add('campaign-planning',140,Warfare.applyCampaignPlanning,'Multi-year campaign planning');add('occupation-policy',150,Warfare.applyOccupationPolicy,'Occupation policy and resistance evolution');add('excavation-projects',160,Warfare.applyExcavationProjects,'Multi-year battlefield excavation projects');add('relic-journeys',170,Warfare.applyRelicJourneys,'Relic custody, transfer and restitution');add('national-memory',180,Warfare.applyNationalMemory,'Competing national war narratives');return listHooks()}
+function runAnnual(w,options={}){const S=w?.warfareSupply;if(!S)return S;const R=registryState(S),L=lifecycleState(S),year=currentYear(w,S),force=!!options.force;if(!force&&Number(R.lastSimulatedYear)===year)return S;const order=[];for(const hook of[...hooks.values()].sort((a,b)=>a.order-b.order||a.id.localeCompare(b.id))){hook.run(w,{year,source:options.source||'simulate',force:false});order.push(hook.id);R.runs[hook.id]={year,order:hook.order}}R.lastSimulatedYear=year;R.dispatches=Number(R.dispatches||0)+1;R.lastOrder=order;L.lastAdvancedYear=year;L.advanceCount=Number(L.advanceCount||0)+1;S.stats=S.stats||{};S.stats.warfareLifecycleAdvances=L.advanceCount;S.stats.warfareHookDispatches=R.dispatches;return S}
+function activate(){registerKnownHooks();if(active)return Warfare;if(capturedInitialize)Warfare.initialize=function(w,...args){return capturedInitialize(w,...args)};if(capturedSimulate)Warfare.simulateWarfareYear=function(w,y,...args){const out=capturedSimulate(w,y,...args);runAnnual(w,{source:'simulate'});return out};Warfare.registerSimulationHook=registerHook;Warfare.unregisterSimulationHook=unregisterHook;Warfare.listSimulationHooks=listHooks;Warfare.runSimulationHooks=runAnnual;Warfare.WARFARE_HOOKS_VERSION=VERSION;active=true;return Warfare}
 function isActive(){return active}
 Warfare.registerSimulationHook=registerHook;Warfare.unregisterSimulationHook=unregisterHook;Warfare.listSimulationHooks=listHooks;Warfare.runSimulationHooks=runAnnual;Warfare.WARFARE_HOOKS_VERSION=VERSION;
 return{VERSION,registerHook,unregisterHook,listHooks,registerKnownHooks,runAnnual,activate,isActive};
