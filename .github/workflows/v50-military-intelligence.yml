@@ -27,7 +27,7 @@ jobs:
           const mi=read('warfare-military-intelligence.js'),mui=read('warfare-military-intelligence-ui.js'),controls=read('warfare-strategic-map-controls.js'),ui=read('warfare-strategic-ai-ui.js');
           for(const t of ["VERSION='5.0.26'",'militaryIntelligence','reconLevel','hiddenMovement','estimatedSize','errorMargin','partisanContact','military-intelligence'])if(!mi.includes(t))throw Error(`military-intel:${t}`);
           for(const t of ['applyVisibility','intelConfidence','hiddenMovement'])if(!mui.includes(t))throw Error(`military-intel-ui:${t}`);
-          for(const t of ['FOG OF WAR INTEL','CONFIDENCE','LAST SEEN','EST. SIZE','INTEL NETWORK','PARTISAN CONTACT'])if(!controls.includes(t))throw Error(`controls:${t}`);
-          for(const t of ['warfare-military-intelligence.js','warfare-military-intelligence-ui.js',"VERSION:'5.0.26'"])if(!ui.includes(t))throw Error(`strategic-ui:${t}`);
+          for(const t of ['FOG OF WAR','CONFIDENCE','LAST SEEN','EST. SIZE','INTEL NETWORK','PARTISAN CONTACT'])if(!controls.includes(t))throw Error(`controls:${t}`);
+          for(const t of ['warfare-military-intelligence.js','warfare-military-intelligence-ui.js',"INTELLIGENCE_VERSION:'5.0.26'"])if(!ui.includes(t))throw Error(`strategic-ui:${t}`);
           console.log('v5.0 military intelligence contracts OK');
           NODE
