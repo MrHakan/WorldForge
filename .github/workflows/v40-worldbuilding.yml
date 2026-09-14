@@ -17,38 +17,38 @@ jobs:
         uses: actions/checkout@v4
       - name: Check v3.0 and v4.0 JavaScript syntax
         run: |
-          node --check world-order-engine.js
-          node --check world-order-loader.js
-          node --check structure-archetypes.js
-          node --check pixel-structure-renderer.js
-          node --check worldbuilding-engine.js
-          node --check worldbuilding-wiki-adapter.js
-          node --check worldbuilding-loader.js
-          node --check worldbuilding-ui.js
-          node --check tests/world-order.mjs
-          node --check tests/worldbuilding.mjs
+          node --check src/features/world-order/world-order-engine.js
+          node --check src/features/world-order/world-order-loader.js
+          node --check src/rendering/structure-archetypes.js
+          node --check src/rendering/pixel-structure-renderer.js
+          node --check src/features/worldbuilding/worldbuilding-engine.js
+          node --check src/features/worldbuilding/worldbuilding-wiki-adapter.js
+          node --check src/features/worldbuilding/worldbuilding-loader.js
+          node --check src/features/worldbuilding/worldbuilding-ui.js
+          node --check tests/features/world-order.mjs
+          node --check tests/features/worldbuilding.mjs
       - name: Validate v4.0 runtime files and pixel hooks
         run: |
-          test -f worldbuilding-engine.js
-          test -f worldbuilding-wiki-adapter.js
-          test -f worldbuilding-loader.js
-          test -f worldbuilding-ui.js
-          test -f worldbuilding.css
-          test -f structure-archetypes.js
-          test -f pixel-structure-renderer.js
-          grep -q "WorldForgeWorldbuilding" worldbuilding-engine.js
-          grep -q "settlement_worldbuilding" worldbuilding-wiki-adapter.js
-          grep -q "district_profile" worldbuilding-wiki-adapter.js
-          grep -q "structure_archetype" worldbuilding-wiki-adapter.js
-          grep -q "worldbuilding-loader.js" world-order-loader.js
-          grep -q "new WeakMap" worldbuilding-engine.js
-          grep -q "requestAnimationFrame" worldbuilding-ui.js
-          grep -q "lastAppliedYear" worldbuilding-engine.js
-          grep -q "__worldbuildingBridge" worldbuilding-engine.js
-          grep -q "shape-rendering=\"crispEdges\"" pixel-structure-renderer.js
-          grep -q "shipyard" structure-archetypes.js
-          grep -q "slums" worldbuilding-engine.js
+          test -f src/features/worldbuilding/worldbuilding-engine.js
+          test -f src/features/worldbuilding/worldbuilding-wiki-adapter.js
+          test -f src/features/worldbuilding/worldbuilding-loader.js
+          test -f src/features/worldbuilding/worldbuilding-ui.js
+          test -f src/features/worldbuilding/worldbuilding.css
+          test -f src/rendering/structure-archetypes.js
+          test -f src/rendering/pixel-structure-renderer.js
+          grep -q "WorldForgeWorldbuilding" src/features/worldbuilding/worldbuilding-engine.js
+          grep -q "settlement_worldbuilding" src/features/worldbuilding/worldbuilding-wiki-adapter.js
+          grep -q "district_profile" src/features/worldbuilding/worldbuilding-wiki-adapter.js
+          grep -q "structure_archetype" src/features/worldbuilding/worldbuilding-wiki-adapter.js
+          grep -q "src/features/worldbuilding/worldbuilding-loader.js" src/features/world-order/world-order-loader.js
+          grep -q "new WeakMap" src/features/worldbuilding/worldbuilding-engine.js
+          grep -q "requestAnimationFrame" src/features/worldbuilding/worldbuilding-ui.js
+          grep -q "lastAppliedYear" src/features/worldbuilding/worldbuilding-engine.js
+          grep -q "__worldbuildingBridge" src/features/worldbuilding/worldbuilding-engine.js
+          grep -q "shape-rendering=\"crispEdges\"" src/rendering/pixel-structure-renderer.js
+          grep -q "shipyard" src/rendering/structure-archetypes.js
+          grep -q "slums" src/features/worldbuilding/worldbuilding-engine.js
       - name: Run v3.0 world-order regression
-        run: node tests/world-order.mjs
+        run: node tests/features/world-order.mjs
       - name: Run v4.0 worldbuilding and pixel civilization regression
-        run: node tests/worldbuilding.mjs
+        run: node tests/features/worldbuilding.mjs

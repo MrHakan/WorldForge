@@ -4,21 +4,21 @@ on:
   push:
     branches: [main, v4.9-warfare-supply-lines, v4.9-army-map-interactions, v4.9-postwar-consequences, v4.9-war-goals-peace-terms, v4.9-pixel-war-consequences]
     paths:
-      - 'warfare-supply-engine.js'
-      - 'warfare-mobilization.js'
-      - 'warfare-pathfinding.js'
-      - 'warfare-naval.js'
-      - 'warfare-diplomacy.js'
-      - 'warfare-postwar.js'
-      - 'warfare-peace.js'
-      - 'warfare-pixel-renderer.js'
-      - 'warfare-supply-ui.js'
-      - 'warfare-postwar-ui.js'
-      - 'warfare-peace-ui.js'
-      - 'warfare-supply-overlay.js'
-      - 'workspace-navigation.js'
-      - 'worldbuilding-loader.js'
-      - 'V4.9.md'
+      - 'src/features/warfare/warfare-supply-engine.js'
+      - 'src/features/warfare/warfare-mobilization.js'
+      - 'src/features/warfare/warfare-pathfinding.js'
+      - 'src/features/warfare/warfare-naval.js'
+      - 'src/features/warfare/warfare-diplomacy.js'
+      - 'src/features/warfare/warfare-postwar.js'
+      - 'src/features/warfare/warfare-peace.js'
+      - 'src/features/warfare/warfare-pixel-renderer.js'
+      - 'src/features/warfare/warfare-supply-ui.js'
+      - 'src/features/warfare/warfare-postwar-ui.js'
+      - 'src/features/warfare/warfare-peace-ui.js'
+      - 'src/features/warfare/warfare-supply-overlay.js'
+      - 'src/app/workspace-navigation.js'
+      - 'src/features/worldbuilding/worldbuilding-loader.js'
+      - 'docs/releases/V4.9.md'
       - '.github/workflows/v49-warfare-supply.yml'
   pull_request:
     branches: [main]
@@ -33,37 +33,37 @@ jobs:
           node-version: '22'
       - name: Syntax check
         run: |
-          node --check warfare-supply-engine.js
-          node --check warfare-mobilization.js
-          node --check warfare-pathfinding.js
-          node --check warfare-naval.js
-          node --check warfare-diplomacy.js
-          node --check warfare-postwar.js
-          node --check warfare-peace.js
-          node --check warfare-pixel-renderer.js
-          node --check warfare-supply-ui.js
-          node --check warfare-postwar-ui.js
-          node --check warfare-peace-ui.js
-          node --check warfare-supply-overlay.js
-          node --check workspace-navigation.js
-          node --check worldbuilding-loader.js
+          node --check src/features/warfare/warfare-supply-engine.js
+          node --check src/features/warfare/warfare-mobilization.js
+          node --check src/features/warfare/warfare-pathfinding.js
+          node --check src/features/warfare/warfare-naval.js
+          node --check src/features/warfare/warfare-diplomacy.js
+          node --check src/features/warfare/warfare-postwar.js
+          node --check src/features/warfare/warfare-peace.js
+          node --check src/features/warfare/warfare-pixel-renderer.js
+          node --check src/features/warfare/warfare-supply-ui.js
+          node --check src/features/warfare/warfare-postwar-ui.js
+          node --check src/features/warfare/warfare-peace-ui.js
+          node --check src/features/warfare/warfare-supply-overlay.js
+          node --check src/app/workspace-navigation.js
+          node --check src/features/worldbuilding/worldbuilding-loader.js
       - name: Contract smoke test
         run: |
           node <<'NODE'
           const fs=require('fs');
-          const engine=fs.readFileSync('warfare-supply-engine.js','utf8');
-          const mobilization=fs.readFileSync('warfare-mobilization.js','utf8');
-          const pathfinding=fs.readFileSync('warfare-pathfinding.js','utf8');
-          const naval=fs.readFileSync('warfare-naval.js','utf8');
-          const diplomacy=fs.readFileSync('warfare-diplomacy.js','utf8');
-          const postwar=fs.readFileSync('warfare-postwar.js','utf8');
-          const peace=fs.readFileSync('warfare-peace.js','utf8');
-          const pixel=fs.readFileSync('warfare-pixel-renderer.js','utf8');
-          const ui=fs.readFileSync('warfare-supply-ui.js','utf8');
-          const postwarUi=fs.readFileSync('warfare-postwar-ui.js','utf8');
-          const peaceUi=fs.readFileSync('warfare-peace-ui.js','utf8');
-          const overlay=fs.readFileSync('warfare-supply-overlay.js','utf8');
-          const loader=fs.readFileSync('worldbuilding-loader.js','utf8');
+          const engine=fs.readFileSync('src/features/warfare/warfare-supply-engine.js','utf8');
+          const mobilization=fs.readFileSync('src/features/warfare/warfare-mobilization.js','utf8');
+          const pathfinding=fs.readFileSync('src/features/warfare/warfare-pathfinding.js','utf8');
+          const naval=fs.readFileSync('src/features/warfare/warfare-naval.js','utf8');
+          const diplomacy=fs.readFileSync('src/features/warfare/warfare-diplomacy.js','utf8');
+          const postwar=fs.readFileSync('src/features/warfare/warfare-postwar.js','utf8');
+          const peace=fs.readFileSync('src/features/warfare/warfare-peace.js','utf8');
+          const pixel=fs.readFileSync('src/features/warfare/warfare-pixel-renderer.js','utf8');
+          const ui=fs.readFileSync('src/features/warfare/warfare-supply-ui.js','utf8');
+          const postwarUi=fs.readFileSync('src/features/warfare/warfare-postwar-ui.js','utf8');
+          const peaceUi=fs.readFileSync('src/features/warfare/warfare-peace-ui.js','utf8');
+          const overlay=fs.readFileSync('src/features/warfare/warfare-supply-overlay.js','utf8');
+          const loader=fs.readFileSync('src/features/worldbuilding/worldbuilding-loader.js','utf8');
           for(const token of ["VERSION='4.9.3'",'foodReserve','ammoReserve','equipment','morale','experience','combatPower','marchProgress','marchCost','supplyLines','fortification','manpower','casualties','resolveRelief','fleetFor','simulateWarfareYear']) if(!engine.includes(token)) throw new Error(`Missing engine token: ${token}`);
           for(const token of ["VERSION='4.9.4'",'Peacetime Levy','Limited Mobilization','General Mobilization','Emergency Levy','activatedManpower','mobilizationLaw','reinforcementPriority','realmView']) if(!mobilization.includes(token)) throw new Error(`Missing mobilization token: ${token}`);
           for(const token of ["VERSION='4.9.4'",'buildGraph','shortestPath','pointAlong','roadQuality','terrainPenalty','routePoints','PATHFINDING_VERSION']) if(!pathfinding.includes(token)) throw new Error(`Missing pathfinding token: ${token}`);
@@ -76,6 +76,6 @@ jobs:
           for(const token of ['POST-WAR RECOVERY','DEMOBILIZATION','DISPLACEMENT','REFUGEES','RECONSTRUCTION','MANPOWER RETURNED']) if(!postwarUi.includes(token)) throw new Error(`Missing post-war UI token: ${token}`);
           for(const token of ['WAR GOALS & PEACE TERMS','WAR SCORE','PEACE SETTLEMENT','REPARATIONS','BORDER ADJUSTMENT']) if(!peaceUi.includes(token)) throw new Error(`Missing peace UI token: ${token}`);
           for(const token of ['worldforgeSupplyOverlay','data-supply-status','data-army-id','data-selected','data-army-state','data-fleet-status','data-route-nodes','data-route-quality','data-fleet-mission','data-naval-battle','selectArmy']) if(!overlay.includes(token)) throw new Error(`Missing overlay token: ${token}`);
-          for(const token of ['warfare-supply-engine.js','warfare-mobilization.js','warfare-pathfinding.js','warfare-naval.js','warfare-diplomacy.js','warfare-postwar.js','warfare-peace.js','warfare-pixel-renderer.js','warfare-supply-ui.js','warfare-postwar-ui.js','warfare-peace-ui.js','warfare-supply-overlay.js','simulateWarfareYear']) if(!loader.includes(token)) throw new Error(`Missing loader token: ${token}`);
+          for(const token of ['src/features/warfare/warfare-supply-engine.js','src/features/warfare/warfare-mobilization.js','src/features/warfare/warfare-pathfinding.js','src/features/warfare/warfare-naval.js','src/features/warfare/warfare-diplomacy.js','src/features/warfare/warfare-postwar.js','src/features/warfare/warfare-peace.js','src/features/warfare/warfare-pixel-renderer.js','src/features/warfare/warfare-supply-ui.js','src/features/warfare/warfare-postwar-ui.js','src/features/warfare/warfare-peace-ui.js','src/features/warfare/warfare-supply-overlay.js','simulateWarfareYear']) if(!loader.includes(token)) throw new Error(`Missing loader token: ${token}`);
           console.log('v4.9 warfare supply contract OK');
           NODE

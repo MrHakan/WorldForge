@@ -17,41 +17,41 @@ jobs:
         uses: actions/checkout@v4
       - name: Check v4.1 JavaScript syntax
         run: |
-          node --check structure-archetypes.js
-          node --check pixel-structure-renderer.js
-          node --check pixel-art-polish.js
-          node --check worldbuilding-engine.js
-          node --check worldbuilding-wiki-adapter.js
-          node --check worldbuilding-loader.js
-          node --check worldbuilding-ui.js
-          node --check tests/worldbuilding-v41.mjs
-          node --check tests/pixel-art-polish.mjs
+          node --check src/rendering/structure-archetypes.js
+          node --check src/rendering/pixel-structure-renderer.js
+          node --check src/rendering/pixel-art-polish.js
+          node --check src/features/worldbuilding/worldbuilding-engine.js
+          node --check src/features/worldbuilding/worldbuilding-wiki-adapter.js
+          node --check src/features/worldbuilding/worldbuilding-loader.js
+          node --check src/features/worldbuilding/worldbuilding-ui.js
+          node --check tests/features/worldbuilding-v41.mjs
+          node --check tests/features/pixel-art-polish.mjs
       - name: Validate v4.1 architecture and landscape hooks
         run: |
-          grep -q "ARCHITECTURE_FAMILIES" structure-archetypes.js
-          grep -q "CULTURE_VARIANTS" structure-archetypes.js
-          grep -q "data-worldforge-renderer=\"v4.1\"" pixel-structure-renderer.js
-          grep -q "data-architecture-family" pixel-structure-renderer.js
-          grep -q "landmarkGlyph" pixel-structure-renderer.js
-          grep -q "data-worldforge-polish" pixel-art-polish.js
-          grep -q "gable_house" pixel-art-polish.js
-          grep -q "stockade_barracks" pixel-art-polish.js
-          grep -q "caravan_house" pixel-art-polish.js
-          grep -q "historicalLandmarks" worldbuilding-engine.js
-          grep -q "maxLandmarks" worldbuilding-engine.js
-          grep -q "indexedHistoricalSites" worldbuilding-engine.js
-          grep -q "indexedGreatWorks" worldbuilding-engine.js
-          grep -q "historical_landmark" worldbuilding-wiki-adapter.js
-          grep -q "architecture_style" worldbuilding-wiki-adapter.js
-          grep -q "HISTORICAL LANDSCAPE" worldbuilding-ui.js
-          grep -q "requestAnimationFrame" worldbuilding-ui.js
+          grep -q "ARCHITECTURE_FAMILIES" src/rendering/structure-archetypes.js
+          grep -q "CULTURE_VARIANTS" src/rendering/structure-archetypes.js
+          grep -q "data-worldforge-renderer=\"v4.1\"" src/rendering/pixel-structure-renderer.js
+          grep -q "data-architecture-family" src/rendering/pixel-structure-renderer.js
+          grep -q "landmarkGlyph" src/rendering/pixel-structure-renderer.js
+          grep -q "data-worldforge-polish" src/rendering/pixel-art-polish.js
+          grep -q "gable_house" src/rendering/pixel-art-polish.js
+          grep -q "stockade_barracks" src/rendering/pixel-art-polish.js
+          grep -q "caravan_house" src/rendering/pixel-art-polish.js
+          grep -q "historicalLandmarks" src/features/worldbuilding/worldbuilding-engine.js
+          grep -q "maxLandmarks" src/features/worldbuilding/worldbuilding-engine.js
+          grep -q "indexedHistoricalSites" src/features/worldbuilding/worldbuilding-engine.js
+          grep -q "indexedGreatWorks" src/features/worldbuilding/worldbuilding-engine.js
+          grep -q "historical_landmark" src/features/worldbuilding/worldbuilding-wiki-adapter.js
+          grep -q "architecture_style" src/features/worldbuilding/worldbuilding-wiki-adapter.js
+          grep -q "HISTORICAL LANDSCAPE" src/features/worldbuilding/worldbuilding-ui.js
+          grep -q "requestAnimationFrame" src/features/worldbuilding/worldbuilding-ui.js
       - name: Run institution and Great Work regression
-        run: node tests/institutions.mjs
+        run: node tests/features/institutions.mjs
       - name: Run v3.0 world-order regression
-        run: node tests/world-order.mjs
+        run: node tests/features/world-order.mjs
       - name: Run v4.0 worldbuilding compatibility regression
-        run: node tests/worldbuilding.mjs
+        run: node tests/features/worldbuilding.mjs
       - name: Run v4.1 historical landscape regression
-        run: node tests/worldbuilding-v41.mjs
+        run: node tests/features/worldbuilding-v41.mjs
       - name: Run v4.1.1 pixel-art diversity regression
-        run: node tests/pixel-art-polish.mjs
+        run: node tests/features/pixel-art-polish.mjs

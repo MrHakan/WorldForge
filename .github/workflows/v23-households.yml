@@ -17,24 +17,24 @@ jobs:
         uses: actions/checkout@v4
       - name: Check v2.3 JavaScript syntax
         run: |
-          node --check household-engine.js
-          node --check household-wiki-adapter.js
-          node --check household-loader.js
-          node --check household-ui.js
-          node --check workforce-loader.js
-          node --check tests/households.mjs
+          node --check src/features/households/household-engine.js
+          node --check src/features/households/household-wiki-adapter.js
+          node --check src/features/households/household-loader.js
+          node --check src/features/households/household-ui.js
+          node --check src/features/workforce/workforce-loader.js
+          node --check tests/features/households.mjs
       - name: Validate v2.3 runtime files
         run: |
-          test -f household-engine.js
-          test -f household-wiki-adapter.js
-          test -f household-loader.js
-          test -f household-ui.js
-          test -f household.css
-          grep -q "WorldForgeHouseholds" household-engine.js
-          grep -q "Landless Poor" household-engine.js
-          grep -q "aristocracy" household-engine.js
-          grep -q "educationIndex" household-engine.js
-          grep -q "lifeExpectancy" household-engine.js
-          grep -q "household-loader.js" workforce-loader.js
+          test -f src/features/households/household-engine.js
+          test -f src/features/households/household-wiki-adapter.js
+          test -f src/features/households/household-loader.js
+          test -f src/features/households/household-ui.js
+          test -f src/features/households/household.css
+          grep -q "WorldForgeHouseholds" src/features/households/household-engine.js
+          grep -q "Landless Poor" src/features/households/household-engine.js
+          grep -q "aristocracy" src/features/households/household-engine.js
+          grep -q "educationIndex" src/features/households/household-engine.js
+          grep -q "lifeExpectancy" src/features/households/household-engine.js
+          grep -q "src/features/households/household-loader.js" src/features/workforce/workforce-loader.js
       - name: Run v2.3 household social class and demography regression
-        run: node tests/households.mjs
+        run: node tests/features/households.mjs

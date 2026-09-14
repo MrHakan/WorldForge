@@ -17,31 +17,31 @@ jobs:
         uses: actions/checkout@v4
       - name: Check v2.4 and v2.5 JavaScript syntax
         run: |
-          node --check housing-engine.js
-          node --check housing-loader.js
-          node --check housing-ui.js
-          node --check municipal-engine.js
-          node --check municipal-wiki-adapter.js
-          node --check municipal-loader.js
-          node --check municipal-ui.js
-          node --check tests/housing.mjs
-          node --check tests/municipal.mjs
+          node --check src/features/housing/housing-engine.js
+          node --check src/features/housing/housing-loader.js
+          node --check src/features/housing/housing-ui.js
+          node --check src/features/municipal/municipal-engine.js
+          node --check src/features/municipal/municipal-wiki-adapter.js
+          node --check src/features/municipal/municipal-loader.js
+          node --check src/features/municipal/municipal-ui.js
+          node --check tests/features/housing.mjs
+          node --check tests/features/municipal.mjs
       - name: Validate v2.5 runtime files and optimization hooks
         run: |
-          test -f municipal-engine.js
-          test -f municipal-wiki-adapter.js
-          test -f municipal-loader.js
-          test -f municipal-ui.js
-          test -f municipal.css
-          grep -q "WorldForgeMunicipal" municipal-engine.js
-          grep -q "Sanitation & Sewerage" municipal-engine.js
-          grep -q "maintenanceBacklog" municipal-engine.js
-          grep -q "service_inequality" municipal-wiki-adapter.js
-          grep -q "municipal-loader.js" housing-loader.js
-          grep -q "new WeakMap" municipal-engine.js
-          grep -q "requestAnimationFrame" municipal-ui.js
-          grep -q "lastAppliedYear" municipal-engine.js
+          test -f src/features/municipal/municipal-engine.js
+          test -f src/features/municipal/municipal-wiki-adapter.js
+          test -f src/features/municipal/municipal-loader.js
+          test -f src/features/municipal/municipal-ui.js
+          test -f src/features/municipal/municipal.css
+          grep -q "WorldForgeMunicipal" src/features/municipal/municipal-engine.js
+          grep -q "Sanitation & Sewerage" src/features/municipal/municipal-engine.js
+          grep -q "maintenanceBacklog" src/features/municipal/municipal-engine.js
+          grep -q "service_inequality" src/features/municipal/municipal-wiki-adapter.js
+          grep -q "src/features/municipal/municipal-loader.js" src/features/housing/housing-loader.js
+          grep -q "new WeakMap" src/features/municipal/municipal-engine.js
+          grep -q "requestAnimationFrame" src/features/municipal/municipal-ui.js
+          grep -q "lastAppliedYear" src/features/municipal/municipal-engine.js
       - name: Run v2.4 housing regression
-        run: node tests/housing.mjs
+        run: node tests/features/housing.mjs
       - name: Run v2.5 municipal infrastructure public services and optimization regression
-        run: node tests/municipal.mjs
+        run: node tests/features/municipal.mjs
