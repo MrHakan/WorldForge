@@ -5,13 +5,17 @@ on:
     branches: [main]
     paths:
       - 'src/features/warfare/warfare-strategic-map-controls.js'
+      - 'src/features/warfare/warfare-strategic-map-overlay.js'
       - 'tests/warfare/warfare-strategic-map-preferences.test.js'
+      - 'tests/warfare/warfare-strategic-map-selection.test.js'
       - '.github/workflows/strategic-map-preferences.yml'
   push:
     branches: [main]
     paths:
       - 'src/features/warfare/warfare-strategic-map-controls.js'
+      - 'src/features/warfare/warfare-strategic-map-overlay.js'
       - 'tests/warfare/warfare-strategic-map-preferences.test.js'
+      - 'tests/warfare/warfare-strategic-map-selection.test.js'
       - '.github/workflows/strategic-map-preferences.yml'
 
 jobs:
@@ -25,6 +29,10 @@ jobs:
       - name: Syntax check
         run: |
           node --check src/features/warfare/warfare-strategic-map-controls.js
+          node --check src/features/warfare/warfare-strategic-map-overlay.js
           node --check tests/warfare/warfare-strategic-map-preferences.test.js
+          node --check tests/warfare/warfare-strategic-map-selection.test.js
       - name: Saved filters and pinned intel behavior
         run: node tests/warfare/warfare-strategic-map-preferences.test.js
+      - name: Exclusive map selection behavior
+        run: node tests/warfare/warfare-strategic-map-selection.test.js
