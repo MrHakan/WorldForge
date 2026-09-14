@@ -16,3 +16,7 @@ jobs:
           node-version: '22'
       - name: Validate repository layout
         run: node tests/core/repository-structure.mjs
+      - name: Validate native metric charts
+        run: |
+          node --check src/rendering/metric-charts.js
+          node tests/core/metric-charts.test.js
