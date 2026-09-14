@@ -1,0 +1,28 @@
+name: Performance regression smoke
+
+on:
+  push:
+    branches: [main, perf/ported-audit-optimizations]
+  pull_request:
+    branches: [main]
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Syntax check optimized runtime
+        run: |
+          node --check src/core/engine.js
+          node --check src/core/history-engine.js
+          node --check src/core/renderer.js
+          node --check src/core/society-engine.js
+          node --check src/app/app.js
+          node --check src/app/release-integration.js
+          node --check src/features/wiki/wiki-engine.js
+          node --check tests/core/performance.mjs
+      - name: Run deterministic performance smoke
+        run: node tests/core/performance.mjs
