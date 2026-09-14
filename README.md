@@ -159,40 +159,44 @@ Seed / geography
   → deterministic pixel civilization
 ```
 
+## Repository layout
+
+The repository now keeps the browser entrypoint at the root and groups runtime code by responsibility. See the repository structure guide at docs/REPOSITORY_STRUCTURE.md for the directory contract and the rules for adding new modules.
+
 ## Architecture
 
 ```text
-engine.js                     founding geography
-history-engine.js             civilization/history simulation
-society-engine.js             people, houses and dynasties
-city-engine.js                cities, economy, law and crime
-culture-engine.js             culture and religion
-faction-engine.js             organizations and influence
-adventure-engine.js           historical sites and dungeon graphs
-story-engine.js               quests and dialogue
-endless-engine.js             absolute clock, rebasing and compaction
-calendar-engine.js            seasons, weather and celestial simulation
-knowledge-engine.js           claims, evidence, rumours and memory
-artifact-engine.js            persistent material/written culture
-technology-engine.js          research, adoption and diffusion
-resource-engine.js            production, stocks, prices and cargo
-institution-engine.js         institutions, industry and Great Works
-military-engine.js            armies, fleets, supply, combat and siege
-treasury-engine.js            taxes, spending, debt, credit and inflation
-workforce-engine.js           demography, jobs, conscription and migration
-household-engine.js           households, classes and demographic economy
-housing-engine.js             housing, land, rent and urban development
-municipal-engine.js           public infrastructure and municipal finance
-emergency-engine.js           health, disease, fire and emergency response
-nutrition-engine.js           food security, famine and relief
-politics-engine.js            legitimacy, factions and unrest
-diplomacy-engine.js           bilateral international relations
-world-order-engine.js         great powers, blocs and world order
-worldbuilding-engine.js       settlement, architecture and landmark profiles
-structure-archetypes.js       base structures + architecture families
-pixel-structure-renderer.js   culture-specific structures + landmark renderer
-worldbuilding-ui.js           Worldbuilding Atelier
-worldbuilding-wiki-adapter.js Encyclopedia worldbuilding integration
+src/core/engine.js                     founding geography
+src/core/history-engine.js             civilization/history simulation
+src/core/society-engine.js             people, houses and dynasties
+src/features/city/city-engine.js                cities, economy, law and crime
+src/features/culture/culture-engine.js             culture and religion
+src/features/factions/faction-engine.js             organizations and influence
+src/features/adventure/adventure-engine.js           historical sites and dungeon graphs
+src/features/story/story-engine.js               quests and dialogue
+src/features/endless/endless-engine.js             absolute clock, rebasing and compaction
+src/features/calendar/calendar-engine.js            seasons, weather and celestial simulation
+src/features/knowledge/knowledge-engine.js           claims, evidence, rumours and memory
+src/features/artifacts/artifact-engine.js            persistent material/written culture
+src/features/technology/technology-engine.js          research, adoption and diffusion
+src/features/resources/resource-engine.js            production, stocks, prices and cargo
+src/features/institutions/institution-engine.js         institutions, industry and Great Works
+src/features/warfare/military-engine.js            armies, fleets, supply, combat and siege
+src/features/treasury/treasury-engine.js            taxes, spending, debt, credit and inflation
+src/features/workforce/workforce-engine.js           demography, jobs, conscription and migration
+src/features/households/household-engine.js           households, classes and demographic economy
+src/features/housing/housing-engine.js             housing, land, rent and urban development
+src/features/municipal/municipal-engine.js           public infrastructure and municipal finance
+src/features/emergency/emergency-engine.js           health, disease, fire and emergency response
+src/features/nutrition/nutrition-engine.js           food security, famine and relief
+src/features/politics/politics-engine.js            legitimacy, factions and unrest
+src/features/diplomacy/diplomacy-engine.js           bilateral international relations
+src/features/world-order/world-order-engine.js         great powers, blocs and world order
+src/features/worldbuilding/worldbuilding-engine.js       settlement, architecture and landmark profiles
+src/rendering/structure-archetypes.js       base structures + architecture families
+src/rendering/pixel-structure-renderer.js   culture-specific structures + landmark renderer
+src/features/worldbuilding/worldbuilding-ui.js           Worldbuilding Atelier
+src/features/worldbuilding/worldbuilding-wiki-adapter.js Encyclopedia worldbuilding integration
 *-ui.js / *-loader.js         browser workspaces and compatibility bootstraps
 ```
 
@@ -217,7 +221,7 @@ The v4.1 gate runs Institution/Great Work regression, v3.0 World Order regressio
 
 `main` is the authoritative deployment source for GitHub Pages. A release is considered complete only after PR compatibility gates and the post-merge Pages validation/deployment succeed.
 
-See [`V4.1.md`](V4.1.md) for detailed release notes.
+See [`docs/releases/V4.1.md`](docs/releases/V4.1.md) for detailed release notes.
 
 ## Next visual direction
 

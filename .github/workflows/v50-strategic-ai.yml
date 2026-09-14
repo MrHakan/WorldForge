@@ -15,68 +15,68 @@ jobs:
         with: {node-version: '22'}
       - name: Syntax check
         run: |
-          node --check warfare-hooks.js
-          node --check warfare-strategic-ai.js
-          node --check warfare-commanders.js
-          node --check warfare-commander-chronicle.js
-          node --check warfare-commander-legacies.js
-          node --check warfare-commander-legacies-ui.js
-          node --check warfare-battlefield-history-v2.js
-          node --check warfare-battlefield-history-ui.js
-          node --check warfare-battlefield-relics.js
-          node --check warfare-battlefield-relics-ui.js
-          node --check warfare-relic-collections.js
-          node --check warfare-strategic-reserves.js
-          node --check warfare-strategic-reserves-ui.js
-          node --check warfare-theater-command.js
-          node --check warfare-operational-movement.js
-          node --check warfare-operational-intel.js
-          node --check warfare-campaign-planning.js
-          node --check warfare-campaign-planning-ui.js
-          node --check warfare-occupation-policy.js
-          node --check warfare-occupation-policy-ui.js
-          node --check warfare-strategic-map-overlay.js
-          node --check warfare-strategic-map-controls.js
-          node --check warfare-strategic-ai-ui.js
-          node --check worldbuilding-loader.js
-          node --check tests/warfare-commanders-v50.mjs
-          node --check tests/warfare-commander-chronicle-v50.mjs
-          node --check tests/warfare-strategic-reserves-v50.mjs
-          node --check tests/warfare-campaign-planning-v50.mjs
-          node --check tests/warfare-multifront-strategic-ai-v50.mjs
-          node --check tests/warfare-theater-command-v50.mjs
-          node --check tests/warfare-operational-movement-v50.mjs
-          node --check tests/warfare-operational-intel-v50.mjs
-          node --check tests/warfare-occupation-economics-v50.mjs
-          node --check tests/warfare-battlefield-history-v50.mjs
-          node --check tests/warfare-battlefield-relics.test.js
+          node --check src/features/warfare/warfare-hooks.js
+          node --check src/features/warfare/warfare-strategic-ai.js
+          node --check src/features/warfare/warfare-commanders.js
+          node --check src/features/warfare/warfare-commander-chronicle.js
+          node --check src/features/warfare/warfare-commander-legacies.js
+          node --check src/features/warfare/warfare-commander-legacies-ui.js
+          node --check src/features/warfare/warfare-battlefield-history-v2.js
+          node --check src/features/warfare/warfare-battlefield-history-ui.js
+          node --check src/features/warfare/warfare-battlefield-relics.js
+          node --check src/features/warfare/warfare-battlefield-relics-ui.js
+          node --check src/features/warfare/warfare-relic-collections.js
+          node --check src/features/warfare/warfare-strategic-reserves.js
+          node --check src/features/warfare/warfare-strategic-reserves-ui.js
+          node --check src/features/warfare/warfare-theater-command.js
+          node --check src/features/warfare/warfare-operational-movement.js
+          node --check src/features/warfare/warfare-operational-intel.js
+          node --check src/features/warfare/warfare-campaign-planning.js
+          node --check src/features/warfare/warfare-campaign-planning-ui.js
+          node --check src/features/warfare/warfare-occupation-policy.js
+          node --check src/features/warfare/warfare-occupation-policy-ui.js
+          node --check src/features/warfare/warfare-strategic-map-overlay.js
+          node --check src/features/warfare/warfare-strategic-map-controls.js
+          node --check src/features/warfare/warfare-strategic-ai-ui.js
+          node --check src/features/worldbuilding/worldbuilding-loader.js
+          node --check tests/warfare/warfare-commanders-v50.mjs
+          node --check tests/warfare/warfare-commander-chronicle-v50.mjs
+          node --check tests/warfare/warfare-strategic-reserves-v50.mjs
+          node --check tests/warfare/warfare-campaign-planning-v50.mjs
+          node --check tests/warfare/warfare-multifront-strategic-ai-v50.mjs
+          node --check tests/warfare/warfare-theater-command-v50.mjs
+          node --check tests/warfare/warfare-operational-movement-v50.mjs
+          node --check tests/warfare/warfare-operational-intel-v50.mjs
+          node --check tests/warfare/warfare-occupation-economics-v50.mjs
+          node --check tests/warfare/warfare-battlefield-history-v50.mjs
+          node --check tests/warfare/warfare-battlefield-relics.test.js
       - name: Commander lifecycle behavior
-        run: node tests/warfare-commanders-v50.mjs
+        run: node tests/warfare/warfare-commanders-v50.mjs
       - name: Commander chronicle behavior
-        run: node tests/warfare-commander-chronicle-v50.mjs
+        run: node tests/warfare/warfare-commander-chronicle-v50.mjs
       - name: Strategic reserve lifecycle behavior
-        run: node tests/warfare-strategic-reserves-v50.mjs
+        run: node tests/warfare/warfare-strategic-reserves-v50.mjs
       - name: Multi-front strategic allocation behavior
-        run: node tests/warfare-multifront-strategic-ai-v50.mjs
+        run: node tests/warfare/warfare-multifront-strategic-ai-v50.mjs
       - name: Strategic theater command behavior
-        run: node tests/warfare-theater-command-v50.mjs
+        run: node tests/warfare/warfare-theater-command-v50.mjs
       - name: Operational reinforcement movement behavior
-        run: node tests/warfare-operational-movement-v50.mjs
+        run: node tests/warfare/warfare-operational-movement-v50.mjs
       - name: Operational intel behavior
-        run: node tests/warfare-operational-intel-v50.mjs
+        run: node tests/warfare/warfare-operational-intel-v50.mjs
       - name: Occupation economics and partisan behavior
-        run: node tests/warfare-occupation-economics-v50.mjs
+        run: node tests/warfare/warfare-occupation-economics-v50.mjs
       - name: Campaign planning behavior
-        run: node tests/warfare-campaign-planning-v50.mjs
+        run: node tests/warfare/warfare-campaign-planning-v50.mjs
       - name: Battlefield history behavior
-        run: node tests/warfare-battlefield-history-v50.mjs
+        run: node tests/warfare/warfare-battlefield-history-v50.mjs
       - name: Battlefield relic behavior
-        run: node tests/warfare-battlefield-relics.test.js
+        run: node tests/warfare/warfare-battlefield-relics.test.js
       - name: Contract smoke test
         run: |
           node <<'NODE'
           const fs=require('fs'),read=x=>fs.readFileSync(x,'utf8');
-          const sa=read('warfare-strategic-ai.js'),c=read('warfare-commanders.js'),cc=read('warfare-commander-chronicle.js'),l=read('warfare-commander-legacies.js'),lu=read('warfare-commander-legacies-ui.js'),b=read('warfare-battlefield-history-v2.js'),r=read('warfare-battlefield-relics.js'),rc=read('warfare-relic-collections.js'),sr=read('warfare-strategic-reserves.js'),tc=read('warfare-theater-command.js'),om=read('warfare-operational-movement.js'),intel=read('warfare-operational-intel.js'),cp=read('warfare-campaign-planning.js'),cpu=read('warfare-campaign-planning-ui.js'),occ=read('warfare-occupation-policy.js'),occu=read('warfare-occupation-policy-ui.js'),map=read('warfare-strategic-map-overlay.js'),controls=read('warfare-strategic-map-controls.js'),ui=read('warfare-strategic-ai-ui.js'),hooks=read('warfare-hooks.js'),loader=read('worldbuilding-loader.js');
+          const sa=read('src/features/warfare/warfare-strategic-ai.js'),c=read('src/features/warfare/warfare-commanders.js'),cc=read('src/features/warfare/warfare-commander-chronicle.js'),l=read('src/features/warfare/warfare-commander-legacies.js'),lu=read('src/features/warfare/warfare-commander-legacies-ui.js'),b=read('src/features/warfare/warfare-battlefield-history-v2.js'),r=read('src/features/warfare/warfare-battlefield-relics.js'),rc=read('src/features/warfare/warfare-relic-collections.js'),sr=read('src/features/warfare/warfare-strategic-reserves.js'),tc=read('src/features/warfare/warfare-theater-command.js'),om=read('src/features/warfare/warfare-operational-movement.js'),intel=read('src/features/warfare/warfare-operational-intel.js'),cp=read('src/features/warfare/warfare-campaign-planning.js'),cpu=read('src/features/warfare/warfare-campaign-planning-ui.js'),occ=read('src/features/warfare/warfare-occupation-policy.js'),occu=read('src/features/warfare/warfare-occupation-policy-ui.js'),map=read('src/features/warfare/warfare-strategic-map-overlay.js'),controls=read('src/features/warfare/warfare-strategic-map-controls.js'),ui=read('src/features/warfare/warfare-strategic-ai-ui.js'),hooks=read('src/features/warfare/warfare-hooks.js'),loader=read('src/features/worldbuilding/worldbuilding-loader.js');
           for(const t of ["VERSION='5.0.19'",'usedAttackers','usedDefenders','theaterRole','primaryCampaigns','secondaryCampaigns'])if(!sa.includes(t))throw Error(`strategic-ai:${t}`);
           for(const t of ["VERSION='5.0.7'",'riskProfile','woundHistory','recoveryUntilYear','deathYear','successorOf','lastProcessedBattleCount','commanderBaseCombatPower','commanderAdjustedCombatPower','legacyFor'])if(!c.includes(t))throw Error(t);
           for(const t of ["VERSION='5.0.16'",'battleRecord','careerRecord','fallenCommanderIds','chronicleEvents','namedBattles','commander-chronicle'])if(!cc.includes(t))throw Error(`chronicle:${t}`);
@@ -94,9 +94,9 @@ jobs:
           for(const t of ['ECON RETAINED','LOGISTICS LOSS','GARRISON GAP','PARTISANS','SABOTAGE RISK'])if(!occu.includes(t))throw Error(`occupation-ui:${t}`);
           for(const t of ['data-strategic-front','data-campaign-arrow','data-occupation-zone','pointer-events:stroke','selectOccupation'])if(!map.includes(t))throw Error(`map:${t}`);
           for(const t of ['OPERATIONAL INTEL','COMMAND','INTERCEPT','PARTISANS','SABOTAGE','tooltip'])if(!controls.includes(t))throw Error(`controls:${t}`);
-          for(const t of ['warfare-operational-intel.js',"VERSION:'5.0.25'",'data-campaign-card'])if(!ui.includes(t))throw Error(`ui:${t}`);
+          for(const t of ['src/features/warfare/warfare-operational-intel.js',"VERSION:'5.0.25'",'data-campaign-card'])if(!ui.includes(t))throw Error(`ui:${t}`);
           for(const t of ['THEATER COMMAND','PROMOTIONS','TRANSFERS','BREAKTHROUGHS','COMMAND SCORE'])if(!cpu.includes(t))throw Error(`campaign-ui:${t}`);
           for(const t of ['theater-command','operational-movement',"VERSION='5.0.23'"])if(!hooks.includes(t))throw Error(`hooks:${t}`);
-          for(const t of ['warfare-operational-movement.js',"WorldForgeWarfareOperationalMovement?.VERSION==='5.0.23'","WorldForgeWarfareOccupationPolicy?.VERSION==='5.0.24'",'WorldForgeWarfareHooks.activate()'])if(!loader.includes(t))throw Error(`loader:${t}`);
+          for(const t of ['src/features/warfare/warfare-operational-movement.js',"WorldForgeWarfareOperationalMovement?.VERSION==='5.0.23'","WorldForgeWarfareOccupationPolicy?.VERSION==='5.0.24'",'WorldForgeWarfareHooks.activate()'])if(!loader.includes(t))throw Error(`loader:${t}`);
           console.log('v5.0 strategic map operational intel contracts OK');
           NODE

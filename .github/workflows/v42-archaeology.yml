@@ -17,30 +17,30 @@ jobs:
         uses: actions/checkout@v4
       - name: Check v4.2 JavaScript syntax
         run: |
-          node --check archaeology-engine.js
-          node --check archaeology-pixel-renderer.js
-          node --check archaeology-wiki-adapter.js
-          node --check archaeology-ui.js
-          node --check worldbuilding-loader.js
-          node --check tests/archaeology-v42.mjs
+          node --check src/features/archaeology/archaeology-engine.js
+          node --check src/features/archaeology/archaeology-pixel-renderer.js
+          node --check src/features/archaeology/archaeology-wiki-adapter.js
+          node --check src/features/archaeology/archaeology-ui.js
+          node --check src/features/worldbuilding/worldbuilding-loader.js
+          node --check tests/features/archaeology-v42.mjs
       - name: Validate v4.2 archaeology hooks
         run: |
-          grep -q "pristine.*damaged.*ruined.*overgrown.*excavated" archaeology-engine.js
-          grep -q "historicalLayers" archaeology-engine.js
-          grep -q "artifact" archaeology-engine.js
-          grep -q "inscription" archaeology-engine.js
-          grep -q "data-ruin-stage" archaeology-pixel-renderer.js
-          grep -q "renderReconstruction" archaeology-pixel-renderer.js
-          grep -q "renderLifecycleStrip" archaeology-pixel-renderer.js
-          grep -q "archaeological_site" archaeology-wiki-adapter.js
-          grep -q "historical_reconstruction" archaeology-wiki-adapter.js
-          grep -q "ARCHAEOLOGY & HISTORICAL LAYERS" archaeology-ui.js
-          grep -q "archaeology-engine.js" worldbuilding-loader.js
+          grep -q "pristine.*damaged.*ruined.*overgrown.*excavated" src/features/archaeology/archaeology-engine.js
+          grep -q "historicalLayers" src/features/archaeology/archaeology-engine.js
+          grep -q "artifact" src/features/archaeology/archaeology-engine.js
+          grep -q "inscription" src/features/archaeology/archaeology-engine.js
+          grep -q "data-ruin-stage" src/features/archaeology/archaeology-pixel-renderer.js
+          grep -q "renderReconstruction" src/features/archaeology/archaeology-pixel-renderer.js
+          grep -q "renderLifecycleStrip" src/features/archaeology/archaeology-pixel-renderer.js
+          grep -q "archaeological_site" src/features/archaeology/archaeology-wiki-adapter.js
+          grep -q "historical_reconstruction" src/features/archaeology/archaeology-wiki-adapter.js
+          grep -q "ARCHAEOLOGY & HISTORICAL LAYERS" src/features/archaeology/archaeology-ui.js
+          grep -q "src/features/archaeology/archaeology-engine.js" src/features/worldbuilding/worldbuilding-loader.js
       - name: Run v4.0 worldbuilding compatibility regression
-        run: node tests/worldbuilding.mjs
+        run: node tests/features/worldbuilding.mjs
       - name: Run v4.1 historical landscape regression
-        run: node tests/worldbuilding-v41.mjs
+        run: node tests/features/worldbuilding-v41.mjs
       - name: Run v4.1.1 pixel diversity regression
-        run: node tests/pixel-art-polish.mjs
+        run: node tests/features/pixel-art-polish.mjs
       - name: Run v4.2 archaeology regression
-        run: node tests/archaeology-v42.mjs
+        run: node tests/features/archaeology-v42.mjs

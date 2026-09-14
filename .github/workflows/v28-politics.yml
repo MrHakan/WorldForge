@@ -17,34 +17,34 @@ jobs:
         uses: actions/checkout@v4
       - name: Check v2.7 and v2.8 JavaScript syntax
         run: |
-          node --check nutrition-engine.js
-          node --check nutrition-loader.js
-          node --check nutrition-ui.js
-          node --check politics-engine.js
-          node --check politics-wiki-adapter.js
-          node --check politics-loader.js
-          node --check politics-ui.js
-          node --check tests/nutrition.mjs
-          node --check tests/politics.mjs
+          node --check src/features/nutrition/nutrition-engine.js
+          node --check src/features/nutrition/nutrition-loader.js
+          node --check src/features/nutrition/nutrition-ui.js
+          node --check src/features/politics/politics-engine.js
+          node --check src/features/politics/politics-wiki-adapter.js
+          node --check src/features/politics/politics-loader.js
+          node --check src/features/politics/politics-ui.js
+          node --check tests/features/nutrition.mjs
+          node --check tests/features/politics.mjs
       - name: Validate v2.8 runtime files and optimization hooks
         run: |
-          test -f politics-engine.js
-          test -f politics-wiki-adapter.js
-          test -f politics-loader.js
-          test -f politics-ui.js
-          test -f politics.css
-          grep -q "WorldForgePolitics" politics-engine.js
-          grep -q "realm_politics" politics-wiki-adapter.js
-          grep -q "civil_unrest" politics-wiki-adapter.js
-          grep -q "politics-loader.js" nutrition-loader.js
-          grep -q "new WeakMap" politics-engine.js
-          grep -q "requestAnimationFrame" politics-ui.js
-          grep -q "lastAppliedYear" politics-engine.js
-          grep -q "__politicsBridge" politics-engine.js
-          grep -q "coupRisk" politics-engine.js
-          grep -q "revolutionRisk" politics-engine.js
-          grep -q "BLOC_KEYS" politics-engine.js
+          test -f src/features/politics/politics-engine.js
+          test -f src/features/politics/politics-wiki-adapter.js
+          test -f src/features/politics/politics-loader.js
+          test -f src/features/politics/politics-ui.js
+          test -f src/features/politics/politics.css
+          grep -q "WorldForgePolitics" src/features/politics/politics-engine.js
+          grep -q "realm_politics" src/features/politics/politics-wiki-adapter.js
+          grep -q "civil_unrest" src/features/politics/politics-wiki-adapter.js
+          grep -q "src/features/politics/politics-loader.js" src/features/nutrition/nutrition-loader.js
+          grep -q "new WeakMap" src/features/politics/politics-engine.js
+          grep -q "requestAnimationFrame" src/features/politics/politics-ui.js
+          grep -q "lastAppliedYear" src/features/politics/politics-engine.js
+          grep -q "__politicsBridge" src/features/politics/politics-engine.js
+          grep -q "coupRisk" src/features/politics/politics-engine.js
+          grep -q "revolutionRisk" src/features/politics/politics-engine.js
+          grep -q "BLOC_KEYS" src/features/politics/politics-engine.js
       - name: Run v2.7 nutrition regression
-        run: node tests/nutrition.mjs
+        run: node tests/features/nutrition.mjs
       - name: Run v2.8 politics unrest regression
-        run: node tests/politics.mjs
+        run: node tests/features/politics.mjs

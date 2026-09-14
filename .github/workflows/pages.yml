@@ -22,171 +22,171 @@ jobs:
         uses: actions/checkout@v4
       - name: Check JavaScript syntax
         run: |
-          node --check engine.js
-          node --check history-engine.js
-          node --check society-engine.js
-          node --check city-engine.js
-          node --check adventure-engine.js
-          node --check story-engine.js
-          node --check wiki-engine.js
-          node --check culture-engine.js
-          node --check faction-engine.js
-          node --check endless-engine.js
-          node --check creator-suite-engine.js
-          node --check canon-bridge-engine.js
-          node --check canon-wiki-adapter.js
-          node --check living-wiki-engine.js
-          node --check chronicle-press-engine.js
-          node --check knowledge-engine.js
-          node --check knowledge-wiki-adapter.js
-          node --check calendar-engine.js
-          node --check artifact-engine.js
-          node --check artifact-wiki-adapter.js
-          node --check artifact-loader.js
-          node --check technology-engine.js
-          node --check technology-wiki-adapter.js
-          node --check technology-loader.js
-          node --check resource-engine.js
-          node --check resource-calibration.js
-          node --check resource-wiki-adapter.js
-          node --check resource-loader.js
-          node --check institution-engine.js
-          node --check institution-wiki-adapter.js
-          node --check institution-loader.js
-          node --check military-engine.js
-          node --check military-wiki-adapter.js
-          node --check military-loader.js
-          node --check treasury-engine.js
-          node --check treasury-wiki-adapter.js
-          node --check treasury-loader.js
-          node --check map-enhancement.js
-          node --check map-finance-layer.js
-          node --check workforce-engine.js
-          node --check workforce-calibration.js
-          node --check workforce-wiki-adapter.js
-          node --check workforce-loader.js
-          node --check workforce-map-layer.js
-          node --check renderer.js
-          node --check city-ui.js
-          node --check worldforge-v1-ui.js
-          node --check culture-ui.js
-          node --check faction-ui.js
-          node --check endless-ui.js
-          node --check release-integration.js
-          node --check release-ui.js
-          node --check creator-suite-ui.js
-          node --check canon-bridge-ui.js
-          node --check living-wiki-ui.js
-          node --check chronicle-press-ui.js
-          node --check knowledge-ui.js
-          node --check calendar-ui.js
-          node --check artifact-ui.js
-          node --check technology-ui.js
-          node --check resource-ui.js
-          node --check institution-ui.js
-          node --check military-ui.js
-          node --check treasury-ui.js
-          node --check workforce-ui.js
-          node --check app.js
-          node --check tests/worldgen.mjs
-          node --check tests/history.mjs
-          node --check tests/society.mjs
-          node --check tests/cities.mjs
-          node --check tests/adventure.mjs
-          node --check tests/story.mjs
-          node --check tests/wiki.mjs
-          node --check tests/culture.mjs
-          node --check tests/factions.mjs
-          node --check tests/endless.mjs
-          node --check tests/creator-suite.mjs
-          node --check tests/canon-bridge.mjs
-          node --check tests/living-wiki.mjs
-          node --check tests/chronicle-press.mjs
-          node --check tests/knowledge.mjs
-          node --check tests/calendar.mjs
-          node --check tests/artifacts.mjs
-          node --check tests/technology.mjs
-          node --check tests/resources.mjs
-          node --check tests/institutions.mjs
-          node --check tests/military.mjs
-          node --check tests/treasury.mjs
-          node --check tests/workforce.mjs
+          node --check src/core/engine.js
+          node --check src/core/history-engine.js
+          node --check src/core/society-engine.js
+          node --check src/features/city/city-engine.js
+          node --check src/features/adventure/adventure-engine.js
+          node --check src/features/story/story-engine.js
+          node --check src/features/wiki/wiki-engine.js
+          node --check src/features/culture/culture-engine.js
+          node --check src/features/factions/faction-engine.js
+          node --check src/features/endless/endless-engine.js
+          node --check src/features/creator/creator-suite-engine.js
+          node --check src/features/canon/canon-bridge-engine.js
+          node --check src/features/canon/canon-wiki-adapter.js
+          node --check src/features/wiki/living-wiki-engine.js
+          node --check src/features/chronicle/chronicle-press-engine.js
+          node --check src/features/knowledge/knowledge-engine.js
+          node --check src/features/knowledge/knowledge-wiki-adapter.js
+          node --check src/features/calendar/calendar-engine.js
+          node --check src/features/artifacts/artifact-engine.js
+          node --check src/features/artifacts/artifact-wiki-adapter.js
+          node --check src/features/artifacts/artifact-loader.js
+          node --check src/features/technology/technology-engine.js
+          node --check src/features/technology/technology-wiki-adapter.js
+          node --check src/features/technology/technology-loader.js
+          node --check src/features/resources/resource-engine.js
+          node --check src/features/resources/resource-calibration.js
+          node --check src/features/resources/resource-wiki-adapter.js
+          node --check src/features/resources/resource-loader.js
+          node --check src/features/institutions/institution-engine.js
+          node --check src/features/institutions/institution-wiki-adapter.js
+          node --check src/features/institutions/institution-loader.js
+          node --check src/features/warfare/military-engine.js
+          node --check src/features/warfare/military-wiki-adapter.js
+          node --check src/features/warfare/military-loader.js
+          node --check src/features/treasury/treasury-engine.js
+          node --check src/features/treasury/treasury-wiki-adapter.js
+          node --check src/features/treasury/treasury-loader.js
+          node --check src/rendering/map-enhancement.js
+          node --check src/rendering/map-finance-layer.js
+          node --check src/features/workforce/workforce-engine.js
+          node --check src/features/workforce/workforce-calibration.js
+          node --check src/features/workforce/workforce-wiki-adapter.js
+          node --check src/features/workforce/workforce-loader.js
+          node --check src/features/workforce/workforce-map-layer.js
+          node --check src/core/renderer.js
+          node --check src/features/city/city-ui.js
+          node --check src/app/worldforge-v1-ui.js
+          node --check src/features/culture/culture-ui.js
+          node --check src/features/factions/faction-ui.js
+          node --check src/features/endless/endless-ui.js
+          node --check src/app/release-integration.js
+          node --check src/app/release-ui.js
+          node --check src/features/creator/creator-suite-ui.js
+          node --check src/features/canon/canon-bridge-ui.js
+          node --check src/features/wiki/living-wiki-ui.js
+          node --check src/features/chronicle/chronicle-press-ui.js
+          node --check src/features/knowledge/knowledge-ui.js
+          node --check src/features/calendar/calendar-ui.js
+          node --check src/features/artifacts/artifact-ui.js
+          node --check src/features/technology/technology-ui.js
+          node --check src/features/resources/resource-ui.js
+          node --check src/features/institutions/institution-ui.js
+          node --check src/features/warfare/military-ui.js
+          node --check src/features/treasury/treasury-ui.js
+          node --check src/features/workforce/workforce-ui.js
+          node --check src/app/app.js
+          node --check tests/core/worldgen.mjs
+          node --check tests/core/history.mjs
+          node --check tests/core/society.mjs
+          node --check tests/features/cities.mjs
+          node --check tests/features/adventure.mjs
+          node --check tests/features/story.mjs
+          node --check tests/features/wiki.mjs
+          node --check tests/features/culture.mjs
+          node --check tests/features/factions.mjs
+          node --check tests/features/endless.mjs
+          node --check tests/features/creator-suite.mjs
+          node --check tests/features/canon-bridge.mjs
+          node --check tests/features/living-wiki.mjs
+          node --check tests/features/chronicle-press.mjs
+          node --check tests/features/knowledge.mjs
+          node --check tests/features/calendar.mjs
+          node --check tests/features/artifacts.mjs
+          node --check tests/features/technology.mjs
+          node --check tests/features/resources.mjs
+          node --check tests/features/institutions.mjs
+          node --check tests/features/military.mjs
+          node --check tests/features/treasury.mjs
+          node --check tests/features/workforce.mjs
       - name: Validate v2.2 Workforce Professions Conscription and Migration Map static app
         run: |
           test -f index.html
-          test -f workforce-engine.js
-          test -f workforce-calibration.js
-          test -f workforce-wiki-adapter.js
-          test -f workforce-loader.js
-          test -f workforce-ui.js
-          test -f workforce.css
-          test -f workforce-map-layer.js
-          test -f workforce-map.css
-          grep -q "WorldForgeWorkforce" workforce-engine.js
-          grep -q "harbor_pilot" workforce-engine.js
-          grep -q "siege_engineer" workforce-engine.js
-          grep -q "ship_chandler" workforce-engine.js
-          grep -q "allocateConscription" workforce-engine.js
-          grep -q "refugee_movement" workforce-engine.js
-          grep -q "employmentTarget" workforce-calibration.js
-          grep -q "calibratedMigration" workforce-calibration.js
-          grep -q "The Labor Exchange" workforce-ui.js
-          grep -q "PROFESSION REGISTRY" workforce-ui.js
-          grep -q "Export Workforce Ledger" workforce-ui.js
-          grep -q "WorldForgeWorkforceWiki" workforce-wiki-adapter.js
-          grep -q "workforce-mode" workforce-map-layer.js
-          grep -q "Migration flows" workforce-map-layer.js
-          grep -q "Recruitment" workforce-map-layer.js
-          grep -q "workforce-calibration.js" workforce-loader.js
-          grep -q "treasury-loader.js" .github/workflows/pages.yml
-          grep -q "workforce-loader.js" .github/workflows/pages.yml
+          test -f src/features/workforce/workforce-engine.js
+          test -f src/features/workforce/workforce-calibration.js
+          test -f src/features/workforce/workforce-wiki-adapter.js
+          test -f src/features/workforce/workforce-loader.js
+          test -f src/features/workforce/workforce-ui.js
+          test -f src/features/workforce/workforce.css
+          test -f src/features/workforce/workforce-map-layer.js
+          test -f src/features/workforce/workforce-map.css
+          grep -q "WorldForgeWorkforce" src/features/workforce/workforce-engine.js
+          grep -q "harbor_pilot" src/features/workforce/workforce-engine.js
+          grep -q "siege_engineer" src/features/workforce/workforce-engine.js
+          grep -q "ship_chandler" src/features/workforce/workforce-engine.js
+          grep -q "allocateConscription" src/features/workforce/workforce-engine.js
+          grep -q "refugee_movement" src/features/workforce/workforce-engine.js
+          grep -q "employmentTarget" src/features/workforce/workforce-calibration.js
+          grep -q "calibratedMigration" src/features/workforce/workforce-calibration.js
+          grep -q "The Labor Exchange" src/features/workforce/workforce-ui.js
+          grep -q "PROFESSION REGISTRY" src/features/workforce/workforce-ui.js
+          grep -q "Export Workforce Ledger" src/features/workforce/workforce-ui.js
+          grep -q "WorldForgeWorkforceWiki" src/features/workforce/workforce-wiki-adapter.js
+          grep -q "workforce-mode" src/features/workforce/workforce-map-layer.js
+          grep -q "Migration flows" src/features/workforce/workforce-map-layer.js
+          grep -q "Recruitment" src/features/workforce/workforce-map-layer.js
+          grep -q "src/features/workforce/workforce-calibration.js" src/features/workforce/workforce-loader.js
+          grep -q "src/features/treasury/treasury-loader.js" .github/workflows/pages.yml
+          grep -q "src/features/workforce/workforce-loader.js" .github/workflows/pages.yml
           ! grep -q 'id="targetYearInput"[^>]*max="5000"' index.html
       - name: Run v0.1 deterministic world-generation tests
-        run: node tests/worldgen.mjs
+        run: node tests/core/worldgen.mjs
       - name: Run v0.2 deterministic history regression tests
-        run: node tests/history.mjs
+        run: node tests/core/history.mjs
       - name: Run v0.3 deterministic society regression tests
-        run: node tests/society.mjs
+        run: node tests/core/society.mjs
       - name: Run v0.4 deterministic cities and crime regression tests
-        run: node tests/cities.mjs
+        run: node tests/features/cities.mjs
       - name: Run v0.5 deterministic adventure regression tests
-        run: node tests/adventure.mjs
+        run: node tests/features/adventure.mjs
       - name: Run v0.6 deterministic story regression tests
-        run: node tests/story.mjs
+        run: node tests/features/story.mjs
       - name: Run encyclopedia compatibility tests
-        run: node tests/wiki.mjs
+        run: node tests/features/wiki.mjs
       - name: Run v0.7 deterministic culture and religion tests
-        run: node tests/culture.mjs
+        run: node tests/features/culture.mjs
       - name: Run v0.8 deterministic faction and organization tests
-        run: node tests/factions.mjs
+        run: node tests/features/factions.mjs
       - name: Run v0.9 endless simulation and compaction tests
-        run: node tests/endless.mjs
+        run: node tests/features/endless.mjs
       - name: Run v1.0 creator toolkit integration tests
-        run: node tests/creator-suite.mjs
+        run: node tests/features/creator-suite.mjs
       - name: Run v1.1 bidirectional canon bridge tests
-        run: node tests/canon-bridge.mjs
+        run: node tests/features/canon-bridge.mjs
       - name: Run v1.2 adaptive Living Wiki tests
-        run: node tests/living-wiki.mjs
+        run: node tests/features/living-wiki.mjs
       - name: Run v1.3 heraldry and chronicle press tests
-        run: node tests/chronicle-press.mjs
+        run: node tests/features/chronicle-press.mjs
       - name: Run v1.4 knowledge rumours and lost history tests
-        run: node tests/knowledge.mjs
+        run: node tests/features/knowledge.mjs
       - name: Run v1.5 calendar seasons weather and celestial tests
-        run: node tests/calendar.mjs
+        run: node tests/features/calendar.mjs
       - name: Run v1.6 artifacts books and written works tests
-        run: node tests/artifacts.mjs
+        run: node tests/features/artifacts.mjs
       - name: Run v1.7 technology inventions and diffusion tests
-        run: node tests/technology.mjs
+        run: node tests/features/technology.mjs
       - name: Run v1.8 resources agriculture and supply chain tests
-        run: node tests/resources.mjs
+        run: node tests/features/resources.mjs
       - name: Run v1.9 institutions industry and great works tests
-        run: node tests/institutions.mjs
+        run: node tests/features/institutions.mjs
       - name: Run v2.0 operational military and logistics tests
-        run: node tests/military.mjs
+        run: node tests/features/military.mjs
       - name: Run v2.1 treasury debt war finance tests
-        run: node tests/treasury.mjs
+        run: node tests/features/treasury.mjs
       - name: Run v2.2 workforce professions and conscription tests
-        run: node tests/workforce.mjs
+        run: node tests/features/workforce.mjs
 
   deploy:
     needs: validate
@@ -202,7 +202,7 @@ jobs:
           python - <<'PY'
           p='index.html'
           s=open(p,encoding='utf-8').read()
-          tags=['<script src="artifact-loader.js"></script>\n','<script src="technology-loader.js"></script>\n','<script src="resource-loader.js"></script>\n','<script src="institution-loader.js"></script>\n','<script src="military-loader.js"></script>\n','<script src="treasury-loader.js"></script>\n','<script src="workforce-loader.js"></script>\n']
+          tags=['<script src="src/features/artifacts/artifact-loader.js"></script>\n','<script src="src/features/technology/technology-loader.js"></script>\n','<script src="src/features/resources/resource-loader.js"></script>\n','<script src="src/features/institutions/institution-loader.js"></script>\n','<script src="src/features/warfare/military-loader.js"></script>\n','<script src="src/features/treasury/treasury-loader.js"></script>\n','<script src="src/features/workforce/workforce-loader.js"></script>\n']
           for tag in tags:
               if tag not in s:
                   s=s.replace('</body>',tag+'</body>')

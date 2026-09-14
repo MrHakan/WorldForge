@@ -15,55 +15,55 @@ jobs:
         with: {node-version: '22'}
       - name: Syntax check
         run: |
-          node --check warfare-hooks.js
-          node --check warfare-lifecycle.js
-          node --check warfare-operational-movement.js
-          node --check warfare-occupation-policy.js
-          node --check warfare-strategic-ai-ui.js
-          node --check warfare-strategic-map-overlay.js
-          node --check warfare-occupation-policy-ui.js
-          node --check warfare-campaign-planning-ui.js
-          node --check warfare-strategic-reserves-ui.js
-          node --check warfare-excavation-projects.js
-          node --check warfare-relic-journeys.js
-          node --check warfare-national-memory.js
-          node --check worldbuilding-loader.js
-          node --check tests/warfare-hook-registry.test.js
-          node --check tests/warfare-operational-movement-v50.mjs
-          node --check tests/warfare-occupation-economics-v50.mjs
-          node --check tests/warfare-legacy-wrapper-source.test.js
-          node --check tests/warfare-lifecycle-hardening.test.js
-          node --check tests/warfare-excavation-projects.test.js
-          node --check tests/warfare-relic-journeys.test.js
-          node --check tests/warfare-national-memory.test.js
+          node --check src/features/warfare/warfare-hooks.js
+          node --check src/features/warfare/warfare-lifecycle.js
+          node --check src/features/warfare/warfare-operational-movement.js
+          node --check src/features/warfare/warfare-occupation-policy.js
+          node --check src/features/warfare/warfare-strategic-ai-ui.js
+          node --check src/features/warfare/warfare-strategic-map-overlay.js
+          node --check src/features/warfare/warfare-occupation-policy-ui.js
+          node --check src/features/warfare/warfare-campaign-planning-ui.js
+          node --check src/features/warfare/warfare-strategic-reserves-ui.js
+          node --check src/features/warfare/warfare-excavation-projects.js
+          node --check src/features/warfare/warfare-relic-journeys.js
+          node --check src/features/warfare/warfare-national-memory.js
+          node --check src/features/worldbuilding/worldbuilding-loader.js
+          node --check tests/warfare/warfare-hook-registry.test.js
+          node --check tests/warfare/warfare-operational-movement-v50.mjs
+          node --check tests/warfare/warfare-occupation-economics-v50.mjs
+          node --check tests/warfare/warfare-legacy-wrapper-source.test.js
+          node --check tests/warfare/warfare-lifecycle-hardening.test.js
+          node --check tests/warfare/warfare-excavation-projects.test.js
+          node --check tests/warfare/warfare-relic-journeys.test.js
+          node --check tests/warfare/warfare-national-memory.test.js
       - name: Hook registry behavior
-        run: node tests/warfare-hook-registry.test.js
+        run: node tests/warfare/warfare-hook-registry.test.js
       - name: Operational movement behavior
-        run: node tests/warfare-operational-movement-v50.mjs
+        run: node tests/warfare/warfare-operational-movement-v50.mjs
       - name: Occupation economics behavior
-        run: node tests/warfare-occupation-economics-v50.mjs
+        run: node tests/warfare/warfare-occupation-economics-v50.mjs
       - name: Legacy wrapper source cleanup
-        run: node tests/warfare-legacy-wrapper-source.test.js
+        run: node tests/warfare/warfare-legacy-wrapper-source.test.js
       - name: Behavioral hardening checks
-        run: node tests/warfare-lifecycle-hardening.test.js
+        run: node tests/warfare/warfare-lifecycle-hardening.test.js
       - name: Excavation project behavior
-        run: node tests/warfare-excavation-projects.test.js
+        run: node tests/warfare/warfare-excavation-projects.test.js
       - name: Relic journey behavior
-        run: node tests/warfare-relic-journeys.test.js
+        run: node tests/warfare/warfare-relic-journeys.test.js
       - name: National memory behavior
-        run: node tests/warfare-national-memory.test.js
+        run: node tests/warfare/warfare-national-memory.test.js
       - name: Lifecycle contract
         run: |
           node - <<'NODE'
           const fs=require('fs'),read=p=>fs.readFileSync(p,'utf8');
-          const hooks=read('warfare-hooks.js'),life=read('warfare-lifecycle.js'),loader=read('worldbuilding-loader.js'),ops=read('warfare-operational-movement.js'),occ=read('warfare-occupation-policy.js'),exc=read('warfare-excavation-projects.js'),journey=read('warfare-relic-journeys.js'),memory=read('warfare-national-memory.js');
-          const presentation=['warfare-strategic-ai-ui.js','warfare-strategic-map-overlay.js','warfare-occupation-policy-ui.js','warfare-campaign-planning-ui.js','warfare-strategic-reserves-ui.js'].map(read);
+          const hooks=read('src/features/warfare/warfare-hooks.js'),life=read('src/features/warfare/warfare-lifecycle.js'),loader=read('src/features/worldbuilding/worldbuilding-loader.js'),ops=read('src/features/warfare/warfare-operational-movement.js'),occ=read('src/features/warfare/warfare-occupation-policy.js'),exc=read('src/features/warfare/warfare-excavation-projects.js'),journey=read('src/features/warfare/warfare-relic-journeys.js'),memory=read('src/features/warfare/warfare-national-memory.js');
+          const presentation=['src/features/warfare/warfare-strategic-ai-ui.js','src/features/warfare/warfare-strategic-map-overlay.js','src/features/warfare/warfare-occupation-policy-ui.js','src/features/warfare/warfare-campaign-planning-ui.js','src/features/warfare/warfare-strategic-reserves-ui.js'].map(read);
           for(const token of ["VERSION='5.0.23'",'capturedInitialize','capturedSimulate','registerHook','registerKnownHooks','runAnnual','lastSimulatedYear','warfareHookDispatches']) if(!hooks.includes(token)) throw Error(`hooks:${token}`);
           for(const token of ['mobilization','pathfinding','naval','diplomacy-war-state','postwar-recovery','war-goals-peace','strategic-ai','commanders','strategic-reserves','theater-command','operational-movement','campaign-planning','occupation-policy','national-memory']) if(!hooks.includes(token)) throw Error(`hook-order:${token}`);
           for(const token of ["VERSION='5.0.23'",'operationalProgress','operationalEtaYears','march-attrition','reinforcement-arrived','interception-risk']) if(!ops.includes(token)) throw Error(`operational:${token}`);
           for(const token of ["VERSION='5.0.15'",'lastAdvancedYear','advanceCount','Hooks?.runAnnual','Hooks?.activate']) if(!life.includes(token)) throw Error(`lifecycle:${token}`);
           if(life.includes('simulateWarfareYear=function')) throw Error('lifecycle must not wrap simulateWarfareYear');
-          for(const token of ['warfare-hooks.js','warfare-theater-command.js','warfare-operational-movement.js','warfare-excavation-projects.js','warfare-relic-journeys.js','warfare-national-memory.js','warfare-lifecycle.js','WorldForgeWarfareHooks.activate()']) if(!loader.includes(token)) throw Error(`loader:${token}`);
+          for(const token of ['src/features/warfare/warfare-hooks.js','src/features/warfare/warfare-theater-command.js','src/features/warfare/warfare-operational-movement.js','src/features/warfare/warfare-excavation-projects.js','src/features/warfare/warfare-relic-journeys.js','src/features/warfare/warfare-national-memory.js','src/features/warfare/warfare-lifecycle.js','WorldForgeWarfareHooks.activate()']) if(!loader.includes(token)) throw Error(`loader:${token}`);
           for(const token of ["VERSION='5.0.24'",'lastAppliedYear','yearsOccupied','economicRetention','partisanStrength','liberationCampaigns']) if(!occ.includes(token)) throw Error(`occupation:${token}`);
           for(const token of ["VERSION='5.0.12'",'survey','excavation','conservation','publication','museum']) if(!exc.includes(token)) throw Error(token);
           for(const token of ["VERSION='5.0.13'",'ownershipHistory','wartime-transfer','restitution']) if(!journey.includes(token)) throw Error(token);

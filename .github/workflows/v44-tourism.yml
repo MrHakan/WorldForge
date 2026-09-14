@@ -17,30 +17,30 @@ jobs:
         uses: actions/checkout@v4
       - name: Check v4.4 JavaScript syntax
         run: |
-          node --check tourism-engine.js
-          node --check tourism-pixel-renderer.js
-          node --check tourism-wiki-adapter.js
-          node --check tourism-ui.js
-          node --check worldbuilding-loader.js
-          node --check tests/tourism-v44.mjs
+          node --check src/features/tourism/tourism-engine.js
+          node --check src/features/tourism/tourism-pixel-renderer.js
+          node --check src/features/tourism/tourism-wiki-adapter.js
+          node --check src/features/tourism/tourism-ui.js
+          node --check src/features/worldbuilding/worldbuilding-loader.js
+          node --check tests/features/tourism-v44.mjs
       - name: Validate v4.4 tourism hooks
         run: |
-          grep -q "pilgrimage_route" tourism-engine.js
-          grep -q "overtourism" tourism-engine.js
-          grep -q "conservationShare" tourism-engine.js
-          grep -q "data-worldforge-tourism" tourism-pixel-renderer.js
-          grep -q "tourism_destination" tourism-wiki-adapter.js
-          grep -q "TOURISM, PILGRIMAGE & CULTURAL ECONOMY" tourism-ui.js
-          grep -q "tourism-engine.js" worldbuilding-loader.js
+          grep -q "pilgrimage_route" src/features/tourism/tourism-engine.js
+          grep -q "overtourism" src/features/tourism/tourism-engine.js
+          grep -q "conservationShare" src/features/tourism/tourism-engine.js
+          grep -q "data-worldforge-tourism" src/features/tourism/tourism-pixel-renderer.js
+          grep -q "tourism_destination" src/features/tourism/tourism-wiki-adapter.js
+          grep -q "TOURISM, PILGRIMAGE & CULTURAL ECONOMY" src/features/tourism/tourism-ui.js
+          grep -q "src/features/tourism/tourism-engine.js" src/features/worldbuilding/worldbuilding-loader.js
       - name: Run v4.0 worldbuilding compatibility regression
-        run: node tests/worldbuilding.mjs
+        run: node tests/features/worldbuilding.mjs
       - name: Run v4.1 historical landscape regression
-        run: node tests/worldbuilding-v41.mjs
+        run: node tests/features/worldbuilding-v41.mjs
       - name: Run v4.1.1 pixel diversity regression
-        run: node tests/pixel-art-polish.mjs
+        run: node tests/features/pixel-art-polish.mjs
       - name: Run v4.2 archaeology regression
-        run: node tests/archaeology-v42.mjs
+        run: node tests/features/archaeology-v42.mjs
       - name: Run v4.3 heritage regression
-        run: node tests/heritage-v43.mjs
+        run: node tests/features/heritage-v43.mjs
       - name: Run v4.4 tourism regression
-        run: node tests/tourism-v44.mjs
+        run: node tests/features/tourism-v44.mjs

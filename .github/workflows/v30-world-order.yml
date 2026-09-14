@@ -17,38 +17,38 @@ jobs:
         uses: actions/checkout@v4
       - name: Check v2.9 and v3.0 JavaScript syntax
         run: |
-          node --check diplomacy-engine.js
-          node --check diplomacy-wiki-adapter.js
-          node --check diplomacy-loader.js
-          node --check diplomacy-ui.js
-          node --check world-order-engine.js
-          node --check world-order-wiki-adapter.js
-          node --check world-order-loader.js
-          node --check world-order-ui.js
-          node --check tests/diplomacy.mjs
-          node --check tests/world-order.mjs
+          node --check src/features/diplomacy/diplomacy-engine.js
+          node --check src/features/diplomacy/diplomacy-wiki-adapter.js
+          node --check src/features/diplomacy/diplomacy-loader.js
+          node --check src/features/diplomacy/diplomacy-ui.js
+          node --check src/features/world-order/world-order-engine.js
+          node --check src/features/world-order/world-order-wiki-adapter.js
+          node --check src/features/world-order/world-order-loader.js
+          node --check src/features/world-order/world-order-ui.js
+          node --check tests/features/diplomacy.mjs
+          node --check tests/features/world-order.mjs
       - name: Validate v3.0 runtime files and optimization hooks
         run: |
-          test -f world-order-engine.js
-          test -f world-order-wiki-adapter.js
-          test -f world-order-loader.js
-          test -f world-order-ui.js
-          test -f world-order.css
-          grep -q "WorldForgeWorldOrder" world-order-engine.js
-          grep -q "great_power" world-order-wiki-adapter.js
-          grep -q "geopolitical_bloc" world-order-wiki-adapter.js
-          grep -q "sphere_of_influence" world-order-wiki-adapter.js
-          grep -q "international_congress" world-order-wiki-adapter.js
-          grep -q "world-order-loader.js" diplomacy-loader.js
-          grep -q "new WeakMap" world-order-engine.js
-          grep -q "requestAnimationFrame" world-order-ui.js
-          grep -q "lastAppliedYear" world-order-engine.js
-          grep -q "__worldOrderBridge" world-order-engine.js
-          grep -q "security_bloc" world-order-engine.js
-          grep -q "trade_league" world-order-engine.js
-          grep -q "armsRaceIndex" world-order-engine.js
-          grep -q "contested_sphere" world-order-engine.js
+          test -f src/features/world-order/world-order-engine.js
+          test -f src/features/world-order/world-order-wiki-adapter.js
+          test -f src/features/world-order/world-order-loader.js
+          test -f src/features/world-order/world-order-ui.js
+          test -f src/features/world-order/world-order.css
+          grep -q "WorldForgeWorldOrder" src/features/world-order/world-order-engine.js
+          grep -q "great_power" src/features/world-order/world-order-wiki-adapter.js
+          grep -q "geopolitical_bloc" src/features/world-order/world-order-wiki-adapter.js
+          grep -q "sphere_of_influence" src/features/world-order/world-order-wiki-adapter.js
+          grep -q "international_congress" src/features/world-order/world-order-wiki-adapter.js
+          grep -q "src/features/world-order/world-order-loader.js" src/features/diplomacy/diplomacy-loader.js
+          grep -q "new WeakMap" src/features/world-order/world-order-engine.js
+          grep -q "requestAnimationFrame" src/features/world-order/world-order-ui.js
+          grep -q "lastAppliedYear" src/features/world-order/world-order-engine.js
+          grep -q "__worldOrderBridge" src/features/world-order/world-order-engine.js
+          grep -q "security_bloc" src/features/world-order/world-order-engine.js
+          grep -q "trade_league" src/features/world-order/world-order-engine.js
+          grep -q "armsRaceIndex" src/features/world-order/world-order-engine.js
+          grep -q "contested_sphere" src/features/world-order/world-order-engine.js
       - name: Run v2.9 diplomacy regression
-        run: node tests/diplomacy.mjs
+        run: node tests/features/diplomacy.mjs
       - name: Run v3.0 geopolitical blocs and world order regression
-        run: node tests/world-order.mjs
+        run: node tests/features/world-order.mjs
