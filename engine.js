@@ -122,10 +122,10 @@ function generateRivers(world,rng){
   const candidates=[];
   for(let y=2;y<h-2;y++)for(let x=0;x<w;x++){const i=idx(x,y,w);if(elevation[i]>sea+.18&&moisture[i]>.42)candidates.push({x,y,score:(elevation[i]-sea)*.7+moisture[i]*.3+rng()*.08})}
   candidates.sort((a,b)=>b.score-a.score);
-  const target=clamp(Math.round((w*h)/1350),5,18),rivers=[],occupied=new Set();
+  const target=clamp(Math.round((w*h)/1350),5,18),rivers=[],occupied=new Set(),occupiedPoints=[];
   for(const src of candidates){
     if(rivers.length>=target)break;
-    if([...occupied].some(k=>{const [x,y]=k.split(',').map(Number);return distWrap(src,{x,y},w)<8}))continue;
+    if(occupiedPoints.some(p=>distWrap(src,p,w)<8))continue;
     const path=[{x:src.x,y:src.y}],seen=new Set([src.x+','+src.y]);let cur={x:src.x,y:src.y};
     for(let step=0;step<Math.max(w,h);step++){
       const ci=idx(cur.x,cur.y,w);if(elevation[ci]<sea+.01&&path.length>5)break;
@@ -137,7 +137,7 @@ function generateRivers(world,rng){
       cur=next;path.push(cur);seen.add(cur.x+','+cur.y);
       if(occupied.has(cur.x+','+cur.y)&&path.length>8)break;
     }
-    if(path.length>=8){rivers.push({id:rivers.length,name:null,path});for(const p of path)occupied.add(p.x+','+p.y)}
+    if(path.length>=8){rivers.push({id:rivers.length,name:null,path});for(const p of path){occupied.add(p.x+','+p.y);occupiedPoints.push(p)}}
   }
   const used=new Set();for(const r of rivers)r.name=makeName(rng,used)+' River';
   return rivers;
@@ -147,9 +147,15 @@ function isCoast(world,x,y){
   if(elevation[idx(x,y,w)]<sea)return false;
   return neighbors8(x,y,w,h).some(p=>elevation[idx(p.x,p.y,w)]<sea);
 }
+const riverDistanceCache=new WeakMap();
 function riverDistance(world,x,y,max=5){
+  const {width:w}=world.settings,i=y*w+x;
+  let distances=riverDistanceCache.get(world);
+  if(!distances){distances=new Float32Array(w*world.settings.height);distances.fill(-1);riverDistanceCache.set(world,distances)}
+  if(distances[i]>=0)return Math.min(distances[i],max+1);
   let best=999;
-  for(const r of world.rivers)for(const p of r.path){const d=distWrap({x,y},p,world.settings.width);if(d<best)best=d;if(best<=1)return best}
+  for(const r of world.rivers)for(const p of r.path){const d=distWrap({x,y},p,w);if(d<best)best=d;if(best<=1)break}
+  distances[i]=best;
   return Math.min(best,max+1);
 }
 function siteScore(world,x,y){
@@ -163,13 +169,13 @@ function siteScore(world,x,y){
 }
 function generateSettlements(world,count,rng){
   const {width:w,height:h}=world.settings,cands=[];
-  for(let y=2;y<h-2;y++)for(let x=0;x<w;x++){const s=siteScore(world,x,y);if(s>.34)cands.push({x,y,score:s+rng()*.08})}
+  for(let y=2;y<h-2;y++)for(let x=0;x<w;x++){const s=siteScore(world,x,y);if(s>.34)cands.push({x,y,siteScore:s,score:s+rng()*.08})}
   cands.sort((a,b)=>b.score-a.score);
   const picked=[],minDist=Math.max(3.4,Math.sqrt((w*h)/Math.max(1,count))*0.42),used=new Set();
   for(const c of cands){
     if(picked.length>=count)break;
     if(picked.every(p=>distWrap(c,p,w)>=minDist)){
-      const score=siteScore(world,c.x,c.y),pop=Math.round(250+Math.pow(score,2.2)*14500*(.65+rng()*.7));
+      const score=c.siteScore,pop=Math.round(250+Math.pow(score,2.2)*14500*(.65+rng()*.7));
       picked.push({id:picked.length,name:makeName(rng,used),x:c.x,y:c.y,score,population:pop,type:'Village',kingdomId:null,capital:false});
     }
   }
