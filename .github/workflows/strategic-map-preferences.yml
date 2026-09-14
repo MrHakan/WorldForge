@@ -1,0 +1,30 @@
+name: Strategic Map Preferences
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'src/features/warfare/warfare-strategic-map-controls.js'
+      - 'tests/warfare/warfare-strategic-map-preferences.test.js'
+      - '.github/workflows/strategic-map-preferences.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'src/features/warfare/warfare-strategic-map-controls.js'
+      - 'tests/warfare/warfare-strategic-map-preferences.test.js'
+      - '.github/workflows/strategic-map-preferences.yml'
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Syntax check
+        run: |
+          node --check src/features/warfare/warfare-strategic-map-controls.js
+          node --check tests/warfare/warfare-strategic-map-preferences.test.js
+      - name: Saved filters and pinned intel behavior
+        run: node tests/warfare/warfare-strategic-map-preferences.test.js
