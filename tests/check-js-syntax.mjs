@@ -1,5 +1,6 @@
 import {readdir} from 'node:fs/promises';
-import {spawnSync} from 'node:child_process';
+import {spawn} from 'node:child_process';
+import {availableParallelism} from 'node:os';
 import {join,relative} from 'node:path';
 
 const roots=['src','tests'];
@@ -16,19 +17,44 @@ async function walk(dir){
   }
 }
 
+function check(file){
+  return new Promise(resolve=>{
+    const child=spawn(process.execPath,['--check',file],{stdio:['ignore','pipe','pipe']});
+    let stdout='',stderr='';
+    child.stdout.setEncoding('utf8');
+    child.stderr.setEncoding('utf8');
+    child.stdout.on('data',chunk=>stdout+=chunk);
+    child.stderr.on('data',chunk=>stderr+=chunk);
+    child.on('error',error=>resolve({file,ok:false,output:error.stack||error.message}));
+    child.on('close',code=>resolve({file,ok:code===0,output:(stderr||stdout||'Unknown syntax error').trim()}));
+  });
+}
+
+async function runPool(items,limit){
+  const results=new Array(items.length);
+  let next=0;
+  async function worker(){
+    while(true){
+      const index=next++;
+      if(index>=items.length)return;
+      results[index]=await check(items[index]);
+    }
+  }
+  await Promise.all(Array.from({length:Math.min(limit,items.length)},worker));
+  return results;
+}
+
 for(const root of roots)await walk(root);
 files.sort();
-let failed=0;
-for(const file of files){
-  const result=spawnSync(process.execPath,['--check',file],{encoding:'utf8'});
-  if(result.status!==0){
-    failed++;
-    console.error(`\nSyntax error: ${relative(process.cwd(),file)}`);
-    console.error((result.stderr||result.stdout||'Unknown syntax error').trim());
-  }
+const concurrency=Math.max(1,Math.min(8,availableParallelism?.()||2));
+const results=await runPool(files,concurrency);
+const failures=results.filter(result=>!result.ok);
+for(const result of failures){
+  console.error(`\nSyntax error: ${relative(process.cwd(),result.file)}`);
+  console.error(result.output);
 }
-if(failed){
-  console.error(`\n${failed} of ${files.length} JavaScript files failed syntax validation.`);
+if(failures.length){
+  console.error(`\n${failures.length} of ${files.length} JavaScript files failed syntax validation.`);
   process.exit(1);
 }
-console.log(`JavaScript syntax OK: ${files.length} files checked.`);
+console.log(`JavaScript syntax OK: ${files.length} files checked with up to ${concurrency} parallel workers.`);
