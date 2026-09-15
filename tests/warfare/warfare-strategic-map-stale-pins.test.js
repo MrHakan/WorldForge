@@ -1,0 +1,18 @@
+const fs=require('fs'),vm=require('vm'),assert=require('assert');
+const source=fs.readFileSync('src/features/warfare/warfare-strategic-map-controls.js','utf8');
+const overlay={state:{layers:{fronts:true,campaigns:true,reinforcements:true,occupations:true},selectedFrontId:null,selectedCampaignId:null,selectedOccupationId:null},selectFront(id){this.state.selectedFrontId=id},selectCampaign(id){this.state.selectedCampaignId=id},selectOccupation(id){this.state.selectedOccupationId=id}};
+const supplyUI={state:{selectedArmyId:null},selectArmy(id){this.state.selectedArmyId=id}};
+const intel={selectionIntel(){return null},armyIntel(w,id){return id==='live-army'?{type:'army',id,title:'Live Army'}:null},frontIntel(){return null},campaignIntel(){return null},occupationIntel(){return null}};
+const world={warfareSupply:{}};
+const document={querySelector(){return null},addEventListener(){},body:{appendChild(){}}};
+const context={window:{WorldForgeWarfareStrategicMapOverlay:overlay,WorldForgeWarfareOperationalIntel:intel,WorldForgeWarfareSupplyUI:supplyUI,WorldForgeWorldbuildingUI:{state:{world}},addEventListener(){}},document,localStorage:{getItem(){return null},setItem(){}},setTimeout(){},innerWidth:1200,innerHeight:800,console};
+vm.runInNewContext(source,context,{filename:'warfare-strategic-map-controls.js'});
+const api=context.window.WorldForgeWarfareStrategicMapControls;
+assert.ok(api,'strategic map controls API should load');
+assert.equal(api.selectPin({type:'army',id:'missing-army'}),false,'stale pin should refuse selection');
+assert.equal(supplyUI.state.selectedArmyId,null,'stale pin must not mutate current army selection');
+assert.equal(api.selectPin({type:'army',id:'live-army'}),true,'live pin should remain selectable');
+assert.equal(supplyUI.state.selectedArmyId,'live-army','live pin should focus its army');
+assert.ok(source.includes("stale?'disabled aria-disabled=\"true\"':''"),'stale pin UI should be disabled');
+assert.ok(source.includes("${stale?' · STALE':''}"),'stale pin UI should be labelled');
+console.log('strategic map stale pin behavior OK');
