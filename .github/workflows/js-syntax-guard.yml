@@ -1,0 +1,38 @@
+name: JavaScript Syntax Guard
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'src/**/*.js'
+      - 'src/**/*.mjs'
+      - 'src/**/*.cjs'
+      - 'tests/**/*.js'
+      - 'tests/**/*.mjs'
+      - 'tests/**/*.cjs'
+      - '.github/workflows/js-syntax-guard.yml'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'src/**/*.js'
+      - 'src/**/*.mjs'
+      - 'src/**/*.cjs'
+      - 'tests/**/*.js'
+      - 'tests/**/*.mjs'
+      - 'tests/**/*.cjs'
+      - '.github/workflows/js-syntax-guard.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  syntax:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Check all JavaScript syntax
+        run: node tests/check-js-syntax.mjs
