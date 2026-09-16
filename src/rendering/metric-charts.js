@@ -4,7 +4,7 @@
   if(typeof module!=='undefined'&&module.exports)module.exports=api;
 })(typeof window!=='undefined'?window:globalThis,function(root){
 'use strict';
-const VERSION='1.0.0';
+const VERSION='1.0.1';
 const models=new Set();
 let resizeFrame=0;
 const raf=typeof root.requestAnimationFrame==='function'?root.requestAnimationFrame.bind(root):fn=>setTimeout(fn,16);
@@ -71,7 +71,7 @@ function bindTooltip(canvas){
 }
 function register(canvas,model){
   const previous=canvas.__worldforgeMetricModel;if(previous&&previous!==model)models.delete(previous);
-  canvas.__worldforgeMetricModel=model;models.add(model);bindTooltip(canvas);
+  canvas.__worldforgeMetricModel=model;model.canvas=canvas;models.add(model);bindTooltip(canvas);
 }
 function drawPopulation(canvas,data,model){
   const g=geometry(canvas);if(!g)return model;
@@ -99,7 +99,7 @@ function render({populationCanvas,tradeCanvas,series=[],viewYear=null}={}){
   if(populationCanvas){let model=populationCanvas.__worldforgeMetricModel;if(!model||model.type!=='population')model={type:'population',points:[],plot:null};model.data={labels,values:population,markerIndex:labels.indexOf(viewYear)};model.draw=()=>drawPopulation(populationCanvas,model.data,model);drawPopulation(populationCanvas,model.data,model);register(populationCanvas,model)}
   if(tradeCanvas){let model=tradeCanvas.__worldforgeMetricModel;if(!model||model.type!=='trade')model={type:'trade',points:[],plot:null};model.data={labels,trade,wars};model.draw=()=>drawTrade(tradeCanvas,model.data,model);drawTrade(tradeCanvas,model.data,model);register(tradeCanvas,model)}
 }
-function scheduleResize(){if(resizeFrame)return;resizeFrame=raf(()=>{resizeFrame=0;for(const model of models)model.draw()})}
+function scheduleResize(){if(resizeFrame)return;resizeFrame=raf(()=>{resizeFrame=0;for(const model of models){if(model.canvas?.isConnected===false){models.delete(model);continue}model.draw()}})}
 if(root.addEventListener)root.addEventListener('resize',scheduleResize,{passive:true});
 return{VERSION,render};
 });

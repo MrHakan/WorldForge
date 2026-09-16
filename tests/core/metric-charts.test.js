@@ -1,6 +1,10 @@
 const assert=require('assert');
+const fs=require('fs');
 const charts=require('../../src/rendering/metric-charts.js');
-assert.equal(charts.VERSION,'1.0.0');
+const source=fs.readFileSync('src/rendering/metric-charts.js','utf8');
+assert.equal(charts.VERSION,'1.0.1');
 assert.equal(typeof charts.render,'function');
 assert.doesNotThrow(()=>charts.render({series:[],viewYear:0}));
+assert.match(source,/model\.canvas=canvas/,'registered chart models should retain their owning canvas');
+assert.match(source,/model\.canvas\?\.isConnected===false/,'resize handling should prune models whose canvases left the DOM');
 console.log('native metric chart renderer contract OK');
