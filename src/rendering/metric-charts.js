@@ -4,10 +4,11 @@
   if(typeof module!=='undefined'&&module.exports)module.exports=api;
 })(typeof window!=='undefined'?window:globalThis,function(root){
 'use strict';
-const VERSION='1.0.2';
+const VERSION='1.0.3';
 const models=new Set();
 let resizeFrame=0;
 const raf=typeof root.requestAnimationFrame==='function'?root.requestAnimationFrame.bind(root):fn=>setTimeout(fn,16);
+const caf=typeof root.cancelAnimationFrame==='function'?root.cancelAnimationFrame.bind(root):id=>clearTimeout(id);
 const compact=new Intl.NumberFormat(undefined,{notation:'compact',maximumFractionDigits:1});
 const formatValue=value=>{const n=Number(value)||0;return n>=1000?compact.format(n):n.toLocaleString(undefined,{maximumFractionDigits:1});};
 const finite=value=>Number.isFinite(Number(value))?Number(value):0;
@@ -68,7 +69,7 @@ function bindTooltip(canvas){
     const top=Math.max(34,hoverPoint.y-cardRect.top-50);tip.style.left=left+'px';tip.style.top=top+'px';
   };
   canvas.addEventListener('pointermove',event=>{hoverPoint={x:event.clientX,y:event.clientY};if(!hoverFrame)hoverFrame=raf(update)});
-  canvas.addEventListener('pointerleave',()=>{hoverPoint=null;if(hoverFrame)hoverFrame=0;hideTooltip(canvas)});
+  canvas.addEventListener('pointerleave',()=>{hoverPoint=null;if(hoverFrame){caf(hoverFrame);hoverFrame=0}hideTooltip(canvas)});
   canvas.__worldforgeMetricTooltipBound=true;
 }
 function register(canvas,model){
