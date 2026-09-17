@@ -1,12 +1,16 @@
 name: Strategic Map Stale Pins
 on:
   push:
-    branches: [main, fix-strategic-pinned-intel-stale-targets]
+    branches: [main]
   pull_request:
     branches: [main]
+concurrency:
+  group: strategic-map-stale-pins-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
 jobs:
   validate:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
