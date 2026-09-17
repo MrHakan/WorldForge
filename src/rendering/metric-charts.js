@@ -4,7 +4,7 @@
   if(typeof module!=='undefined'&&module.exports)module.exports=api;
 })(typeof window!=='undefined'?window:globalThis,function(root){
 'use strict';
-const VERSION='1.0.1';
+const VERSION='1.0.2';
 const models=new Set();
 let resizeFrame=0;
 const raf=typeof root.requestAnimationFrame==='function'?root.requestAnimationFrame.bind(root):fn=>setTimeout(fn,16);
@@ -49,6 +49,8 @@ function drawLegend(ctx,items,x,y){
 function tooltipElement(canvas){
   const card=canvas.parentElement;if(!card)return null;
   if(canvas.__worldforgeMetricTooltip)return canvas.__worldforgeMetricTooltip;
+  const existing=typeof card.querySelector==='function'?card.querySelector('.history-chart-tooltip'):null;
+  if(existing){canvas.__worldforgeMetricTooltip=existing;return existing}
   const tip=document.createElement('div');tip.className='history-chart-tooltip';tip.hidden=true;card.appendChild(tip);canvas.__worldforgeMetricTooltip=tip;return tip;
 }
 function hideTooltip(canvas){if(canvas.__worldforgeMetricTooltip)canvas.__worldforgeMetricTooltip.hidden=true}
