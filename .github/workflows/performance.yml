@@ -2,9 +2,24 @@ name: Performance regression smoke
 
 on:
   push:
-    branches: [main, perf/ported-audit-optimizations]
+    branches: [main]
+    paths:
+      - 'src/core/**'
+      - 'src/app/**'
+      - 'src/features/wiki/**'
+      - 'tests/core/performance.mjs'
+      - '.github/workflows/performance.yml'
   pull_request:
     branches: [main]
+    paths:
+      - 'src/core/**'
+      - 'src/app/**'
+      - 'src/features/wiki/**'
+      - 'tests/core/performance.mjs'
+      - '.github/workflows/performance.yml'
+
+permissions:
+  contents: read
 
 concurrency:
   group: performance-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
