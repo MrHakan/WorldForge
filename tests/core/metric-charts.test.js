@@ -2,7 +2,7 @@ const assert=require('assert');
 const fs=require('fs');
 const charts=require('../../src/rendering/metric-charts.js');
 const source=fs.readFileSync('src/rendering/metric-charts.js','utf8');
-assert.equal(charts.VERSION,'1.0.3');
+assert.equal(charts.VERSION,'1.0.4');
 assert.equal(typeof charts.render,'function');
 assert.doesNotThrow(()=>charts.render({series:[],viewYear:0}));
 assert.match(source,/model\.canvas=canvas/,'registered chart models should retain their owning canvas');
@@ -10,5 +10,7 @@ assert.match(source,/model\.canvas\?\.isConnected===false/,'resize handling shou
 assert.match(source,/card\.querySelector\('\.history-chart-tooltip'\)/,'chart remounts should reuse an existing card tooltip');
 assert.match(source,/canvas\.__worldforgeMetricTooltip=existing/,'reused tooltips should be rebound to the replacement canvas');
 assert.match(source,/cancelAnimationFrame/,'hover scheduling should support cancelling stale animation frames');
-assert.match(source,/caf\(hoverFrame\);hoverFrame=0/,'pointer leave should cancel pending hover work before clearing its frame id');
+assert.match(source,/const cancelHover=.*caf\(hoverFrame\);hoverFrame=0/,'hover cancellation should cancel pending work before clearing its frame id');
+assert.match(source,/addEventListener\('pointerleave',cancelHover\)/,'pointer leave should clear hover state');
+assert.match(source,/addEventListener\('pointercancel',cancelHover\)/,'pointer cancellation should clear hover state on interrupted touch or pen gestures');
 console.log('native metric chart renderer contract OK');
