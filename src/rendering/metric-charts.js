@@ -4,7 +4,7 @@
   if(typeof module!=='undefined'&&module.exports)module.exports=api;
 })(typeof window!=='undefined'?window:globalThis,function(root){
 'use strict';
-const VERSION='1.0.3';
+const VERSION='1.0.4';
 const models=new Set();
 let resizeFrame=0;
 const raf=typeof root.requestAnimationFrame==='function'?root.requestAnimationFrame.bind(root):fn=>setTimeout(fn,16);
@@ -68,8 +68,10 @@ function bindTooltip(canvas){
     const left=Math.min(Math.max(8,hoverPoint.x-cardRect.left+12),Math.max(8,cardRect.width-tip.offsetWidth-8));
     const top=Math.max(34,hoverPoint.y-cardRect.top-50);tip.style.left=left+'px';tip.style.top=top+'px';
   };
+  const cancelHover=()=>{hoverPoint=null;if(hoverFrame){caf(hoverFrame);hoverFrame=0}hideTooltip(canvas)};
   canvas.addEventListener('pointermove',event=>{hoverPoint={x:event.clientX,y:event.clientY};if(!hoverFrame)hoverFrame=raf(update)});
-  canvas.addEventListener('pointerleave',()=>{hoverPoint=null;if(hoverFrame){caf(hoverFrame);hoverFrame=0}hideTooltip(canvas)});
+  canvas.addEventListener('pointerleave',cancelHover);
+  canvas.addEventListener('pointercancel',cancelHover);
   canvas.__worldforgeMetricTooltipBound=true;
 }
 function register(canvas,model){
