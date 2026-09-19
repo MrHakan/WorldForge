@@ -1,16 +1,30 @@
 name: Strategic Map Stale Pins
+
 on:
   push:
     branches: [main]
+    paths:
+      - 'src/features/warfare/warfare-strategic-map-controls.js'
+      - 'tests/warfare/warfare-strategic-map-stale-pins.test.js'
+      - '.github/workflows/strategic-map-stale-pins.yml'
   pull_request:
     branches: [main]
+    paths:
+      - 'src/features/warfare/warfare-strategic-map-controls.js'
+      - 'tests/warfare/warfare-strategic-map-stale-pins.test.js'
+      - '.github/workflows/strategic-map-stale-pins.yml'
+
+permissions:
+  contents: read
+
 concurrency:
   group: strategic-map-stale-pins-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
+
 jobs:
   validate:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 5
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
