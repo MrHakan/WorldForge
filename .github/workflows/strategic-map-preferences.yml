@@ -20,9 +20,17 @@ on:
       - 'tests/warfare/warfare-strategic-tooltip-lifecycle.test.js'
       - '.github/workflows/strategic-map-preferences.yml'
 
+permissions:
+  contents: read
+
+concurrency:
+  group: strategic-map-preferences-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
 jobs:
   validate:
     runs-on: ubuntu-latest
+    timeout-minutes: 5
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
