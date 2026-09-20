@@ -2,16 +2,31 @@ name: Validate WorldForge v2.3 Households
 
 on:
   push:
-    branches: ["main", "v2.3-households-demography"]
+    branches: ["main"]
+    paths:
+      - 'src/features/households/**'
+      - 'src/features/workforce/workforce-loader.js'
+      - 'tests/features/households.mjs'
+      - '.github/workflows/v23-households.yml'
   pull_request:
     branches: ["main"]
+    paths:
+      - 'src/features/households/**'
+      - 'src/features/workforce/workforce-loader.js'
+      - 'tests/features/households.mjs'
+      - '.github/workflows/v23-households.yml'
 
 permissions:
   contents: read
 
+concurrency:
+  group: v23-households-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
 jobs:
   validate-v23:
     runs-on: ubuntu-latest
+    timeout-minutes: 5
     steps:
       - name: Checkout
         uses: actions/checkout@v4
