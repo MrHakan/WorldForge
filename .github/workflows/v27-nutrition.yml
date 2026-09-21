@@ -2,16 +2,33 @@ name: Validate WorldForge v2.7 Food & Humanitarian Relief
 
 on:
   push:
-    branches: ["main", "v2.7-food-famine-relief"]
+    branches: ["main"]
+    paths:
+      - "src/features/emergency/**"
+      - "src/features/nutrition/**"
+      - "tests/features/emergency.mjs"
+      - "tests/features/nutrition.mjs"
+      - ".github/workflows/v27-nutrition.yml"
   pull_request:
     branches: ["main"]
+    paths:
+      - "src/features/emergency/**"
+      - "src/features/nutrition/**"
+      - "tests/features/emergency.mjs"
+      - "tests/features/nutrition.mjs"
+      - ".github/workflows/v27-nutrition.yml"
 
 permissions:
   contents: read
 
+concurrency:
+  group: v27-nutrition-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
 jobs:
   validate-v27:
     runs-on: ubuntu-latest
+    timeout-minutes: 5
     steps:
       - name: Checkout
         uses: actions/checkout@v4
