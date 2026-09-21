@@ -2,16 +2,33 @@ name: Validate WorldForge v2.8 Politics & Unrest
 
 on:
   push:
-    branches: ["main", "v2.8-politics-unrest"]
+    branches: ["main"]
+    paths:
+      - "src/features/nutrition/**"
+      - "src/features/politics/**"
+      - "tests/features/nutrition.mjs"
+      - "tests/features/politics.mjs"
+      - ".github/workflows/v28-politics.yml"
   pull_request:
     branches: ["main"]
+    paths:
+      - "src/features/nutrition/**"
+      - "src/features/politics/**"
+      - "tests/features/nutrition.mjs"
+      - "tests/features/politics.mjs"
+      - ".github/workflows/v28-politics.yml"
 
 permissions:
   contents: read
 
+concurrency:
+  group: v28-politics-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
 jobs:
   validate-v28:
     runs-on: ubuntu-latest
+    timeout-minutes: 5
     steps:
       - name: Checkout
         uses: actions/checkout@v4
