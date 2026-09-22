@@ -2,16 +2,33 @@ name: Validate WorldForge v2.9 Diplomacy & International Relations
 
 on:
   push:
-    branches: ["main", "v2.9-diplomacy-international-relations"]
+    branches: ["main"]
+    paths:
+      - "src/features/politics/**"
+      - "src/features/diplomacy/**"
+      - "tests/features/politics.mjs"
+      - "tests/features/diplomacy.mjs"
+      - ".github/workflows/v29-diplomacy.yml"
   pull_request:
     branches: ["main"]
+    paths:
+      - "src/features/politics/**"
+      - "src/features/diplomacy/**"
+      - "tests/features/politics.mjs"
+      - "tests/features/diplomacy.mjs"
+      - ".github/workflows/v29-diplomacy.yml"
 
 permissions:
   contents: read
 
+concurrency:
+  group: v29-diplomacy-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
 jobs:
   validate-v29:
     runs-on: ubuntu-latest
+    timeout-minutes: 5
     steps:
       - name: Checkout
         uses: actions/checkout@v4
