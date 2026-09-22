@@ -2,9 +2,25 @@ name: Validate WorldForge v3.0 Geopolitical Blocs & World Orders
 
 on:
   push:
-    branches: ["main", "v3.0-geopolitical-blocs-world-orders"]
+    branches: ["main"]
+    paths:
+      - "src/features/diplomacy/**"
+      - "src/features/world-order/**"
+      - "tests/features/diplomacy.mjs"
+      - "tests/features/world-order.mjs"
+      - ".github/workflows/v30-world-order.yml"
   pull_request:
     branches: ["main"]
+    paths:
+      - "src/features/diplomacy/**"
+      - "src/features/world-order/**"
+      - "tests/features/diplomacy.mjs"
+      - "tests/features/world-order.mjs"
+      - ".github/workflows/v30-world-order.yml"
+
+concurrency:
+  group: v30-world-order-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 permissions:
   contents: read
@@ -12,6 +28,7 @@ permissions:
 jobs:
   validate-v30:
     runs-on: ubuntu-latest
+    timeout-minutes: 5
     steps:
       - name: Checkout
         uses: actions/checkout@v4
