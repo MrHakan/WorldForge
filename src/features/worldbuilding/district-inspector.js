@@ -2,12 +2,12 @@
   'use strict';
 
   if (typeof document === 'undefined' || window.__worldforgeDistrictInspector) return;
-  window.__worldforgeDistrictInspector = true;
 
   const Worldbuilding = window.WorldForgeWorldbuilding;
   const Renderer = window.WorldForgePixelRenderer;
   const UI = window.WorldForgeWorldbuildingUI;
   if (!Worldbuilding || !Renderer || !UI) return;
+  window.__worldforgeDistrictInspector = true;
 
   const ZOOM = 2.45;
   const state = { focusedDistrictId: null, settlementId: null, preview: null, observer: null, controls: null };
@@ -88,18 +88,29 @@
     renderFocusedPreview();
   }
 
-  function focusDistrict(id) {
+  function focusPreviewDistrict(id) {
+    requestAnimationFrame(() => {
+      const target = [...document.querySelectorAll('#worldbuildingPreview svg [data-district-id]')]
+        .find(item => String(item.getAttribute('data-district-id')) === String(id));
+      target?.focus();
+    });
+  }
+
+  function focusDistrict(id, { preservePreviewFocus = false } = {}) {
     const currentProfile = profile();
     const district = currentProfile?.districts.find(item => String(item.id) === String(id));
     if (!district) return;
     state.focusedDistrictId = String(district.id);
     state.settlementId = String(currentProfile.settlementId);
     refresh();
+    if (preservePreviewFocus) focusPreviewDistrict(district.id);
   }
 
-  function returnToSettlement() {
+  function returnToSettlement({ restoreDistrictId = null } = {}) {
+    const districtId = restoreDistrictId ?? state.focusedDistrictId;
     state.focusedDistrictId = null;
     refresh();
+    if (districtId != null) focusPreviewDistrict(districtId);
   }
 
   function showWorldMap() {
@@ -154,10 +165,15 @@
       if (district) focusDistrict(district.getAttribute('data-district-id'));
     });
     preview.addEventListener('keydown', event => {
+      if (event.key === 'Escape' && state.focusedDistrictId != null) {
+        event.preventDefault();
+        returnToSettlement();
+        return;
+      }
       const district = event.target.closest('svg [data-district-id]');
       if (!district || !['Enter', ' '].includes(event.key)) return;
       event.preventDefault();
-      focusDistrict(district.getAttribute('data-district-id'));
+      focusDistrict(district.getAttribute('data-district-id'), { preservePreviewFocus: true });
     });
 
     districtHost.addEventListener('click', event => {
@@ -166,7 +182,14 @@
     });
     districtHost.addEventListener('keydown', event => {
       const card = event.target.closest('[data-district-id]');
-      if (!card || !['Enter', ' '].includes(event.key)) return;
+      if (!card) return;
+      if (event.key === 'Escape' && String(card.dataset.districtId) === String(state.focusedDistrictId)) {
+        event.preventDefault();
+        returnToSettlement({ restoreDistrictId: null });
+        card.focus();
+        return;
+      }
+      if (!['Enter', ' '].includes(event.key)) return;
       event.preventDefault();
       focusDistrict(card.dataset.districtId);
     });
