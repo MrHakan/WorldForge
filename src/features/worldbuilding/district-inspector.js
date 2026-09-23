@@ -10,7 +10,7 @@
   if (!Worldbuilding || !Renderer || !UI) return;
 
   const ZOOM = 2.45;
-  const state = { focusedDistrictId: null, settlementId: null, preview: null, observer: null };
+  const state = { focusedDistrictId: null, settlementId: null, preview: null, observer: null, controls: null };
   const slug = value => String(value || 'worldforge').normalize('NFKD').replace(/[\u0300-\u036f]/g, '').replace(/ı/g, 'i').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'worldforge';
   const escapeHtml = value => String(value ?? '').replace(/[&<>"']/g, character => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[character]);
 
@@ -134,9 +134,13 @@
     const districtHost = document.querySelector('#worldbuildingDistricts');
     if (!preview || !districtHost || preview === state.preview) return;
 
+    state.observer?.disconnect();
+    state.controls?.remove();
     state.preview = preview;
     preview.insertAdjacentHTML('beforebegin', `<div class="worldbuilding-scene-controls"><nav id="worldbuildingSceneBreadcrumbs" class="worldbuilding-scene-breadcrumbs" aria-label="Preview location"></nav><button type="button" class="worldbuilding-scene-export" data-scene-action="export">Download scene SVG</button></div>`);
-    const controls = document.querySelector('.worldbuilding-scene-controls');
+    const controls = preview.previousElementSibling;
+    if (!controls?.classList.contains('worldbuilding-scene-controls')) return;
+    state.controls = controls;
 
     controls.onclick = event => {
       const action = event.target.closest('[data-scene-action]')?.dataset.sceneAction;
