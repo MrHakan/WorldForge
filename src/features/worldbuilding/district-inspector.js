@@ -106,11 +106,10 @@
     if (preservePreviewFocus) focusPreviewDistrict(district.id);
   }
 
-  function returnToSettlement({ restoreDistrictId = null } = {}) {
-    const districtId = restoreDistrictId ?? state.focusedDistrictId;
+  function returnToSettlement({ focusDistrictId = null } = {}) {
     state.focusedDistrictId = null;
     refresh();
-    if (districtId != null) focusPreviewDistrict(districtId);
+    if (focusDistrictId != null) focusPreviewDistrict(focusDistrictId);
   }
 
   function showWorldMap() {
@@ -167,7 +166,7 @@
     preview.addEventListener('keydown', event => {
       if (event.key === 'Escape' && state.focusedDistrictId != null) {
         event.preventDefault();
-        returnToSettlement();
+        returnToSettlement({ focusDistrictId: state.focusedDistrictId });
         return;
       }
       const district = event.target.closest('svg [data-district-id]');
@@ -185,7 +184,7 @@
       if (!card) return;
       if (event.key === 'Escape' && String(card.dataset.districtId) === String(state.focusedDistrictId)) {
         event.preventDefault();
-        returnToSettlement({ restoreDistrictId: null });
+        returnToSettlement();
         card.focus();
         return;
       }
