@@ -24,6 +24,11 @@ jobs:
           node-version: '22'
       - name: Validate repository layout
         run: node tests/core/repository-structure.mjs
+      - name: Validate workspace navigation lifecycle
+        run: |
+          node --check src/app/workspace-navigation.js
+          node --check tests/core/workspace-navigation.mjs
+          node tests/core/workspace-navigation.mjs
       - name: Validate native metric charts
         run: |
           node --check src/rendering/metric-charts.js
