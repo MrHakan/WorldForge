@@ -5,7 +5,8 @@ on:
     branches: [main]
     paths:
       - 'src/core/**'
-      - 'src/app/**'
+      - 'src/app/app.js'
+      - 'src/app/release-integration.js'
       - 'src/features/wiki/**'
       - 'tests/core/performance.mjs'
       - '.github/workflows/performance.yml'
@@ -13,7 +14,8 @@ on:
     branches: [main]
     paths:
       - 'src/core/**'
-      - 'src/app/**'
+      - 'src/app/app.js'
+      - 'src/app/release-integration.js'
       - 'src/features/wiki/**'
       - 'tests/core/performance.mjs'
       - '.github/workflows/performance.yml'
