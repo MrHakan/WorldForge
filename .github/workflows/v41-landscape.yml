@@ -24,6 +24,7 @@ jobs:
           node --check src/features/worldbuilding/worldbuilding-wiki-adapter.js
           node --check src/features/worldbuilding/worldbuilding-loader.js
           node --check src/features/worldbuilding/worldbuilding-ui.js
+          node --check src/features/worldbuilding/district-inspector.js
           node --check tests/features/worldbuilding-v41.mjs
           node --check tests/features/pixel-art-polish.mjs
       - name: Validate v4.1 architecture and landscape hooks

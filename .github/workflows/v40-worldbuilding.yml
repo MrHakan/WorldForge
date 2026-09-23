@@ -25,6 +25,7 @@ jobs:
           node --check src/features/worldbuilding/worldbuilding-wiki-adapter.js
           node --check src/features/worldbuilding/worldbuilding-loader.js
           node --check src/features/worldbuilding/worldbuilding-ui.js
+          node --check src/features/worldbuilding/district-inspector.js
           node --check tests/features/world-order.mjs
           node --check tests/features/worldbuilding.mjs
       - name: Validate v4.0 runtime files and pixel hooks
@@ -33,6 +34,7 @@ jobs:
           test -f src/features/worldbuilding/worldbuilding-wiki-adapter.js
           test -f src/features/worldbuilding/worldbuilding-loader.js
           test -f src/features/worldbuilding/worldbuilding-ui.js
+          test -f src/features/worldbuilding/district-inspector.js
           test -f src/features/worldbuilding/worldbuilding.css
           test -f src/rendering/structure-archetypes.js
           test -f src/rendering/pixel-structure-renderer.js
@@ -43,6 +45,7 @@ jobs:
           grep -q "src/features/worldbuilding/worldbuilding-loader.js" src/features/world-order/world-order-loader.js
           grep -q "new WeakMap" src/features/worldbuilding/worldbuilding-engine.js
           grep -q "requestAnimationFrame" src/features/worldbuilding/worldbuilding-ui.js
+          grep -q "src/features/worldbuilding/district-inspector.js" src/features/worldbuilding/worldbuilding-loader.js
           grep -q "lastAppliedYear" src/features/worldbuilding/worldbuilding-engine.js
           grep -q "__worldbuildingBridge" src/features/worldbuilding/worldbuilding-engine.js
           grep -q "shape-rendering=\"crispEdges\"" src/rendering/pixel-structure-renderer.js

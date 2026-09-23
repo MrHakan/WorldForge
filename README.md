@@ -119,6 +119,8 @@ The browser workspace now shows:
 
 - settlement and district KPIs;
 - deterministic pixel settlement scene;
+- clickable district map markers and cards with focused zoom, selection breadcrumbs and a route back to the settlements map;
+- standalone SVG export for the current settlement or district scene;
 - visual identity;
 - architectural family, materials, roof form and street pattern;
 - historical-landscape cards;
@@ -196,6 +198,7 @@ src/features/worldbuilding/worldbuilding-engine.js       settlement, architectur
 src/rendering/structure-archetypes.js       base structures + architecture families
 src/rendering/pixel-structure-renderer.js   culture-specific structures + landmark renderer
 src/features/worldbuilding/worldbuilding-ui.js           Worldbuilding Atelier
+src/features/worldbuilding/district-inspector.js          district zoom, scene navigation and SVG export
 src/features/worldbuilding/worldbuilding-wiki-adapter.js Encyclopedia worldbuilding integration
 *-ui.js / *-loader.js         browser workspaces and compatibility bootstraps
 ```
@@ -225,6 +228,6 @@ See [`docs/releases/V4.1.md`](docs/releases/V4.1.md) for detailed release notes.
 
 ## Next visual direction
 
-The next logical visual milestone is a true **world → settlement → district zoom hierarchy** with a reusable sprite atlas, larger landmark compositions, route/road continuity and time-aware visual evolution while preserving the aggregate simulation model.
+District-focused zoom and settlement-map navigation are now available. The next visual milestones are a reusable sprite atlas, larger landmark compositions, route/road continuity and time-aware visual evolution while preserving the aggregate simulation model.
 
 Everything runs locally in the browser; generated worlds are not uploaded by the application.

@@ -18,7 +18,15 @@ assert.ok(profiles.every(p=>p.structureSummary.length>0&&p.structureSummary.redu
 assert.ok(sum.districts>=sum.settlements*3,'worldbuilding must create a multi-district civilization layer');
 const lead=profiles.slice().sort((a,b)=>b.importanceIndex-a.importanceIndex)[0],svg=PR.renderSettlement(lead,{width:640,height:400});
 assert.ok(svg.startsWith('<svg')&&svg.includes('shape-rendering="crispEdges"')&&svg.includes('data-worldforge-pixel="v4.0"'),'pixel renderer must produce a crisp deterministic SVG settlement preview');
+assert.ok(svg.includes(`data-district-id="${lead.districts[0].id}" tabindex="0" role="button"`),'district map markers must support keyboard access and direct selection');
 assert.equal(PR.renderSettlement(lead,{width:640,height:400}),svg,'pixel renderer must be deterministic for the same profile');
+assert.ok(!svg.includes('data-worldforge-focus-district='),'settlement overview must remain unfocused by default');
+const district=lead.districts[0],focused=PR.renderSettlement(lead,{width:640,height:400,focusDistrictId:district.id,zoom:2.45});
+assert.ok(focused.includes(`data-worldforge-focus-district="${district.id}"`)&&focused.includes('data-worldforge-focus-zoom="2.45"'),'district inspection must render a deterministic focused scene');
+assert.ok(focused.includes(`data-district-id="${district.id}"`)&&focused.includes('class="district-focused"'),'focused district must be identifiable and highlighted in the scene');
+assert.notEqual(focused.match(/viewBox="([^"]+)"/)?.[1],svg.match(/viewBox="([^"]+)"/)?.[1],'focused district view must zoom into its portion of the settlement');
+assert.equal(PR.renderSettlement(lead,{width:640,height:400,focusDistrictId:district.id,zoom:2.45}),focused,'district inspection must be deterministic');
+assert.equal(PR.renderSettlement(lead,{width:640,height:400,focusDistrictId:'missing-district'}),svg,'unknown district focus must fall back to the overview');
 assert.equal(Wiki.article(w,`settlement_worldbuilding:${lead.settlementId}`,WB.absYear(w))?.type,'settlement_worldbuilding','settlements must enter Universal Encyclopedia');
 assert.ok(Wiki.search(w,'pixel civilization',{type:'settlement_visual_identity',year:WB.absYear(w)}).length>0,'visual identities must be searchable');
 assert.equal(Wiki.article(w,'structure_archetype:shipyard',WB.absYear(w))?.type,'structure_archetype','structure archetypes must enter Universal Encyclopedia');
