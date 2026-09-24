@@ -10,7 +10,7 @@
   window.__worldforgeDistrictInspector = true;
 
   const ZOOM = 2.45;
-  const state = { focusedDistrictId: null, settlementId: null, preview: null, observer: null, controls: null };
+  const state = { focusedDistrictId: null, settlementId: null, preview: null, observer: null, controls: null, activeCardId: null };
   const slug = value => String(value || 'worldforge').normalize('NFKD').replace(/[\u0300-\u036f]/g, '').replace(/ı/g, 'i').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'worldforge';
   const escapeHtml = value => String(value ?? '').replace(/[&<>"']/g, character => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[character]);
 
@@ -31,19 +31,29 @@
     if (!currentProfile || !host) return;
 
     const currentSettlementId = String(currentProfile.settlementId);
-    if (state.settlementId !== null && state.settlementId !== currentSettlementId) state.focusedDistrictId = null;
+    if (state.settlementId !== null && state.settlementId !== currentSettlementId) {
+      state.focusedDistrictId = null;
+      state.activeCardId = null;
+    }
     state.settlementId = currentSettlementId;
 
     const cards = [...host.querySelectorAll('article')];
+    const availableIds = new Set(currentProfile.districts.map(district => String(district.id)));
+    if (!availableIds.has(String(state.activeCardId))) {
+      state.activeCardId = state.focusedDistrictId != null && availableIds.has(String(state.focusedDistrictId))
+        ? String(state.focusedDistrictId)
+        : String(currentProfile.districts[0]?.id ?? '');
+    }
     currentProfile.districts.forEach((district, index) => {
       const card = cards[index];
       if (!card) return;
-      const selected = String(district.id) === String(state.focusedDistrictId);
-      card.dataset.districtId = String(district.id);
+      const districtId = String(district.id);
+      const selected = districtId === String(state.focusedDistrictId);
+      card.dataset.districtId = districtId;
       card.classList.add('worldbuilding-district-card');
       card.classList.toggle('is-selected', selected);
       card.setAttribute('role', 'button');
-      card.setAttribute('tabindex', '0');
+      card.setAttribute('tabindex', districtId === String(state.activeCardId) ? '0' : '-1');
       card.setAttribute('aria-pressed', String(selected));
       card.setAttribute('aria-label', `Open ${district.name} district view`);
     });
@@ -101,6 +111,7 @@
     const district = currentProfile?.districts.find(item => String(item.id) === String(id));
     if (!district) return;
     state.focusedDistrictId = String(district.id);
+    state.activeCardId = String(district.id);
     state.settlementId = String(currentProfile.settlementId);
     refresh();
     if (preservePreviewFocus) focusPreviewDistrict(district.id);
@@ -119,7 +130,11 @@
     const targetIndex = key === 'Home' ? 0
       : key === 'End' ? cards.length - 1
         : (index + (['ArrowRight', 'ArrowDown'].includes(key) ? 1 : -1) + cards.length) % cards.length;
-    cards[targetIndex]?.focus();
+    const target = cards[targetIndex];
+    if (!target) return false;
+    state.activeCardId = target.dataset.districtId;
+    cards.forEach(item => item.setAttribute('tabindex', item === target ? '0' : '-1'));
+    target.focus();
     return true;
   }
 
@@ -186,6 +201,13 @@
       focusDistrict(district.getAttribute('data-district-id'), { preservePreviewFocus: true });
     });
 
+    districtHost.addEventListener('focusin', event => {
+      const card = event.target.closest('[data-district-id]');
+      if (!card || !districtHost.contains(card)) return;
+      state.activeCardId = card.dataset.districtId;
+      [...districtHost.querySelectorAll('[data-district-id]')]
+        .forEach(item => item.setAttribute('tabindex', item === card ? '0' : '-1'));
+    });
     districtHost.addEventListener('click', event => {
       const card = event.target.closest('[data-district-id]');
       if (card) focusDistrict(card.dataset.districtId);
@@ -210,6 +232,7 @@
 
     document.querySelector('#worldbuildingSettlement')?.addEventListener('change', () => {
       state.focusedDistrictId = null;
+      state.activeCardId = null;
       state.settlementId = null;
       requestAnimationFrame(refresh);
     });
