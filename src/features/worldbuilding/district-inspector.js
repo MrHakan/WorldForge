@@ -112,6 +112,17 @@
     if (focusDistrictId != null) focusPreviewDistrict(focusDistrictId);
   }
 
+  function moveCardFocus(card, key) {
+    const cards = [...card.parentElement.querySelectorAll('[data-district-id]')];
+    const index = cards.indexOf(card);
+    if (index < 0 || cards.length < 2) return false;
+    const targetIndex = key === 'Home' ? 0
+      : key === 'End' ? cards.length - 1
+        : (index + (['ArrowRight', 'ArrowDown'].includes(key) ? 1 : -1) + cards.length) % cards.length;
+    cards[targetIndex]?.focus();
+    return true;
+  }
+
   function showWorldMap() {
     window.WorldForgeWorkspaceNavigation?.activateCategory('places');
     window.WorldForgeWorkspaceNavigation?.activatePage('settlements');
@@ -182,6 +193,10 @@
     districtHost.addEventListener('keydown', event => {
       const card = event.target.closest('[data-district-id]');
       if (!card) return;
+      if (['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'Home', 'End'].includes(event.key)) {
+        if (moveCardFocus(card, event.key)) event.preventDefault();
+        return;
+      }
       if (event.key === 'Escape' && String(card.dataset.districtId) === String(state.focusedDistrictId)) {
         event.preventDefault();
         returnToSettlement();
