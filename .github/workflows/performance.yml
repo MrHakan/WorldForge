@@ -8,6 +8,8 @@ on:
       - 'src/app/app.js'
       - 'src/app/release-integration.js'
       - 'src/features/wiki/**'
+      - 'src/rendering/map-enhancement.js'
+      - 'tests/rendering/map-enhancement.mjs'
       - 'tests/core/performance.mjs'
       - '.github/workflows/performance.yml'
   pull_request:
@@ -17,6 +19,8 @@ on:
       - 'src/app/app.js'
       - 'src/app/release-integration.js'
       - 'src/features/wiki/**'
+      - 'src/rendering/map-enhancement.js'
+      - 'tests/rendering/map-enhancement.mjs'
       - 'tests/core/performance.mjs'
       - '.github/workflows/performance.yml'
 
@@ -41,6 +45,8 @@ jobs:
           node --check src/core/engine.js
           node --check src/core/history-engine.js
           node --check src/core/renderer.js
+          node --check src/rendering/map-enhancement.js
+          node --check tests/rendering/map-enhancement.mjs
           node --check src/core/society-engine.js
           node --check src/app/app.js
           node --check src/app/release-integration.js
@@ -48,3 +54,5 @@ jobs:
           node --check tests/core/performance.mjs
       - name: Run deterministic performance smoke
         run: node tests/core/performance.mjs
+      - name: Run strategic map overlay performance smoke
+        run: node tests/rendering/map-enhancement.mjs
