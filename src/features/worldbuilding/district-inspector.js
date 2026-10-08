@@ -10,7 +10,7 @@
   window.__worldforgeDistrictInspector = true;
 
   const ZOOM = 2.45;
-  const state = { focusedDistrictId: null, settlementId: null, preview: null, observer: null, controls: null, activeCardId: null };
+  const state = { focusedDistrictId: null, settlementId: null, preview: null, observer: null, controls: null, activeCardId: null, listenerController: null };
   const slug = value => String(value || 'worldforge').normalize('NFKD').replace(/[\u0300-\u036f]/g, '').replace(/ı/g, 'i').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'worldforge';
   const escapeHtml = value => String(value ?? '').replace(/[&<>"']/g, character => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[character]);
 
@@ -171,8 +171,11 @@
     if (!preview || !districtHost || preview === state.preview) return;
 
     state.observer?.disconnect();
+    state.listenerController?.abort();
     state.controls?.remove();
     state.preview = preview;
+    state.listenerController = new AbortController();
+    const listenerOptions = { signal: state.listenerController.signal };
     preview.insertAdjacentHTML('beforebegin', `<div class="worldbuilding-scene-controls"><nav id="worldbuildingSceneBreadcrumbs" class="worldbuilding-scene-breadcrumbs" aria-label="Preview location"></nav><button type="button" class="worldbuilding-scene-export" data-scene-action="export">Download scene SVG</button></div>`);
     const controls = preview.previousElementSibling;
     if (!controls?.classList.contains('worldbuilding-scene-controls')) return;
@@ -188,7 +191,7 @@
     preview.addEventListener('click', event => {
       const district = event.target.closest('svg [data-district-id]');
       if (district) focusDistrict(district.getAttribute('data-district-id'));
-    });
+    }, listenerOptions);
     preview.addEventListener('keydown', event => {
       if (event.key === 'Escape' && state.focusedDistrictId != null) {
         event.preventDefault();
@@ -199,7 +202,7 @@
       if (!district || !['Enter', ' '].includes(event.key)) return;
       event.preventDefault();
       focusDistrict(district.getAttribute('data-district-id'), { preservePreviewFocus: true });
-    });
+    }, listenerOptions);
 
     districtHost.addEventListener('focusin', event => {
       const card = event.target.closest('[data-district-id]');
@@ -207,11 +210,11 @@
       state.activeCardId = card.dataset.districtId;
       [...districtHost.querySelectorAll('[data-district-id]')]
         .forEach(item => item.setAttribute('tabindex', item === card ? '0' : '-1'));
-    });
+    }, listenerOptions);
     districtHost.addEventListener('click', event => {
       const card = event.target.closest('[data-district-id]');
       if (card) focusDistrict(card.dataset.districtId);
-    });
+    }, listenerOptions);
     districtHost.addEventListener('keydown', event => {
       const card = event.target.closest('[data-district-id]');
       if (!card) return;
@@ -228,14 +231,14 @@
       if (!['Enter', ' '].includes(event.key)) return;
       event.preventDefault();
       focusDistrict(card.dataset.districtId);
-    });
+    }, listenerOptions);
 
     document.querySelector('#worldbuildingSettlement')?.addEventListener('change', () => {
       state.focusedDistrictId = null;
       state.activeCardId = null;
       state.settlementId = null;
       requestAnimationFrame(refresh);
-    });
+    }, listenerOptions);
 
     state.observer = new MutationObserver(refresh);
     state.observer.observe(preview, { childList: true });
