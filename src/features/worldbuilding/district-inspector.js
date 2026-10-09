@@ -10,7 +10,7 @@
   window.__worldforgeDistrictInspector = true;
 
   const ZOOM = 2.45;
-  const state = { focusedDistrictId: null, settlementId: null, preview: null, observer: null, controls: null, activeCardId: null, listenerController: null };
+  const state = { focusedDistrictId: null, settlementId: null, preview: null, observer: null, controls: null, activeCardId: null, listenerController: null, districtHost: null };
   const slug = value => String(value || 'worldforge').normalize('NFKD').replace(/[\u0300-\u036f]/g, '').replace(/ı/g, 'i').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'worldforge';
   const escapeHtml = value => String(value ?? '').replace(/[&<>"']/g, character => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[character]);
 
@@ -168,12 +168,13 @@
   function mount() {
     const preview = document.querySelector('#worldbuildingPreview');
     const districtHost = document.querySelector('#worldbuildingDistricts');
-    if (!preview || !districtHost || preview === state.preview) return;
+    if (!preview || !districtHost || (preview === state.preview && districtHost === state.districtHost)) return;
 
     state.observer?.disconnect();
     state.listenerController?.abort();
     state.controls?.remove();
     state.preview = preview;
+    state.districtHost = districtHost;
     state.listenerController = new AbortController();
     const listenerOptions = { signal: state.listenerController.signal };
     preview.insertAdjacentHTML('beforebegin', `<div class="worldbuilding-scene-controls"><nav id="worldbuildingSceneBreadcrumbs" class="worldbuilding-scene-breadcrumbs" aria-label="Preview location"></nav><button type="button" class="worldbuilding-scene-export" data-scene-action="export">Download scene SVG</button></div>`);
@@ -247,6 +248,6 @@
   }
 
   window.WorldForgeDistrictInspector = { focusDistrict, returnToSettlement, downloadSvg, refresh };
-  window.WorldForgeWorkspaceNavigation?.onStructureChange('#worldbuildingPanel', mount);
+  window.WorldForgeWorkspaceNavigation?.onStructureChange('#worldbuildingPanel, #worldbuildingPreview, #worldbuildingDistricts', mount);
   setTimeout(mount, 100);
 })();
