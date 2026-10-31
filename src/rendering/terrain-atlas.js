@@ -20,7 +20,10 @@ function height(w,x,y,projection='relief'){
 function pitch(projection){return projection==='flat'?1:.72}
 function metrics(renderer){
   const w=renderer.world,px=renderer.canvas.width/(renderer.dpr||1),py=renderer.canvas.height/(renderer.dpr||1),p=pitch(renderer.projection);
-  const scale=Math.min(px/w.settings.width,py/(w.settings.height*p+12))*.96*renderer.camera.zoom;
+  const fit=Math.min(px/w.settings.width,py/(w.settings.height*p+12));
+  // A portrait atlas opens on a readable region; horizontal panning reveals the rest.
+  const regional=px<600?Math.min(px/w.settings.width*2.6,py/(w.settings.height*p+12)*.85):fit;
+  const scale=Math.max(fit,regional)*.96*renderer.camera.zoom;
   return {width:px,height:py,scale,pitch:p,viewW:px/scale,viewH:py/(scale*p)};
 }
 function project(renderer,x,y){

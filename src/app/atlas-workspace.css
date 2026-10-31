@@ -12,6 +12,9 @@ html.atlas-app .brand h1 {font-size:21px;letter-spacing:-.6px;font-weight:680}
 html.atlas-app .brand p {font-size:10px;color:#92aaa8;letter-spacing:.02em}
 html.atlas-app .version-pill {font-size:8px;letter-spacing:.08em;background:#253330;border-color:#49584b;color:#cbbf99}
 html.atlas-app .top-actions {gap:6px}
+.atlas-files {position:relative}
+#atlasFileMenu {display:flex;gap:6px}
+html.atlas-app #atlasFilesButton,html.atlas-app #atlasCloseInspector {display:none}
 html.atlas-app button,html.atlas-app .file-button {border-color:#344b4f;background:#1c3035;font-size:12px;font-weight:500;border-radius:7px}
 html.atlas-app button:hover,html.atlas-app .file-button:hover {background:#294147;border-color:#5c7777}
 html.atlas-app button.primary {background:#c5ae7e;color:#152223;border-color:#c5ae7e}
@@ -156,7 +159,10 @@ html.atlas-app .toast {background:#263b38;border-color:#66745c;color:#e5d7b7;fon
   html.atlas-app .brand p,html.atlas-app .version-pill {display:none}
   html.atlas-app .top-actions {grid-column:auto;flex-wrap:nowrap;gap:4px}
   html.atlas-app .top-actions button,html.atlas-app .top-actions .file-button {font-size:10px;padding:7px 8px}
-  html.atlas-app #exportBtn,html.atlas-app .top-actions .file-button {display:none}
+  html.atlas-app #atlasFilesButton {display:block}
+  #atlasFileMenu {display:none;position:absolute;top:calc(100% + 8px);right:0;z-index:60;min-width:150px;padding:8px;flex-direction:column;border:1px solid #3b5557;border-radius:9px;background:#152a30;box-shadow:0 10px 25px #0006}
+  #atlasFileMenu[data-open="true"] {display:flex}
+  html.atlas-app #atlasFileMenu button,html.atlas-app #atlasFileMenu .file-button {display:block;width:100%;text-align:left;font-size:12px;padding:10px}
   html.atlas-app .workspace-tabs {gap:4px;padding:2px 0}
   html.atlas-app .workspace-tabs button {padding:11px 8px;min-height:42px}
   html.atlas-app .workspace-subtabs {gap:18px;padding:0}
@@ -173,6 +179,7 @@ html.atlas-app .toast {background:#263b38;border-color:#66745c;color:#e5d7b7;fon
   #atlasInspector {position:absolute;top:0;left:0;bottom:0;width:min(330px,100%);max-width:100%;z-index:22;padding:12px;background:#102026fa;border:1px solid #3d5656;border-radius:12px;box-shadow:18px 10px 40px #00151b66}
   .atlas-inspector-heading {padding-bottom:6px}
   #atlasExpandInspector {display:none}
+  html.atlas-app #atlasCloseInspector {display:grid}
   #atlasLayerPanel {top:106px;right:8px;width:calc(100% - 16px);max-height:calc(100% - 116px);padding:16px}
   .atlas-map-footer {padding:7px 9px;gap:8px;min-height:39px}
   html.atlas-app .atlas-map-footer .legend {display:none}

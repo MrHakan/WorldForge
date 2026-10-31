@@ -38,6 +38,7 @@ function setMode(mode){
   save();sync();redraw();
 }
 function closeLayers(){const panel=$('#atlasLayerPanel'),button=$('#atlasLayersButton');if(panel)panel.hidden=true;button?.setAttribute('aria-expanded','false')}
+function closeFiles(){const menu=$('#atlasFileMenu');if(menu)menu.dataset.open='false';$('#atlasFilesButton')?.setAttribute('aria-expanded','false')}
 function focusMap(value){state.focus=Boolean(value);document.documentElement.dataset.atlasFocus=String(state.focus);sync();requestAnimationFrame(()=>window.dispatchEvent(new Event('resize')))}
 function sync(){
   $$('[data-atlas-layer]').forEach(input=>{input.checked=state.layers[input.dataset.atlasLayer]});
@@ -90,9 +91,16 @@ function setup(){
   const layout=$('.layout'),panel=$('.map-panel'),header=$('.map-head'),wrap=$('#mapWrap');if(!layout||!panel||!header||!wrap)return;
   document.documentElement.classList.add('atlas-app');document.documentElement.dataset.atlasFocus=String(state.focus);
   const inspector=document.createElement('aside');inspector.id='atlasInspector';inspector.setAttribute('aria-label','Workspace details');
-  inspector.innerHTML='<div class="atlas-inspector-heading"><span>Workspace details</span><button id="atlasExpandInspector" aria-pressed="false" title="Expand details panel">'+icon('<path d="M8 3H3v5m18 0V3h-5M3 16v5h5m8 0h5v-5"/>',14)+'</button></div>';
+  inspector.innerHTML='<div class="atlas-inspector-heading"><span>Workspace details</span><button id="atlasExpandInspector" aria-label="Expand details panel" aria-pressed="false" title="Expand details panel">'+icon('<path d="M8 3H3v5m18 0V3h-5M3 16v5h5m8 0h5v-5"/>',14)+'</button><button id="atlasCloseInspector" aria-label="Close workspace details">'+icon('<path d="m6 6 12 12M6 18 18 6"/>',16)+'</button></div>';
   layout.prepend(inspector);adoptPanels();
   window.WorldForgeWorkspaceNavigation?.refresh();decorateNavigation();
+  const actions=$('.top-actions'),exportButton=$('#exportBtn'),importButton=$('#importInput')?.closest('.file-button');
+  if(actions&&exportButton&&importButton){
+    actions.insertAdjacentHTML('beforeend','<div class="atlas-files"><button id="atlasFilesButton" aria-expanded="false" aria-controls="atlasFileMenu">Files</button><div id="atlasFileMenu" data-open="false"></div></div>');
+    $('#atlasFileMenu').append(exportButton,importButton);
+    $('#atlasFilesButton').onclick=()=>{const menu=$('#atlasFileMenu'),open=menu.dataset.open!=='true';menu.dataset.open=String(open);$('#atlasFilesButton').setAttribute('aria-expanded',String(open))};
+    exportButton.addEventListener('click',closeFiles);$('#importInput').addEventListener('change',closeFiles);
+  }
   const headLabel=header.querySelector('.eyebrow');if(headLabel)headLabel.textContent='WORLD ATLAS';
   header.querySelector('.map-actions')?.setAttribute('hidden','');
   header.insertAdjacentHTML('beforeend','<div class="atlas-map-tools"><div class="atlas-projections" role="group" aria-label="Map projection"><button data-atlas-projection="relief" aria-pressed="true">2.5D</button><button data-atlas-projection="flat" aria-pressed="false">Flat</button></div><label class="atlas-theme-label"><span class="sr-only">Map theme</span><select id="atlasTheme"><optgroup label="Land & realms"><option value="terrain">Natural terrain</option><option value="political">Political</option><option value="biome">Biomes</option><option value="elevation">Elevation</option></optgroup><optgroup label="People & economy"><option value="population">Population</option><option value="prosperity">Prosperity</option><option value="trade">Trade</option><option value="fiscal">Public finance</option><option value="workforce">Workforce</option><option value="migration">Migration</option></optgroup><optgroup label="Climate"><option value="temperature">Temperature</option><option value="moisture">Moisture</option></optgroup></select></label><button id="atlasLayersButton" aria-label="Map layers" aria-expanded="false" aria-controls="atlasLayerPanel">'+icon(layersIcon)+'<span>Layers</span></button><button id="atlasDetailsButton" aria-label="Toggle workspace details" aria-pressed="true">'+icon('<path d="M4 4h16v16H4zM9 4v16"/>')+'<span>Focus map</span></button></div>');
@@ -109,6 +117,7 @@ function setup(){
   $('#atlasLayersButton').onclick=()=>{const p=$('#atlasLayerPanel');p.hidden=!p.hidden;$('#atlasLayersButton').setAttribute('aria-expanded',String(!p.hidden))};
   $('#atlasLayersClose').onclick=()=>{closeLayers();$('#atlasLayersButton').focus()};
   $('#atlasDetailsButton').onclick=()=>focusMap(!state.focus);
+  $('#atlasCloseInspector').onclick=()=>{focusMap(true);$('#atlasDetailsButton').focus()};
   $('#atlasExpandInspector').onclick=()=>{state.wide=!state.wide;document.documentElement.dataset.atlasWide=String(state.wide);$('#atlasExpandInspector').setAttribute('aria-pressed',String(state.wide));requestAnimationFrame(()=>window.dispatchEvent(new Event('resize')))};
   $('#atlasLayerPanel').onchange=event=>{
     const input=event.target;if(input.dataset.atlasLayer)setLayer(input.dataset.atlasLayer,input.checked);
@@ -117,8 +126,8 @@ function setup(){
   };
   $('#atlasLayerPanel').addEventListener('click',event=>{if(event.target.closest('[data-layer]')&&!state.layers.operations)setLayer('operations',true)});
   $('#atlasCleanMap').onclick=()=>{state.layers={...defaults};state.mode='terrain';setMode('terrain');setProjection('relief');reconcileLegacyControls();sync();redraw();refreshOverlays()};
-  document.addEventListener('keydown',event=>{if(event.key==='Escape')closeLayers()});
-  document.addEventListener('pointerdown',event=>{if(!event.target.closest('#atlasLayerPanel,#atlasLayersButton'))closeLayers()});
+  document.addEventListener('keydown',event=>{if(event.key==='Escape'){closeLayers();closeFiles()}});
+  document.addEventListener('pointerdown',event=>{if(!event.target.closest('#atlasLayerPanel,#atlasLayersButton'))closeLayers();if(!event.target.closest('.atlas-files'))closeFiles()});
   renderer=window.WorldForgeApp?.state?.renderer;
   if(renderer){
     window.worldRenderer=renderer;renderer.layers={labels:state.layers.labels,borders:state.layers.borders,roads:state.layers.roads};renderer.projection=state.projection;

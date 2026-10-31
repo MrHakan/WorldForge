@@ -15,11 +15,12 @@ class WorldRenderer{
     this.bind();this.resize();window.addEventListener('resize',()=>this.resize());
     
   }
-  resize(){const rect=this.canvas.getBoundingClientRect(),dpr=Math.min(2.5,window.devicePixelRatio||1);this.canvas.width=Math.max(1,Math.round(rect.width*dpr));this.canvas.height=Math.max(1,Math.round(rect.height*dpr));this.dpr=dpr;this.draw()}
+  resize(){const rect=this.canvas.getBoundingClientRect(),dpr=Math.min(2.5,window.devicePixelRatio||1),atHome=this.home&&['x','y','zoom'].every(key=>Math.abs(this.camera[key]-this.home[key])<.00001);this.canvas.width=Math.max(1,Math.round(rect.width*dpr));this.canvas.height=Math.max(1,Math.round(rect.height*dpr));this.dpr=dpr;this.home=this.homeCamera();if(atHome)this.camera={...this.home};this.draw()}
   setWorld(w){this.world=w;this.historyView=null;this.selectedSettlementId=null;this.baseDirty=true;this.center()}
   setHistoryView(view){const next=view||null;if(this.historyView===next)return;this.historyView=next;this.baseDirty=true;this.draw()}
   setMode(m){if(this.mode===m)return;this.mode=m;this.baseDirty=true;this.draw()}
-  center(){this.camera={x:.5,y:.5,zoom:1};this.draw()}
+  homeCamera(){const settlements=this.world?.settlements||[],regional=this.canvas.width/(this.dpr||1)<600;return{x:.5,y:regional&&settlements.length?clamp(settlements.reduce((sum,s)=>sum+s.y+.5,0)/settlements.length/this.world.settings.height,.15,.85):.5,zoom:1}}
+  center(){this.home=this.homeCamera();this.camera={...this.home};this.draw()}
   viewRealms(){return this.historyView?.realms||this.world?.kingdoms||[]}
   realm(id){return this.viewRealms().find(k=>k.id===id)||this.world?.kingdoms?.[id]||null}
   ownerOf(s){return this.historyView?.settlementKingdomIds?.[s.id]??s.kingdomId}
