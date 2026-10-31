@@ -4,7 +4,32 @@
 
 **Live:** https://mrhakan.github.io/WorldForge/
 
-## Current release — v4.1 Historical Landscape & Architecture
+## Current release — v5.1.0 Responsive Pages Workspace
+
+- Complete local and GitHub Pages runtime with one shared asset loader.
+- Guarded async simulation, annual cancellation, fair browser scheduling and safe world switching.
+- Working workspace destinations, consistent release labels and deferred hidden-panel rendering.
+- Clean production artifact, parallel regression checks and real browser tests before deployment and release.
+
+See [v5.1 release notes](docs/releases/V5.1.md).
+
+### Local workspace
+
+Use Node.js 22.16+ (CI uses 24):
+
+```sh
+npm ci
+npm run dev
+npm test
+npm run test:syntax
+npm run build
+npx playwright install chromium
+npm run test:browser
+```
+
+The local workspace opens at http://127.0.0.1:4173/WorldForge/. Serve the clean `dist/` folder for production. Browser runtime requires no dependencies or backend.
+
+## Historical visual foundation — v4.1 Historical Landscape & Architecture
 
 WorldForge is one causal simulation rather than a collection of disconnected generators. Geography shapes climate and resources; resources feed markets and institutions; institutions create jobs and strategic assets; households and housing create demographic and urban pressure; municipal systems, emergencies, food security and politics feed social stability; diplomacy and military power shape the international order; and the v4.x line turns that accumulated simulation into a deterministic visual civilization.
 
@@ -224,7 +249,7 @@ The v4.1 gate runs Institution/Great Work regression, v3.0 World Order regressio
 
 `main` is the authoritative deployment source for GitHub Pages. A release is considered complete only after PR compatibility gates and the post-merge Pages validation/deployment succeed.
 
-See [`docs/releases/V4.1.md`](docs/releases/V4.1.md) for detailed release notes.
+See [current release notes](docs/releases/V5.1.md) for deployment and workspace changes; [v4.1 notes](docs/releases/V4.1.md) describe the visual foundation.
 
 ## Next visual direction
 

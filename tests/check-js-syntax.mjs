@@ -3,7 +3,7 @@ import {spawn} from 'node:child_process';
 import {availableParallelism} from 'node:os';
 import {join,relative} from 'node:path';
 
-const roots=['src','tests'];
+const roots=['src','tests','scripts'];
 const extensions=new Set(['.js','.mjs','.cjs']);
 const ignored=new Set(['node_modules','.git']);
 const files=[];

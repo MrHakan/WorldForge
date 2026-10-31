@@ -23,7 +23,7 @@ W.buildIndex=buildIndex;W.search=search;W.article=article;W.related=related;W.ch
 // the same final encyclopedia index.
 (()=>{
   if(typeof document==='undefined'||window.WorldForgeLivingWikiUI)return;
-  const addStyle=href=>{if(document.querySelector(`link[href="${href}"]`))return;const l=document.createElement('link');l.rel='stylesheet';l.href=href;document.head.appendChild(l)};
-  const load=(src,globalName)=>new Promise((resolve,reject)=>{if(globalName&&window[globalName])return resolve(window[globalName]);let s=[...document.scripts].find(x=>x.getAttribute('src')===src);if(!s){s=document.createElement('script');s.src=src;document.head.appendChild(s)}let n=0;const t=setInterval(()=>{if(!globalName||window[globalName]){clearInterval(t);resolve(globalName?window[globalName]:true)}else if(++n>160){clearInterval(t);reject(new Error(`Timed out loading ${globalName||src}`))}},25)});
+  const addStyle=window.WorldForgeLoader.style;
+  const load=(src,name)=>window.WorldForgeLoader.script(src,name?()=>window[name]:null).then(()=>name?window[name]:undefined);
   (async()=>{try{addStyle('src/features/wiki/living-wiki.css');await load('src/features/wiki/living-wiki-engine.js','WorldForgeLivingWiki');await load('src/features/wiki/living-wiki-ui.js','WorldForgeLivingWikiUI');window.WorldForgeLivingWikiUI.render(true)}catch(e){console.error('Living Wiki bootstrap failed',e)}})();
 })();

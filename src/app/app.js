@@ -4,7 +4,7 @@ const E=window.WorldForgeEngine,H=window.WorldForgeHistory,S=window.WorldForgeSo
 const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const fmt=(n,d=0)=>Number(n||0).toLocaleString(undefined,{maximumFractionDigits:d,minimumFractionDigits:d});
-const state={world:null,renderer:null,mode:'political',viewYear:null,playing:false,playTimer:null,selectedPersonId:null,initializedWorld:null,historyRenderFrame:0,cache:{viewWorld:null,viewKey:null,view:null,societyWorld:null,societyKey:null,society:null}};
+const state={world:null,renderer:null,mode:'political',viewYear:null,playing:false,playTimer:null,selectedPersonId:null,initializedWorld:null,historyRenderFrame:0,generation:0,cache:{viewWorld:null,viewKey:null,view:null,societyWorld:null,societyKey:null,society:null}};
 
 function toast(text){const t=$('#toast');t.textContent=text;t.style.opacity='1';clearTimeout(t._x);t._x=setTimeout(()=>t.style.opacity='0',1800)}
 function settingsFromUI(){return{seed:$('#seedInput').value.trim()||'WORLD',width:Number($('#widthInput').value),height:Number($('#heightInput').value),seaLevel:Number($('#seaLevelInput').value),age:$('#ageInput').value,settlementTarget:Number($('#settlementInput').value),kingdomTarget:Number($('#kingdomInput').value)}}
@@ -38,23 +38,82 @@ function renderPersonDossier(view,sv){const id=state.selectedPersonId,master=sta
 function renderFamily(id,year){const g=S.familyGraph(state.world,id,year),host=$('#familyGraph');if(!g){host.innerHTML='';return}host.innerHTML=g.people.map(p=>`<button class="family-node ${p.relation.toLowerCase()} ${p.alive?'':'deceased'}" data-person="${p.id}"><span>${esc(p.relation)}</span><b>${esc(p.name)}</b><small>${p.alive?`${esc(p.occupation)} · age ${year-p.birthYear}`:`${p.birthYear}–${p.deathYear??'?'}`}</small></button>`).join('')}
 function renderDynasties(view,sv){$('#dynastyList').innerHTML=[...sv.houses].sort((a,b)=>(b.status==='Ruling')-(a.status==='Ruling')||b.prestige-a.prestige).slice(0,36).map(h=>{const head=h.headId!=null?personName(h.headId):'Extinct',realm=getRealm(view,h.realmId);return`<article class="dynasty-card ${h.status==='Ruling'?'ruling':''}"><div><span>${esc(h.status.toUpperCase())}</span><h3>${esc(h.name)}</h3></div><dl><dt>House head</dt><dd>${esc(head)}</dd><dt>Realm</dt><dd>${esc(realm?.shortName||realmNameFallback(h.realmId))}</dd><dt>Living members</dt><dd>${h.livingMembers}</dd><dt>Prestige</dt><dd>${fmt(h.prestige,0)}</dd><dt>Founded</dt><dd>Year ${h.foundingYear}</dd></dl></article>`}).join('')||'<div class="empty">No dynastic houses at this date.</div>'}
 function renderSociety(view,sv){renderSocietyKPIs(sv);renderThrones(view,sv);renderPeople(view,sv);renderDynasties(view,sv)}
-function renderWorld(resetMap=false){const w=state.world;if(!w)return;ensureSystems();const view=getView(),sv=getSocietyView();$('#worldName').textContent=w.name;$('#landPct').textContent=fmt(w.summary.landPercent,1)+'%';$('#riverCount').textContent=w.rivers.length;$('#settlementCount').textContent=w.settlements.length;$('#kingdomCount').textContent=view.metrics.activeRealms;$('#landBadge').textContent=`${w.settings.seed} · Y${view.year}`;$('#worldNarrative').innerHTML=narrative(w,view,sv);renderBiomeBars(w);renderKingdoms(view,sv);renderSettlements(view);renderLegend(view);renderHistoryKPIs(view);renderChronicle(view);renderWars(view);renderDiplomacy(view);renderCharts(view);renderSociety(view,sv);if(resetMap)state.renderer.setWorld(w);state.renderer.setHistoryView(view);updateZoom()}
-function forge(){stopPlay();const settings=settingsFromUI();$('#generateBtn').disabled=true;$('#generateBtn').textContent='FORGING…';requestAnimationFrame(()=>setTimeout(()=>{try{state.world=E.generateWorld(settings);H.initialize(state.world);S.initialize(state.world);state.initializedWorld=state.world;state.viewYear=null;state.selectedPersonId=null;renderWorld(true);toast(`World forged · ${E.fingerprint(state.world)} · society ${S.societyFingerprint(state.world)}`)}catch(err){console.error(err);toast('World generation failed')}finally{$('#generateBtn').disabled=false;$('#generateBtn').textContent='FORGE WORLD'}},20))}
+function renderWorld(resetMap=false,refreshMap=true){
+  const w=state.world;if(!w)return;ensureSystems();
+  const view=getView(),sv=getSocietyView(),nav=window.WorldForgeWorkspaceNavigation,visible=selector=>!nav||nav.isVisible(selector);
+  $('#worldName').textContent=w.name;$('#landPct').textContent=fmt(w.summary.landPercent,1)+'%';
+  $('#riverCount').textContent=w.rivers.length;$('#settlementCount').textContent=w.settlements.length;
+  $('#kingdomCount').textContent=view.metrics.activeRealms;$('#landBadge').textContent=w.settings.seed+' · Y'+view.year;
+  if(visible('.summary-panel')){$('#worldNarrative').innerHTML=narrative(w,view,sv);renderBiomeBars(w)}
+  if(visible('.kingdoms-panel'))renderKingdoms(view,sv);
+  if(visible('.places-panel'))renderSettlements(view);
+  renderLegend(view);renderHistoryKPIs(view);renderSocietyKPIs(sv);
+  if(visible('.chronicle-panel'))renderChronicle(view);
+  if(visible('.diplomacy-panel')){renderWars(view);renderDiplomacy(view)}
+  if(visible('.history-charts-panel'))renderCharts(view);
+  if(visible('.thrones-panel'))renderThrones(view,sv);
+  if(visible('.people-panel'))renderPeople(view,sv);
+  if(visible('.dynasty-panel'))renderDynasties(view,sv);
+  if(resetMap)state.renderer.setWorld(w);
+  if(refreshMap)state.renderer.setHistoryView(view);
+  updateZoom();
+}
+function forge(){
+  stopPlay();if(state.world)window.WorldForgeEndless?.cancel(state.world);
+  const settings=settingsFromUI(),generation=++state.generation;
+  $('#generateBtn').disabled=true;$('#generateBtn').textContent='FORGING…';
+  setTimeout(()=>{
+    if(generation!==state.generation)return;
+    try{
+      const world=E.generateWorld(settings);H.initialize(world);S.initialize(world);
+      state.world=world;state.initializedWorld=world;state.viewYear=null;state.selectedPersonId=null;
+      renderWorld(true);toast('World forged · '+E.fingerprint(world));
+    }catch(err){console.error(err);toast('World generation failed')}
+    finally{if(generation===state.generation){$('#generateBtn').disabled=false;$('#generateBtn').textContent='FORGE WORLD'}}
+  },0);
+}
 function updateZoom(){$('#zoomLabel').textContent=Math.round((state.renderer?.camera.zoom||1)*100)+'%'}
 function download(name,text){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([text],{type:'application/json'}));a.download=name;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},0)}
 function scheduleHistoricalRender(){if(state.historyRenderFrame)return;state.historyRenderFrame=requestAnimationFrame(()=>{state.historyRenderFrame=0;renderWorld(false)})}
 function setHistoricalYear(raw){if(!state.world)return;const current=state.world.history.currentYear,target=Number(raw);state.viewYear=target>=current?null:H.snapshotAt(state.world,target).year;scheduleHistoricalRender()}
-function advanceYears(years){if(!state.world)return;stopPlay();const n=Math.max(0,Math.round(Number(years)||0));if(!n)return;const buttons=$$('.history-action');buttons.forEach(b=>b.disabled=true);$('#simState').textContent=`SIMULATING +${n} YEARS…`;requestAnimationFrame(()=>setTimeout(()=>{try{S.simulateYears(state.world,n);state.viewYear=null;renderWorld(false);toast(`Year ${state.world.history.currentYear} · history ${H.historyFingerprint(state.world)} · society ${S.societyFingerprint(state.world)}`)}catch(e){console.error(e);toast('Integrated history simulation failed')}finally{buttons.forEach(b=>b.disabled=false);$('#simState').textContent='HISTORY + SOCIETY READY'}},10))}
-function runToTarget(){const y=Math.min(5000,Math.max(0,Math.round(Number($('#targetYearInput').value)||0))),now=state.world?.history?.currentYear||0;if(y<=now)return toast('Target year must be later than the present');advanceYears(y-now)}
-function stopPlay(){state.playing=false;clearInterval(state.playTimer);state.playTimer=null;if($('#playBtn'))$('#playBtn').textContent='▶ Auto 5y/tick'}
-function togglePlay(){if(state.playing){stopPlay();return}state.playing=true;$('#playBtn').textContent='■ Stop';state.playTimer=setInterval(()=>{if(!state.world||state.world.history.currentYear>=5000){stopPlay();return}S.simulateYears(state.world,5);state.viewYear=null;renderWorld(false)},650)}
+async function advanceYears(years,autoplay=false){
+  if(!autoplay)stopPlay();
+  const n=Math.max(0,Math.floor(Number(years)||0));if(!state.world||!n)return;
+  return window.WorldForgeEndlessUI.runAsync(n,{autoplay});
+}
+function runToTarget(){return window.WorldForgeEndlessUI.runToAsync(Math.floor(Number($('#targetYearInput').value)))}
+function stopPlay(){state.playing=false;clearTimeout(state.playTimer);state.playTimer=null;if($('#playBtn'))$('#playBtn').textContent='▶ Auto 5y/tick'}
+function togglePlay(){
+  if(state.playing){stopPlay();return}
+  state.playing=true;$('#playBtn').textContent='■ Stop';
+  const tick=async()=>{
+    if(!state.playing)return;
+    try{await advanceYears(5,true)}catch(error){console.error(error);stopPlay();toast('Automatic simulation stopped')}
+    if(state.playing)state.playTimer=setTimeout(tick,650);
+  };
+  state.playTimer=setTimeout(tick,650);
+}
 function syncControls(){const s=state.world.settings;$('#seedInput').value=s.seed;$('#widthInput').value=s.width;$('#heightInput').value=s.height;$('#seaLevelInput').value=s.seaLevel;$('#ageInput').value=s.age;$('#settlementInput').value=s.settlementTarget;$('#kingdomInput').value=s.kingdomTarget;updateRangeLabels()}
 function bind(){state.renderer=new WorldRenderer($('#worldCanvas'));state.renderer.onHover=(s,p)=>{const tip=$('#mapTooltip');if(!s||!p){tip.classList.add('hidden');return}const view=getView(),kid=view.settlementKingdomIds[s.id],k=getRealm(view,kid),biome=E.BIOMES[state.world.layers.biome[s.y*state.world.settings.width+s.x]]?.label,capital=view.realms.some(r=>r.active&&r.capitalId===s.id);tip.innerHTML=`<b>${esc(s.name)}</b>${capital?'Capital · ':''}${esc(s.type)}<br>${esc(k?.name||'Unruled')}<br>${esc(biome)} · pop. ${fmt(view.settlementPopulation[s.id])}<br>Prosperity ${fmt(view.settlementProsperity[s.id]*100,0)}% · Year ${view.year}`;tip.style.left=Math.min(p.x+14,$('#mapWrap').clientWidth-255)+'px';tip.style.top=Math.max(12,p.y-20)+'px';tip.classList.remove('hidden')};state.renderer.onSelectSettlement=s=>{const row=document.querySelector(`[data-settlement="${s.id}"]`);row?.scrollIntoView({behavior:'smooth',block:'center'});toast(`${s.name} selected`)};
-  $('#generateBtn').addEventListener('click',forge);$('#randomSeedBtn').addEventListener('click',()=>{$('#seedInput').value=randomSeed();forge()});$('#copySeedBtn').addEventListener('click',async()=>{await navigator.clipboard?.writeText($('#seedInput').value);toast('Seed copied')});['seaLevelInput','settlementInput','kingdomInput'].forEach(id=>$('#'+id).addEventListener('input',updateRangeLabels));$$('.map-mode').forEach(b=>b.addEventListener('click',()=>{$$('.map-mode').forEach(x=>x.classList.remove('active'));b.classList.add('active');state.mode=b.dataset.mode;state.renderer.setMode(state.mode);renderLegend()}));$('#zoomInBtn').addEventListener('click',()=>{state.renderer.camera.zoom=Math.min(8,state.renderer.camera.zoom*1.3);state.renderer.draw();updateZoom()});$('#zoomOutBtn').addEventListener('click',()=>{state.renderer.camera.zoom=Math.max(.75,state.renderer.camera.zoom/1.3);state.renderer.draw();updateZoom()});$('#centerBtn').addEventListener('click',()=>{state.renderer.center();updateZoom()});$('#worldCanvas').addEventListener('wheel',()=>setTimeout(updateZoom,0),{passive:true});
+  $('#generateBtn').addEventListener('click',forge);$('#randomSeedBtn').addEventListener('click',()=>{$('#seedInput').value=randomSeed();forge()});$('#copySeedBtn').addEventListener('click',async()=>{try{if(!navigator.clipboard)throw new Error('Clipboard unavailable');await navigator.clipboard.writeText($('#seedInput').value);toast('Seed copied')}catch{toast('Could not copy the seed. Select and copy it manually.')}});['seaLevelInput','settlementInput','kingdomInput'].forEach(id=>$('#'+id).addEventListener('input',updateRangeLabels));$$('.map-mode').forEach(b=>b.addEventListener('click',()=>{$$('.map-mode').forEach(x=>x.classList.remove('active'));b.classList.add('active');state.mode=b.dataset.mode;state.renderer.setMode(state.mode);renderLegend()}));$('#zoomInBtn').addEventListener('click',()=>{state.renderer.camera.zoom=Math.min(8,state.renderer.camera.zoom*1.3);state.renderer.draw();updateZoom()});$('#zoomOutBtn').addEventListener('click',()=>{state.renderer.camera.zoom=Math.max(.75,state.renderer.camera.zoom/1.3);state.renderer.draw();updateZoom()});$('#centerBtn').addEventListener('click',()=>{state.renderer.center();updateZoom()});$('#worldCanvas').addEventListener('wheel',()=>setTimeout(updateZoom,0),{passive:true});
   $('#kingdomList').addEventListener('click',e=>{const card=e.target.closest('[data-settlement]');if(card&&card.dataset.settlement!=='')state.renderer.focusSettlement(Number(card.dataset.settlement))});$('#settlementTable').addEventListener('click',e=>{const tr=e.target.closest('[data-settlement]');if(tr)state.renderer.focusSettlement(Number(tr.dataset.settlement))});$('#settlementFilter').addEventListener('change',()=>renderSettlements());$('#settlementSort').addEventListener('change',()=>renderSettlements());
-  $('#saveBtn').addEventListener('click',()=>{if(!state.world)return toast('Forge a world first');localStorage.setItem('worldforge-main',E.serialize(state.world));toast(`World + history + society saved at Year ${state.world.history.currentYear}`)});$('#loadBtn').addEventListener('click',()=>{const raw=localStorage.getItem('worldforge-main')||localStorage.getItem('worldforge-v01');if(!raw)return toast('No local save found');try{stopPlay();state.world=E.deserialize(raw);H.initialize(state.world);S.initialize(state.world);state.initializedWorld=state.world;state.viewYear=null;state.selectedPersonId=null;syncControls();renderWorld(true);toast('World, chronicle and society loaded')}catch(e){console.error(e);toast('Save could not be loaded')}});$('#exportBtn').addEventListener('click',()=>{if(!state.world)return toast('Forge a world first');download(`${state.world.name.replace(/\W+/g,'-').toLowerCase()}.worldforge.json`,E.serialize(state.world))});$('#importInput').addEventListener('change',async e=>{const f=e.target.files?.[0];if(!f)return;try{stopPlay();state.world=E.deserialize(await f.text());H.initialize(state.world);S.initialize(state.world);state.initializedWorld=state.world;state.viewYear=null;state.selectedPersonId=null;syncControls();renderWorld(true);toast('World imported')}catch(err){console.error(err);toast('Invalid WorldForge file')}e.target.value=''});
+  $('#saveBtn').addEventListener('click',()=>{if(!state.world)return toast('Forge a world first');try{localStorage.setItem('worldforge-main',E.serialize(state.world));toast('World saved locally')}catch(error){console.error(error);toast('Local save unavailable or full. Use Export World to keep your world.')}});$('#loadBtn').addEventListener('click',()=>{try{const raw=localStorage.getItem('worldforge-main')||localStorage.getItem('worldforge-v01');if(!raw)return toast('No local save found');stopPlay();invalidateWorldWork();const loaded=E.deserialize(raw);H.initialize(loaded);S.initialize(loaded);state.world=loaded;H.initialize(state.world);S.initialize(state.world);state.initializedWorld=state.world;state.viewYear=null;state.selectedPersonId=null;syncControls();renderWorld(true);toast('World, chronicle and society loaded')}catch(e){console.error(e);toast('Save could not be loaded')}});$('#exportBtn').addEventListener('click',()=>{if(!state.world)return toast('Forge a world first');download(`${state.world.name.replace(/\W+/g,'-').toLowerCase()}.worldforge.json`,E.serialize(state.world))});$('#importInput').addEventListener('change',async e=>{const f=e.target.files?.[0];if(!f)return;stopPlay();const generation=invalidateWorldWork();try{const raw=await f.text();if(generation!==state.generation)return;const imported=E.deserialize(raw);H.initialize(imported);S.initialize(imported);state.world=imported;H.initialize(state.world);S.initialize(state.world);state.initializedWorld=state.world;state.viewYear=null;state.selectedPersonId=null;syncControls();renderWorld(true);toast('World imported')}catch(err){console.error(err);toast('Invalid WorldForge file')}e.target.value=''});
   $$('[data-years]').forEach(b=>b.addEventListener('click',()=>advanceYears(Number(b.dataset.years))));$('#runTargetBtn').addEventListener('click',runToTarget);$('#playBtn').addEventListener('click',togglePlay);$('#presentBtn').addEventListener('click',()=>{state.viewYear=null;renderWorld(false)});$('#timelineSlider').addEventListener('input',e=>setHistoricalYear(e.target.value));$('#eventFilter').addEventListener('change',()=>renderChronicle(getView()));
   ['peopleRealmFilter','peopleOccupationFilter','peopleSort'].forEach(id=>$('#'+id).addEventListener('change',()=>renderPeople(getView(),getSocietyView())));$('#peopleTable').addEventListener('click',e=>{const tr=e.target.closest('[data-person]');if(!tr)return;state.selectedPersonId=Number(tr.dataset.person);renderPeople(getView(),getSocietyView())});$('#familyGraph').addEventListener('click',e=>{const b=e.target.closest('[data-person]');if(!b)return;state.selectedPersonId=Number(b.dataset.person);renderPersonDossier(getView(),getSocietyView())});
 }
-updateRangeLabels();bind();forge();
+function invalidateWorldWork(){
+  state.generation++;if(state.world)window.WorldForgeEndless?.cancel(state.world);
+  $('#generateBtn').disabled=false;$('#generateBtn').textContent='FORGE WORLD';
+  return state.generation;
+}
+window.addEventListener('worldforge:simulation-start',event=>{if(!event.detail?.autoplay)stopPlay()});
+window.addEventListener('worldforge:workspace-change',()=>{if(state.world)renderWorld(false,false)});
+window.addEventListener('worldforge:ready',()=>{
+  if(!window.WorldForgeEndlessUI.state.running)document.querySelectorAll('.history-action').forEach(b=>b.disabled=false);
+});
+updateRangeLabels();bind();
+$('#cancelSimBtn')?.addEventListener('click',()=>{stopPlay();if(state.world)window.WorldForgeEndless.cancel(state.world)});
+if(!window.WorldForgeLoader?.ready)document.querySelectorAll('.history-action').forEach(b=>b.disabled=true);
+window.WorldForgeApp={state,forge,advanceYears,stopPlay};
+forge();
 })();

@@ -144,6 +144,7 @@ assert.ok(firstSubtabMarkup.includes('data-workspace-page="generator"'));
 assert.equal(subtabs.innerHTMLWrites, 1);
 navigation.refresh();
 assert.equal(subtabs.innerHTMLWrites, 1, 'unchanged subtabs should not be rebuilt');
+assert.equal(navigation.resolvePanelPage(new FakeElement('artifactPanelCopy', 'not-artifact-panel')).category, 'overview', 'panel markers must match exactly');
 
 while (frames.length) frames.shift()();
 let structureCallbacks = 0;
@@ -163,4 +164,28 @@ const page = new FakeElement('cityActivitySection');
 observerInstance.callback([{ target: layout, addedNodes: [page], removedNodes: [] }]);
 assert.equal(frames.length, 1, 'multiple structural changes in one frame should be coalesced');
 
-console.log('workspace navigation lifecycle checks passed');
+const worldbuilding = new FakeElement('worldbuildingPanel', 'panel worldbuilding-panel');
+const activity = new FakeElement('cityActivitySection');
+activity.dataset.workspaceCategory = 'places';
+activity.dataset.workspacePage = 'activity';
+activity.parentElement = worldbuilding;
+selectors.set('#worldbuildingPanel', worldbuilding);
+document.querySelectorAll = selector => {
+  if (selector === '.layout > .panel') return [worldbuilding];
+  if (selector === '#worldbuildingPanel [data-workspace-category]') return [activity];
+  if (selector === '[data-workspace-category]') return [worldbuilding, activity];
+  return [];
+};
+navigation.refresh();
+assert.equal(worldbuilding.hidden, true, 'unrelated pages should hide the worldbuilding shell');
+navigation.activateCategory('places');
+assert.equal(worldbuilding.hidden, false, 'nested activity must reveal its parent shell');
+assert.equal(activity.hidden, false);
+assert.ok(subtabs.innerHTML.includes('data-workspace-page="activity"'));
+assert.ok(!subtabs.innerHTML.includes('data-workspace-page="cities"'), 'unmounted pages should not produce empty navigation');
+context.localStorage.getItem = () => { throw new Error('Storage blocked'); };
+context.localStorage.setItem = () => { throw new Error('Storage blocked'); };
+navigation.activateCategory('places');
+navigation.setMode('corrupt-mode');
+assert.equal(document.documentElement.dataset.workspaceMode, 'balanced');
+console.log('workspace navigation lifecycle, nested visibility and storage recovery checks passed');
