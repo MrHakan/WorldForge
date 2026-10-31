@@ -1,0 +1,84 @@
+import assert from 'node:assert/strict';
+import {mkdir,writeFile} from 'node:fs/promises';
+import {resolve} from 'node:path';
+import {chromium} from 'playwright';
+import {createPagesServer} from '../../scripts/serve.mjs';
+
+const root=resolve(import.meta.dirname,'../..'),server=createPagesServer(resolve(root,'dist'));
+await new Promise(resolve=>server.listen(0,'127.0.0.1',resolve));
+const browser=await chromium.launch({headless:true});
+const page=await browser.newPage({viewport:{width:1536,height:1000},deviceScaleFactor:1});
+page.setDefaultTimeout(15000);
+const errors=[],failedRequests=[];
+page.on('pageerror',error=>errors.push(error.message));
+page.on('console',message=>{if(message.type()==='error')errors.push(message.text())});
+page.on('response',response=>{if(response.status()>=400)failedRequests.push(response.status()+' '+response.url())});
+await mkdir(resolve(root,'test-results'),{recursive:true});
+try{
+  await page.goto('http://127.0.0.1:'+server.address().port+'/WorldForge/');
+  await page.waitForFunction(()=>window.WorldForgeLoader?.ready,null,{timeout:45000});
+  await page.waitForFunction(()=>document.querySelector('#worldforgeStrategicMapControls')?.closest('#atlasAdvancedControls'),null,{timeout:15000});
+  await page.evaluate(()=>new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve))));
+  await page.screenshot({path:resolve(root,'test-results/atlas-desktop.jpg'),type:'jpeg',quality:58});
+  assert.equal(await page.evaluate(()=>WorldForgeApp.state.renderer.projection),'relief');
+  assert.equal(await page.evaluate(()=>WorldForgeApp.state.renderer.mode),'terrain');
+  assert.ok(await page.locator('#atlasInspector .generator-panel').isVisible());
+  assert.ok(await page.locator('#atlasLayerPanel').isHidden(),'analytical controls must start closed');
+  assert.equal(await page.locator('#mapWrap #strategicMapTools,#mapWrap #worldforgeStrategicMapControls,#mapWrap #tradeRouteControls').count(),0,'legacy controls must not cover the map');
+  const pixels=await page.evaluate(()=>{
+    const canvas=document.querySelector('#worldCanvas'),data=canvas.getContext('2d').getImageData(0,0,canvas.width,canvas.height).data;
+    let land=0,total=0;const colors=new Set();
+    for(let i=0;i<data.length;i+=64){total++;if(data[i]>60&&data[i+1]>65&&data[i+2]<155)land++;colors.add((data[i]>>3)+','+(data[i+1]>>3)+','+(data[i+2]>>3))}
+    return{landRatio:land/total,colors:colors.size,width:canvas.clientWidth,height:canvas.clientHeight};
+  });
+  assert.ok(pixels.landRatio>.08&&pixels.landRatio<.9,'terrain must show a landmass and water');
+  assert.ok(pixels.colors>60,'elevation and hill shading must produce a varied surface');
+  assert.ok(pixels.width>740&&pixels.height>470,'the atlas must be the primary desktop workspace');
+  assert.equal(await page.locator('#worldforgeTradeOverlay path,#worldforgeSupplyOverlay g,#worldforgeStrategicMapOverlay line').count(),0,'strategic overlays should be opt-in');
+  const target=await page.evaluate(()=>{
+    const r=WorldForgeApp.state.renderer,rect=r.canvas.getBoundingClientRect();
+    const candidates=r.world.settlements.map(s=>({s,p:r.worldToScreen(s.x+.5,s.y+.5)})).filter(({p})=>p.x>40&&p.y>60&&p.x<rect.width-80&&p.y<rect.height-80);
+    const {s,p}=candidates[0];return{id:s.id,x:rect.left+p.x,y:rect.top+p.y};
+  });
+  await page.mouse.click(target.x,target.y);
+  await page.waitForFunction(id=>WorldForgeApp.state.renderer.selectedSettlementId===id,target.id);
+  assert.ok(await page.locator('#atlasSelection').isVisible(),'projected settlement markers should be selectable');
+  await page.locator('.atlas-selection-close').click();
+  const displaced=await page.evaluate(()=>{const r=WorldForgeApp.state.renderer,s=r.world.settlements[0];return r.worldToScreen(s.x+.5,s.y+.5).y});
+  await page.locator('[data-atlas-projection="flat"]').click();
+  assert.equal(await page.evaluate(()=>WorldForgeApp.state.renderer.projection),'flat');
+  const flat=await page.evaluate(()=>{const r=WorldForgeApp.state.renderer,s=r.world.settlements[0];return r.worldToScreen(s.x+.5,s.y+.5).y});
+  assert.ok(Math.abs(displaced-flat)>1,'2.5D must displace terrain geometry, not only restyle the canvas');
+  await page.locator('[data-atlas-projection="relief"]').click();
+  await page.locator('#atlasLayersButton').click();
+  await page.locator('[data-atlas-layer="trade"]').check();
+  assert.equal(await page.evaluate(()=>WorldForgeMapExperience.isLayerVisible('trade')),true);
+  await page.locator('[data-atlas-layer="trade"]').uncheck();
+  await page.keyboard.press('Escape');
+  assert.ok(await page.locator('#atlasLayerPanel').isHidden());
+  await page.locator('#atlasTheme').selectOption('political');
+  assert.equal(await page.evaluate(()=>WorldForgeApp.state.renderer.mode),'political');
+  await page.locator('#atlasTheme').selectOption('terrain');
+  await page.locator('#atlasDetailsButton').click();
+  assert.ok(await page.locator('#atlasInspector').isHidden());
+  await page.locator('#atlasDetailsButton').click();
+  assert.ok(await page.locator('#atlasInspector').isVisible());
+  await page.setViewportSize({width:390,height:844});
+  await page.evaluate(()=>WorldForgeMapExperience.focusMap(true));
+  await page.evaluate(()=>new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve))));
+  assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),'mobile atlas must not overflow');
+  await page.screenshot({path:resolve(root,'test-results/atlas-mobile.jpg'),type:'jpeg',quality:62});
+  await page.locator('#atlasDetailsButton').click();
+  assert.ok(await page.locator('#atlasInspector .generator-panel').isVisible(),'mobile details must remain reachable');
+  await page.evaluate(()=>WorldForgeMapExperience.focusMap(true));
+  await page.locator('#atlasLayersButton').click();
+  assert.ok(await page.locator('#atlasLayerPanel').isVisible());
+  await page.keyboard.press('Escape');
+  assert.deepEqual(failedRequests,[]);
+  assert.deepEqual(errors,[]);
+  console.log('Atlas browser: terrain coverage, 2.5D picking, projections, clean controls, opt-in overlays, focus and mobile passed');
+}catch(error){
+  await page.screenshot({path:resolve(root,'test-results/atlas-failure.jpg'),type:'jpeg',quality:55,timeout:5000}).catch(()=>{});
+  await writeFile(resolve(root,'test-results/atlas-errors.json'),JSON.stringify({error:error.stack,errors,failedRequests},null,2));
+  throw error;
+}finally{await browser.close();await new Promise(resolve=>server.close(resolve))}
