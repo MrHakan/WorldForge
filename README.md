@@ -11,7 +11,9 @@
 - One theme selector and an opt-in layer drawer; advanced controls stay off the canvas.
 - Shared coordinates for terrain, picking and analytical overlays, with cached camera redraws.
 
-See [v5.2 release notes](docs/releases/V5.2.md).
+Close zoom uses device-resolution terrain tiles and procedural buildings. Technology and population grow settlements from camps through clay villages, brick towns, fortified cities and civic metropolises.
+
+See [v5.3 release notes](docs/releases/V5.3.md).
 
 ### Local workspace
 

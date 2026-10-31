@@ -25,7 +25,7 @@ for(const projection of['relief','flat']){
 }
 renderer.projection='relief';
 const first=T.build(renderer);
-renderer.camera.x=.53;renderer.camera.zoom=2;
+renderer.camera.x=.53;renderer.camera.zoom=1;
 assert.equal(T.build(renderer),first,'camera changes must reuse the cached terrain surface');
 renderer.historyView={year:100};
 assert.equal(T.build(renderer),first,'natural terrain should be reused across historical views');

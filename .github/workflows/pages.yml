@@ -52,6 +52,8 @@ jobs:
         run: npm run test:browser
       - name: Verify atlas interaction and visual layout
         run: npm run test:atlas
+      - name: Verify HD terrain and evolving settlements
+        run: npm run test:hd
       - name: Record generated atlas review images
         if: always()
         run: node scripts/print-visual-review.mjs

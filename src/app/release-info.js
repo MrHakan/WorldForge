@@ -1,6 +1,6 @@
 (function (root) {
   'use strict';
-  const version = '5.2.0', name = 'Terrain Atlas';
+  const version = '5.3.0', name = 'Living Atlas HD';
   function apply() {
     if (typeof document === 'undefined') return;
     const worldName = root.WorldForgeApp?.state?.world?.name;

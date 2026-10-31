@@ -52,7 +52,7 @@ function natural(w,x,y){
   const W=w.settings.width,H=w.settings.height,L=w.layers,sea=w.settings.seaLevel,e=elevation(w,x,y);
   if(e<sea){
     const depth=sea-e;
-    if(depth<.022)return mix(SHALLOWS,BEACH,.27*(1-depth/.022));
+    if(depth<.022)return mix(SHALLOWS,BEACH,1-depth/.022);
     return mix(SHALLOWS,OCEAN,clamp((depth-.022)/.19,0,1));
   }
   const q=(e-sea)/Math.max(.05,1-sea),m=sample(L.moisture,W,H,x,y),t=sample(L.temperature,W,H,x,y);
@@ -86,43 +86,48 @@ function terrainColor(renderer,x,y){
   return rgb(c);
 }
 function hash(x,y){let a=Math.imul(x|0,374761393)^Math.imul(y|0,668265263);a=Math.imul(a^(a>>>13),1274126177);return((a^(a>>>16))>>>0)/4294967295}
-function build(renderer){
+function build(renderer,tile=null){
   const w=renderer.world,mode=renderer.mode,projection=renderer.projection||'relief',p=pitch(projection),naturalMode=mode==='terrain';
   let entries=caches.get(w);if(!entries){entries=[];caches.set(w,entries)}
-  const previous=entries.find(entry=>entry.mode===mode&&entry.projection===projection&&(naturalMode||entry.view===renderer.historyView));
+  const overviewRes=Math.max(5,Math.min(16,2**Math.ceil(Math.log2(metrics(renderer).scale*(renderer.dpr||1)))));
+  const key=tile?`${tile.x}:${tile.y}:${tile.res}`:`overview:${overviewRes}`;
+  const previous=entries.find(entry=>entry.key===key&&entry.mode===mode&&entry.projection===projection&&(naturalMode||entry.view===renderer.historyView));
   if(previous)return previous;
-  const W=w.settings.width,H=w.settings.height,res=5,pad=11;
+  const W=w.settings.width,H=w.settings.height,res=tile?.res||overviewRes,x0=tile?.x||0,y0=tile?.y||0,size=tile?.size||8,xEnd=tile?Math.min(W,x0+size):W,yEnd=tile?Math.min(H,y0+size):H;
+  let pad=11;if(tile){pad=1;for(let y=y0;y<=yEnd;y++)for(let x=x0;x<=xEnd;x++)pad=Math.max(pad,Math.ceil(height(w,x,y,projection))+1)}
   const canvas=document.createElement('canvas');
-  canvas.width=W*res;canvas.height=Math.ceil((H*p+pad+2)*res);
-  const ctx=canvas.getContext('2d',{alpha:false});
-  ctx.fillStyle=rgb(OCEAN);ctx.fillRect(0,0,canvas.width,canvas.height);
-  const point=(x,y)=>[x*res,(pad+y*p-height(w,x,y,projection))*res];
-  const step=.5;
-  for(let y=0;y<H;y+=step){
-    for(let x=0;x<W;x+=step){
+  canvas.width=(xEnd-x0)*res;canvas.height=Math.ceil(((yEnd-y0)*p+pad+2)*res);
+  const ctx=canvas.getContext('2d',{alpha:Boolean(tile)});
+  if(!tile){ctx.fillStyle=rgb(OCEAN);ctx.fillRect(0,0,canvas.width,canvas.height)}
+  const point=(x,y)=>[(x-x0)*res,(pad+(y-y0)*p-height(w,x,y,projection))*res];
+  const step=tile?Math.max(.0625,Math.min(.5,4/res)):.5;
+  for(let y=y0;y<yEnd;y+=step){
+    for(let x=x0;x<xEnd;x+=step){
       const c=terrainColor(renderer,x+step/2,y+step/2),a=point(x,y),b=point(x+step,y),d=point(x,y+step),f=point(x+step,y+step);
       ctx.fillStyle=c;ctx.strokeStyle=c;ctx.lineWidth=.7;
       ctx.beginPath();ctx.moveTo(...a);ctx.lineTo(...b);ctx.lineTo(...f);ctx.lineTo(...d);ctx.closePath();ctx.fill();ctx.stroke();
     }
   }
   if(['terrain','political','biome'].includes(mode)){
-    for(let y=1;y<H-1;y++)for(let x=1;x<W-1;x++){
+    for(let y=Math.max(1,y0);y<Math.min(H-1,yEnd);y++)for(let x=Math.max(1,x0);x<Math.min(W-1,xEnd);x++){
       const index=y*W+x,biome=w.layers.biome[index],n=hash(x,y),e=elevation(w,x,y);
       if(e<w.settings.seaLevel-.07&&n<.025){
         const [px,py]=point(x+.5,y+.5);ctx.strokeStyle='rgba(128,190,193,.11)';ctx.lineWidth=.65;ctx.beginPath();ctx.moveTo(px,py);ctx.quadraticCurveTo(px+3,py-1,px+6,py);ctx.stroke();
       }
       if(projection==='flat'||!['forest','taiga','rainforest'].includes(biome)||n>.14||e<w.settings.seaLevel+.025)continue;
-      const [px,py]=point(x+.25+n*2,y+.5),size=2.1+n*7;
+      const [px,py]=point(x+.25+n*2,y+.5),size=res*(.18+n*.7);
       ctx.fillStyle='rgba(8,36,32,.16)';ctx.beginPath();ctx.ellipse(px+size*.65,py+size*.3,size*1.2,size*.35,-.3,0,Math.PI*2);ctx.fill();
       ctx.fillStyle='rgba(37,79,61,.68)';ctx.beginPath();ctx.moveTo(px,py-size*1.8);ctx.lineTo(px-size*.65,py);ctx.lineTo(px+size*.65,py);ctx.closePath();ctx.fill();
       ctx.fillStyle='rgba(111,151,107,.65)';ctx.beginPath();ctx.moveTo(px,py-size*1.8);ctx.lineTo(px,py);ctx.lineTo(px-size*.65,py);ctx.closePath();ctx.fill();
     }
   }
-  const result={canvas,mode,projection,pitch:p,yOrigin:-pad,unitsHigh:H*p+pad+2,view:renderer.historyView};
-  entries.push(result);if(entries.length>4)entries.shift();
+  const result={canvas,key,mode,projection,pitch:p,xOrigin:x0,yOrigin:y0*p-pad,unitsWide:xEnd-x0,unitsHigh:(yEnd-y0)*p+pad+2,view:renderer.historyView};
+  entries.push(result);let pixels=entries.reduce((n,e)=>n+e.canvas.width*e.canvas.height,0);while(entries.length>1&&(entries.length>256||pixels>32000000)){const old=entries.shift();pixels-=old.canvas.width*old.canvas.height}
   return result;
 }
 function draw(renderer){
+  const detail=metrics(renderer);
+  if(renderer.camera.zoom>=2&&detail.scale*(renderer.dpr||1)>6)return drawTiles(renderer,detail);
   const ctx=renderer.ctx,m=metrics(renderer),W=renderer.world.settings.width,surface=build(renderer),left=renderer.camera.x*W-m.viewW/2,cy=renderer.camera.y*renderer.world.settings.height;
   ctx.imageSmoothingEnabled=true;ctx.imageSmoothingQuality='high';
   for(const offset of[-W,0,W]){
@@ -130,6 +135,17 @@ function draw(renderer){
     ctx.drawImage(surface.canvas,x,y,W*m.scale,surface.unitsHigh*m.scale);
   }
   return surface;
+}
+function drawTiles(renderer,m){
+  const W=renderer.world.settings.width,H=renderer.world.settings.height,cy=renderer.camera.y*H,left=renderer.camera.x*W-m.viewW/2;
+  const res=Math.min(512,2**Math.ceil(Math.log2(m.scale*(renderer.dpr||1)))),size=res>128?4:8;
+  const top=Math.max(0,Math.floor((cy-m.viewH/2)/size)*size),bottom=Math.min(H,cy+m.viewH/2+16);
+  let count=0;
+  for(let y=top;y<bottom;y+=size)for(const offset of[-W,0,W]){
+    const start=Math.max(0,Math.floor((left-offset)/size)*size),end=Math.min(W,left+m.viewW-offset+size);
+    for(let x=start;x<end;x+=size){const s=build(renderer,{x,y,res,size});renderer.ctx.drawImage(s.canvas,(offset+x-left)*m.scale,m.height/2+(s.yOrigin-cy*m.pitch)*m.scale,s.unitsWide*m.scale,s.unitsHigh*m.scale);count++}
+  }
+  renderer.terrainDetail={resolution:res,tiles:count,pixelsPerCell:m.scale*(renderer.dpr||1)};
 }
 function settlementPosition(world,city){
   if(typeof city!=='object')city=(world.cities?.cities||[]).find(c=>String(c.id)===String(city));

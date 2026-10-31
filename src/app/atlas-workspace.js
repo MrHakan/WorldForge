@@ -7,7 +7,7 @@ const defaults={labels:true,borders:false,roads:false,trade:false,military:false
 let saved={};try{saved=JSON.parse(localStorage.getItem(key)||'{}')}catch{}
 const state={projection:saved.projection==='flat'?'flat':'relief',mode:['terrain','political','biome','elevation','temperature','moisture','population','prosperity','trade','fiscal','workforce','migration'].includes(saved.mode)?saved.mode:'terrain',layers:{...defaults},focus:innerWidth<900,wide:false};
 for(const name of Object.keys(defaults))if(typeof saved.layers?.[name]==='boolean')state.layers[name]=saved.layers[name];
-let renderer=null,lastWorld=null,overlayFrame=0,adoptionFrame=0,observer,mounted=false;
+let renderer=null,lastWorld=null,lastDevelopment=null,overlayFrame=0,adoptionFrame=0,observer,mounted=false;
 const esc=value=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const icon=(paths,size=18)=>'<svg viewBox="0 0 24 24" width="'+size+'" height="'+size+'" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+paths+'</svg>';
 const icons={
@@ -76,6 +76,7 @@ function selection(){
   host.hidden=!s;if(!s)return;
   const realm=renderer.realm(renderer.ownerOf(s)),population=Math.round(renderer.popOf(s)).toLocaleString();
   host.innerHTML='<button class="atlas-selection-close" aria-label="Close settlement details">×</button><span class="atlas-kicker">SETTLEMENT</span><strong>'+esc(s.name)+'</strong><p>'+esc(realm?.name||'Independent')+' · '+population+' people</p><button class="atlas-open-settlement">Open settlement '+icon('<path d="M5 12h14m-5-5 5 5-5 5"/>',14)+'</button>';
+  const development=window.WorldForgeLivingSettlements.profile(renderer,s);host.querySelector('p').append(document.createTextNode(' · '+development.label+(development.historical?' (historical estimate)':'')));const explore=document.createElement('button');explore.textContent='Explore settlement';explore.onclick=()=>{renderer.focusSettlement(s.id);closeLayers()};host.appendChild(explore);
   host.querySelector('.atlas-selection-close').onclick=()=>{renderer.selectedSettlementId=null;selection();redraw()};
   host.querySelector('.atlas-open-settlement').onclick=()=>{window.WorldForgeWorkspaceNavigation.activateCategory('places');window.WorldForgeWorkspaceNavigation.activatePage('settlements');focusMap(false)};
 }
@@ -84,7 +85,7 @@ function onDraw(event){
   const world=renderer.world;if(!world)return;
   const label=$('#atlasDimensions');if(label){const value=world.settings.width+' × '+world.settings.height+' cells';if(label.textContent!==value)label.textContent=value}
   const zoom=$('#atlasZoom');if(zoom)zoom.textContent=Math.round(renderer.camera.zoom*100)+'%';
-  if(lastWorld!==world){lastWorld=world;selection()}
+  const selected=world.settlements.find(s=>s.id===renderer.selectedSettlementId);const development=selected?window.WorldForgeLivingSettlements.profile(renderer,selected):null;const signature=development?[selected.id,development.stage,development.population,development.historical].join('|'):null;if(lastWorld!==world||lastDevelopment!==signature){lastWorld=world;lastDevelopment=signature;selection()}
   refreshOverlays();
 }
 function setup(){
