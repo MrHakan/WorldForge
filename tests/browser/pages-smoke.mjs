@@ -84,7 +84,7 @@ try {
   await mkdir(resolve(root, 'test-results'), { recursive: true });
   console.error('Browser check failed:',error.stack);
   await writeFile(resolve(root, 'test-results/errors.json'), JSON.stringify({ errors, failedRequests, failure:error.stack }, null, 2));
-  await page.screenshot({ path: resolve(root, 'test-results/failure.png'), fullPage: false,timeout:5000 }).catch(()=>{});
+  await page.screenshot({ path: resolve(root, 'test-results/failure.jpg'), type:'jpeg',quality:50,fullPage: false,timeout:5000 }).catch(()=>{});
   throw error;
 } finally {
   await browser.close();

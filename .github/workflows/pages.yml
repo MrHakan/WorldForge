@@ -35,7 +35,6 @@ jobs:
           TEST_CONCURRENCY: '2'
 
   build:
-    needs: validate
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
@@ -74,7 +73,7 @@ jobs:
 
   deploy:
     if: github.event_name != 'pull_request'
-    needs: build
+    needs: [validate, build]
     runs-on: ubuntu-latest
     timeout-minutes: 10
     permissions:
