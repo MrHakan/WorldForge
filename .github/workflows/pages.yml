@@ -35,7 +35,6 @@ jobs:
           TEST_CONCURRENCY: '2'
 
   build:
-    needs: validate
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
@@ -51,8 +50,13 @@ jobs:
         run: npx playwright install --with-deps chromium
       - name: Test real browser under the repository subpath
         run: npm run test:browser
+      - name: Verify atlas interaction and visual layout
+        run: npm run test:atlas
+      - name: Record generated atlas review images
+        if: always()
+        run: node scripts/print-visual-review.mjs
       - name: Upload browser diagnostics
-        if: failure()
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: browser-diagnostics
@@ -69,7 +73,7 @@ jobs:
 
   deploy:
     if: github.event_name != 'pull_request'
-    needs: build
+    needs: [validate, build]
     runs-on: ubuntu-latest
     timeout-minutes: 10
     permissions:

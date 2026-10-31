@@ -142,7 +142,7 @@
   function classify() {
     const layout = $('.layout');
     if (!layout) return;
-    $$('.layout > .panel').forEach(panel => {
+    [...$$('.layout > .panel'),...$$('#atlasInspector > .panel')].forEach(panel => {
       if (panel.classList.contains('map-panel')) {
         panel.dataset.workspacePersistent = 'map';
         panel.hidden = false;
@@ -200,7 +200,7 @@
 
     $$('[data-workspace-mode]').forEach(button => setPressed(button, button.dataset.workspaceMode === mode));
     $$('[data-workspace-tab]').forEach(button => setPressed(button, button.dataset.workspaceTab === activeCategory));
-    $$('.layout > .panel').forEach(panel => {
+    [...$$('.layout > .panel'),...$$('#atlasInspector > .panel')].forEach(panel => {
       const hidden = panel.dataset.workspacePersistent !== 'map' && !(panel.dataset.workspaceCategory === activeCategory && panel.dataset.workspacePage === activePage);
       if (panel.hidden !== hidden) {
         panel.hidden = hidden;

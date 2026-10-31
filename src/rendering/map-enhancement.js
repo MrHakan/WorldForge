@@ -217,6 +217,7 @@
   }
 
   function drawRealmLabels(renderer, data) {
+    if(window.WorldForgeMapExperience&&!window.WorldForgeMapExperience.isLayerVisible('detailedLabels'))return;
     if (!preferences.labels || !['political', 'population', 'prosperity', 'trade'].includes(renderer.mode)) return;
 
     const zoom = renderer.camera?.zoom || 1;
@@ -242,6 +243,7 @@
   }
 
   function drawSettlementDetails(renderer, data) {
+    if(window.WorldForgeMapExperience&&!window.WorldForgeMapExperience.isLayerVisible('detailedLabels'))return;
     if (!preferences.labels) return;
 
     const zoom = renderer.camera?.zoom || 1;
@@ -312,6 +314,7 @@
   }
 
   function drawHubs(renderer, index) {
+    if(window.WorldForgeMapExperience&&!window.WorldForgeMapExperience.isLayerVisible('hubs'))return;
     if (!preferences.hubs
       || (renderer.historyView && !renderer.historyView.isPresent)
       || (renderer.camera?.zoom || 1) < 1.8) return;
@@ -366,6 +369,7 @@
   }
 
   function drawSupplyNetwork(renderer) {
+    if(window.WorldForgeMapExperience&&!window.WorldForgeMapExperience.isLayerVisible('supply'))return;
     if (!preferences.supply
       || (renderer.historyView && !renderer.historyView.isPresent)
       || !renderer.world.military) return;
@@ -403,6 +407,7 @@
   }
 
   function drawFiscalStress(renderer) {
+    if(window.WorldForgeMapExperience&&!window.WorldForgeMapExperience.isLayerVisible('finance'))return;
     if (!preferences.finance
       || (renderer.historyView && !renderer.historyView.isPresent)
       || !renderer.world.treasury
@@ -456,6 +461,7 @@
     if (!this.world) return;
 
     ensureToolbar();
+    if(window.WorldForgeMapExperience&&!['detailedLabels','hubs','supply','finance'].some(key=>window.WorldForgeMapExperience.isLayerVisible(key))){drawScale(this);return;}
     const index = worldIndex(this.world);
     const data = viewData(this, index);
     drawFiscalStress(this);

@@ -1,7 +1,7 @@
 # Current WorldForge Release
 
-## v5.1.0 — Responsive Pages Workspace
+## v5.2.0 — Terrain Atlas
 
-The current release unifies the complete local and GitHub Pages entrypoint, guards concurrent simulation mutations, adds responsive annual cancellation and safe world replacement, fixes workspace navigation and release labels, and publishes releases after regression checks, browser validation and successful deployment. Existing world schemas and the complete v5.0 simulation stack are retained.
+The atlas now starts with a quiet, natural 2.5D terrain view: elevation-displaced geometry, directional hill shading, softened coasts, forests and small settlement buildings. A persistent navigation rail and scrollable details pane replace the crowded two-row workbench. Analytical overlays are opt-in and share the same map projection, camera and settlement coordinates.
 
-See [V5.1.md](V5.1.md) for release notes, compatibility, local commands and validation details.
+See [V5.2.md](V5.2.md) for release notes and validation.

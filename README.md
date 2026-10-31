@@ -4,14 +4,14 @@
 
 **Live:** https://mrhakan.github.io/WorldForge/
 
-## Current release — v5.1.0 Responsive Pages Workspace
+## Current release — v5.2.0 Terrain Atlas
 
-- Complete local and GitHub Pages runtime with one shared asset loader.
-- Guarded async simulation, annual cancellation, fair browser scheduling and safe world switching.
-- Working workspace destinations, consistent release labels and deferred hidden-panel rendering.
-- Clean production artifact, parallel regression checks and real browser tests before deployment and release.
+- A natural 2.5D map with elevation, hill shading, coastal water, forests and settlement buildings.
+- A navigation rail, scrollable details pane and a map focus mode.
+- One theme selector and an opt-in layer drawer; advanced controls stay off the canvas.
+- Shared coordinates for terrain, picking and analytical overlays, with cached camera redraws.
 
-See [v5.1 release notes](docs/releases/V5.1.md).
+See [v5.2 release notes](docs/releases/V5.2.md).
 
 ### Local workspace
 
@@ -25,6 +25,7 @@ npm run test:syntax
 npm run build
 npx playwright install chromium
 npm run test:browser
+npm run test:atlas
 ```
 
 The local workspace opens at http://127.0.0.1:4173/WorldForge/. Serve the clean `dist/` folder for production. Browser runtime requires no dependencies or backend.

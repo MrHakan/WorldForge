@@ -1,6 +1,6 @@
 (function (root) {
   'use strict';
-  const version = '5.1.0', name = 'Responsive Pages Workspace';
+  const version = '5.2.0', name = 'Terrain Atlas';
   function apply() {
     if (typeof document === 'undefined') return;
     const worldName = root.WorldForgeApp?.state?.world?.name;

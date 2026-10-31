@@ -1,0 +1,193 @@
+/* Atlas workspace: navigation, details and map each have one place. */
+html.atlas-app {
+  --bg:#0b151a;--bg2:#101d22;--panel:#132127;--panel2:#192b30;--line:#283b40;
+  --text:#e6ece8;--muted:#8fa7a7;--gold:#d5ba81;--shadow:0 12px 32px rgba(0,0,0,.14);
+  background:#0b151a;
+}
+html.atlas-app body {background:radial-gradient(ellipse at 65% -20%,#20393a 0,transparent 55%),#0b151a}
+html.atlas-app .app-shell {max-width:none;height:100dvh;min-height:700px;display:grid;grid-template-columns:174px minmax(0,1fr);grid-template-rows:70px 42px minmax(0,1fr) 22px;gap:12px;padding:16px 20px}
+html.atlas-app .topbar {grid-column:1/-1;grid-row:1;position:relative;top:auto;padding:11px 18px;background:rgba(17,31,36,.92);border-color:#293e42;border-radius:13px;box-shadow:none}
+html.atlas-app .brand-mark {height:39px;width:39px;border-radius:10px;font-size:13px;background:#223332;border-color:#526152}
+html.atlas-app .brand h1 {font-size:21px;letter-spacing:-.6px;font-weight:680}
+html.atlas-app .brand p {font-size:10px;color:#92aaa8;letter-spacing:.02em}
+html.atlas-app .version-pill {font-size:8px;letter-spacing:.08em;background:#253330;border-color:#49584b;color:#cbbf99}
+html.atlas-app .top-actions {gap:6px}
+.atlas-files {position:relative}
+#atlasFileMenu {display:flex;gap:6px}
+html.atlas-app #atlasFilesButton,html.atlas-app #atlasCloseInspector {display:none}
+html.atlas-app button,html.atlas-app .file-button {border-color:#344b4f;background:#1c3035;font-size:12px;font-weight:500;border-radius:7px}
+html.atlas-app button:hover,html.atlas-app .file-button:hover {background:#294147;border-color:#5c7777}
+html.atlas-app button.primary {background:#c5ae7e;color:#152223;border-color:#c5ae7e}
+html.atlas-app button:focus-visible,html.atlas-app select:focus-visible {outline:2px solid #e1c58c;outline-offset:3px}
+html.atlas-app input,html.atlas-app select,html.atlas-app textarea {background:#101e23;border-color:#344d51;border-radius:7px;font-size:12px;color:#e0e9e5}
+html.atlas-app .workspace-tabs {grid-column:1;grid-row:2/4;position:relative;top:auto;margin:0;padding:8px 0;display:flex;flex-direction:column;align-items:stretch;gap:5px;background:none;border:0;border-radius:0;box-shadow:none;backdrop-filter:none;overflow-y:auto;overflow-x:hidden}
+#atlasNavHeading {padding:0 12px 14px;font-size:9px;letter-spacing:.18em;font-weight:650;color:#698888}
+html.atlas-app .workspace-tabs button {display:flex;align-items:center;gap:11px;flex:0 0 auto;min-height:44px;padding:11px 12px;text-align:left;white-space:normal;background:transparent;border:1px solid transparent;font-size:12px;font-weight:500;color:#93abaa;border-radius:8px;line-height:1.3}
+html.atlas-app .workspace-tabs button svg {flex:0 0 auto;opacity:.85}
+html.atlas-app .workspace-tabs button.active {background:#203534;border-color:#3d5349;color:#ecdcbb;box-shadow:none}
+html.atlas-app .workspace-tabs button:hover {color:#f0e9d8;background:#182c31;border-color:#2d4347}
+html.atlas-app .workspace-spacer,html.atlas-app .workspace-view-modes {display:none}
+html.atlas-app .workspace-subtabs {grid-column:2;grid-row:2;position:relative;top:auto;margin:0;padding:0 4px;gap:22px;background:transparent;backdrop-filter:none;border:0;border-bottom:1px solid #293c41;border-radius:0;box-shadow:none;align-items:stretch;overflow-y:hidden;scrollbar-width:none}
+html.atlas-app .workspace-subtabs button {min-height:39px;padding:6px 0;background:transparent;border:0;border-bottom:2px solid transparent;border-radius:0;color:#8ba4a4;font-size:12px;font-weight:500;box-shadow:none}
+html.atlas-app .workspace-subtabs button.active {color:#e3d0a9;background:transparent;border-bottom-color:#ceb17a}
+html.atlas-app .layout {grid-column:2;grid-row:3;display:grid;grid-template-columns:310px minmax(0,1fr);gap:16px;margin:0;min-width:0;min-height:0;height:100%;align-items:stretch}
+html.atlas-app[data-atlas-wide="true"] .layout {grid-template-columns:minmax(390px,46%) minmax(0,1fr)}
+html.atlas-app[data-atlas-focus="true"] .layout {grid-template-columns:minmax(0,1fr)}
+html.atlas-app[data-atlas-focus="true"] #atlasInspector {display:none}
+#atlasInspector {grid-column:1;grid-row:1;overflow-y:auto;overflow-x:hidden;scrollbar-width:thin;scrollbar-color:#3b5557 transparent;display:flex;flex-direction:column;gap:12px;min-width:0;min-height:0;padding-right:3px;padding-bottom:20px}
+.atlas-inspector-heading {display:flex;align-items:center;justify-content:space-between;padding:0 2px 2px;color:#729392;font-size:11px}
+.atlas-inspector-heading button {display:grid;place-items:center;width:26px;height:26px;padding:5px;background:transparent!important}
+html.atlas-app #atlasInspector > .panel {position:relative;display:block;grid-column:auto;grid-row:auto;flex:0 0 auto;width:100%;min-width:0;min-height:0;margin:0;content-visibility:visible;border-color:#2c4043;background:linear-gradient(150deg,#17282c,#111e25);border-radius:12px;box-shadow:none}
+html.atlas-app #atlasInspector > .panel[hidden] {display:none!important}
+html.atlas-app .panel-head {padding:16px;border-color:#2b3e41;gap:10px}
+html.atlas-app .panel-head h2 {font-size:16px;font-weight:620;letter-spacing:-.3px;line-height:1.3}
+html.atlas-app .eyebrow {font-size:8px;letter-spacing:.14em;color:#96a88c;font-weight:600}
+html.atlas-app .form-stack {padding:16px}
+html.atlas-app .form-stack label {font-size:11px;font-weight:500;color:#a5bcb7}
+html.atlas-app .help {font-size:11px;line-height:1.6;color:#7f9b97}
+html.atlas-app .grid-2 {gap:12px}
+html.atlas-app input[type="range"] {accent-color:#c6ad78}
+html.atlas-app .history-heading {min-width:0}
+html.atlas-app #simState {display:none}
+html.atlas-app #currentYear {font-size:22px;font-weight:600;color:#e8d5ab;white-space:nowrap}
+html.atlas-app #eraLabel {font-size:10px;color:#8ca5a1}
+html.atlas-app .history-kpis {display:grid;grid-template-columns:1fr 1fr;gap:9px;padding:14px;border:0}
+html.atlas-app .history-kpis > div {background:#203234;border:0;border-radius:8px;padding:10px;min-width:0}
+html.atlas-app .history-kpis > div:last-child {grid-column:1/-1}
+html.atlas-app .history-kpis span {font-size:8px;letter-spacing:.06em;color:#8ba4a0}
+html.atlas-app .history-kpis b {font-size:22px;font-weight:570;letter-spacing:-.5px}
+html.atlas-app .sim-toolbar {display:block;padding:0 14px 14px}
+html.atlas-app .advance-buttons {display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}
+html.atlas-app .advance-buttons button {padding:9px 4px;font-size:11px}
+html.atlas-app #cancelSimBtn,html.atlas-app #playBtn {grid-column:span 2}
+html.atlas-app .target-control {display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:end;gap:8px;margin-top:14px}
+html.atlas-app .target-control label {display:block;font-size:10px;color:#9db3af}
+html.atlas-app .target-control input {display:block;width:100%;margin-top:7px}
+html.atlas-app .timeline-box {padding:14px;border-color:#304447}
+html.atlas-app .timeline-caption {font-size:8px;line-height:1.5}
+html.atlas-app .chronicle-list {max-height:none;padding:12px}
+html.atlas-app .chronicle-event {border-color:#304448;background:#172b2e}
+html.atlas-app .kingdom-list,html.atlas-app .architecture-grid {grid-template-columns:1fr;padding:12px}
+html.atlas-app .society-kpis,html.atlas-app .summary-kpis {grid-template-columns:1fr 1fr}
+html.atlas-app .filters {max-width:100%;flex-wrap:wrap}
+html.atlas-app .filters select {min-width:0;max-width:100%}
+html.atlas-app .layout > .map-panel {grid-column:2;grid-row:1;position:relative;top:auto;z-index:2;display:flex;flex-direction:column;align-self:stretch;min-width:0;min-height:0;height:100%;max-height:none;border-color:#30484c;background:#11303d;overflow:visible;border-radius:13px;box-shadow:0 24px 70px #0002}
+html.atlas-app[data-atlas-focus="true"] .layout > .map-panel {grid-column:1}
+html.atlas-app .panel-head.map-head {flex:0 0 auto;display:flex;align-items:center;justify-content:space-between;flex-direction:row;padding:16px 18px;background:#16292e;border-color:#345052;border-radius:12px 12px 0 0;gap:16px}
+html.atlas-app .map-head h2 {font-size:18px;font-weight:580;letter-spacing:-.4px;color:#edf0e3}
+html.atlas-app .map-head .eyebrow {color:#94aaa4;font-size:8px;letter-spacing:.17em}
+html.atlas-app .map-actions[hidden],html.atlas-app .map-hint[hidden] {display:none!important}
+.atlas-map-tools {display:flex;gap:8px;align-items:center;flex-wrap:nowrap;min-width:0}
+html.atlas-app .atlas-map-tools button {display:flex;align-items:center;justify-content:center;gap:6px;min-height:32px;padding:7px 9px;font-size:11px;white-space:nowrap;background:#20383d;border-color:#3a5355}
+.atlas-projections {display:flex;border:1px solid #3b5557;border-radius:7px;background:#10262d;padding:2px}
+html.atlas-app .atlas-projections button {border:0;background:transparent;border-radius:4px;min-height:27px;padding:5px 9px;color:#8ca8aa}
+html.atlas-app .atlas-projections button[aria-pressed="true"] {background:#d1b987;color:#15292b}
+html.atlas-app #atlasTheme {width:136px;height:34px;padding:6px 8px;font-size:11px;background:#1a3238;border-color:#3b5658}
+html.atlas-app .layout > .map-panel .map-wrap {flex:1 1 auto;position:relative;min-height:0;height:auto;overflow:hidden;background:#11303d}
+html.atlas-app .layout > .map-panel .map-wrap canvas {height:100%;width:100%;min-height:0;display:block;outline-offset:-4px}
+.atlas-compass {position:absolute;right:20px;top:20px;display:flex;flex-direction:column;align-items:center;gap:3px;color:#b8c9c2;opacity:.8;pointer-events:none;filter:drop-shadow(0 2px 3px #041e2699)}
+.atlas-compass span {font-size:9px;letter-spacing:.12em}
+.atlas-map-footer {flex:0 0 auto;display:flex;align-items:center;gap:14px;min-height:43px;padding:8px 14px;background:#11272e;border-top:1px solid #2d464b;border-radius:0 0 12px 12px;color:#8ba8a8;font-size:10px}
+.atlas-map-help {white-space:nowrap;color:#8aa9a7;font-size:10px}
+.atlas-map-help i {font-style:normal;color:#4b7174;margin:0 6px}
+.atlas-map-status {display:flex;gap:12px;margin-left:auto;font:9px ui-monospace,monospace;white-space:nowrap;color:#7d9d9e}
+html.atlas-app .atlas-map-footer .legend {position:static;padding:0;max-width:40%;border:0;background:transparent;overflow:hidden;flex-wrap:nowrap;border-radius:0;font-size:9px;white-space:nowrap;color:#8ca9a7}
+.atlas-height-key {gap:6px!important}
+html.atlas-app .legend .atlas-height-key i {width:38px;height:6px;background:linear-gradient(90deg,#56a3a2,#b5b08b,#69876c,#a8b1a0);border-radius:3px}
+html.atlas-app .atlas-map-footer .map-controls {position:static;display:flex;padding:0;gap:3px;background:none;border:0;border-radius:0}
+html.atlas-app .atlas-map-footer .map-controls button {min-width:25px;height:26px;padding:4px 6px;font-size:10px;background:#1b3439;border-color:#365255}
+html.atlas-app .atlas-map-footer #zoomLabel[hidden] {display:none}
+html.atlas-app .map-tooltip {font-size:11px;line-height:1.6;background:#10262eeF;border-color:#607b76;backdrop-filter:blur(9px);max-width:270px;box-shadow:0 15px 40px #0005}
+html.atlas-app .map-tooltip b {color:#eed6a4;font-size:13px}
+#atlasLayerPanel {position:absolute;z-index:24;right:16px;top:70px;width:290px;max-height:calc(100% - 85px);overflow-y:auto;padding:18px;background:rgba(18,38,44,.98);border:1px solid #4a6564;border-radius:12px;box-shadow:0 20px 55px #02151a88;backdrop-filter:blur(16px);scrollbar-width:thin}
+#atlasLayerPanel[hidden],#atlasSelection[hidden] {display:none!important}
+.atlas-layer-heading {display:flex;justify-content:space-between;align-items:center}
+.atlas-layer-heading h3 {margin:2px 0 0;font-size:20px;font-weight:540;letter-spacing:-.5px}
+.atlas-kicker {font-size:8px;letter-spacing:.18em;color:#9eae97}
+html.atlas-app #atlasLayersClose {border:0;background:none;font-size:22px;padding:2px 7px;color:#9fb6b3}
+.atlas-layer-note {font-size:11px;line-height:1.6;color:#8caaa7;margin-bottom:14px}
+.atlas-layer-row {display:flex;gap:14px;align-items:center;justify-content:space-between;padding:12px 0;border-top:1px solid #2d484b;cursor:pointer}
+.atlas-layer-row span {display:flex;flex-direction:column;gap:4px}
+.atlas-layer-row b {font-size:12px;font-weight:520;color:#d5dfd7}
+.atlas-layer-row small {font-size:10px;line-height:1.5;color:#799b97;max-width:205px}
+html.atlas-app .atlas-layer-row input {appearance:auto;flex:0 0 auto;width:16px;height:16px;accent-color:#d3bd8e}
+.atlas-advanced {margin-top:12px;border-top:1px solid #355155;padding-top:15px}
+.atlas-advanced summary {font-size:11px;color:#a8bcb5;cursor:pointer;line-height:1.6}
+#atlasAdvancedControls {display:flex;flex-direction:column;gap:16px;margin-top:16px}
+html.atlas-app #atlasAdvancedControls > * {position:static!important;inset:auto!important;display:flex!important;flex-direction:column!important;align-items:stretch!important;gap:10px!important;width:100%!important;max-width:none!important;max-height:none!important;margin:0!important;padding:0 0 12px!important;font-size:11px!important;overflow:visible!important;border:0!important;border-bottom:1px solid #355155!important;border-radius:0!important;background:transparent!important;backdrop-filter:none!important}
+#atlasAdvancedControls #strategicMapTools > span,#atlasAdvancedControls #strategicScale {display:none}
+#atlasAdvancedControls label {display:flex;align-items:center;gap:8px;color:#a9bcb7;font-size:11px}
+html.atlas-app #atlasAdvancedControls label input {width:14px;height:14px;accent-color:#d3bc8d}
+#atlasAdvancedControls [data-trade-mode] {padding:6px;font-size:9px}
+#atlasAdvancedControls #tradeRouteControls {display:grid!important;grid-template-columns:repeat(4,1fr)!important}
+#atlasAdvancedControls #tradeRouteControls > span,#atlasAdvancedControls #tradeGoodFilter {grid-column:1/-1}
+html.atlas-app #atlasCleanMap {margin-top:18px;width:100%;font-size:11px;background:transparent;border-color:#4d6661;color:#c3cbb9}
+.wf-strategic-map-title {font-size:9px;letter-spacing:.06em;color:#90a7a0;line-height:1.6}
+.wf-strategic-map-buttons {display:grid;grid-template-columns:1fr 1fr;gap:4px}
+.wf-intel-grid {display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:10px 0}
+.wf-intel-grid span {display:flex;flex-direction:column;gap:3px}
+.wf-intel-grid i {font-style:normal;font-size:8px;color:#77958e}
+.wf-intel-grid b {font-size:11px;font-weight:500;color:#cbd7cb}
+.wf-intel-head b,.wf-intel-head small {display:block;line-height:1.5}
+.wf-intel-empty {display:block;color:#79968f;line-height:1.6}
+#atlasSelection {position:absolute;left:18px;bottom:18px;padding:18px;width:264px;border:1px solid #5c7168;border-radius:11px;background:#122c31ed;box-shadow:0 12px 35px #00182088;backdrop-filter:blur(12px)}
+#atlasSelection > strong {display:block;font-size:21px;font-weight:550;color:#ecddbc;margin:5px 0;letter-spacing:-.4px}
+#atlasSelection p {font-size:11px;color:#94b1a7;line-height:1.6;margin:6px 0 13px}
+html.atlas-app .atlas-selection-close {position:absolute;right:9px;top:8px;border:0;background:none;color:#9db4a7;font-size:18px;padding:2px 6px}
+html.atlas-app .atlas-open-settlement {display:flex;align-items:center;gap:16px;padding:0;background:none;border:0;color:#dfcd9e;font-size:11px}
+.sr-only {position:absolute!important;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+html.atlas-app footer {grid-column:2;grid-row:4;padding:0 3px;font-size:9px;color:#587b7b;align-items:center}
+html.atlas-app footer span:last-child {color:#567572}
+html.atlas-app .toast {background:#263b38;border-color:#66745c;color:#e5d7b7;font-size:11px}
+@media(min-width:1800px){html.atlas-app .app-shell {grid-template-columns:190px minmax(0,1fr);padding:18px 28px;gap:16px}html.atlas-app .layout {grid-template-columns:330px minmax(0,1fr)}}
+@media(max-width:1250px){
+  html.atlas-app .app-shell {grid-template-columns:58px minmax(0,1fr);padding:12px;gap:10px}
+  html.atlas-app .workspace-tabs button {justify-content:center;padding:11px}
+  html.atlas-app .workspace-tabs button span,#atlasNavHeading {display:none}
+  html.atlas-app .layout {grid-template-columns:285px minmax(0,1fr);gap:12px}
+  html.atlas-app .atlas-map-tools button span {display:none}
+  html.atlas-app #atlasTheme {width:110px}
+  .atlas-map-help {display:none}
+  html.atlas-app footer span:last-child {display:none}
+}
+@media(max-width:899px){
+  html.atlas-app .app-shell {min-height:560px;grid-template-rows:64px 38px minmax(0,1fr) 18px;padding:8px;gap:8px;grid-template-columns:44px minmax(0,1fr)}
+  html.atlas-app .topbar {padding:9px 11px;gap:10px;grid-template-columns:1fr auto}
+  html.atlas-app .brand {gap:7px}
+  html.atlas-app .brand-mark {display:none}
+  html.atlas-app .brand h1 {font-size:18px}
+  html.atlas-app .brand p,html.atlas-app .version-pill {display:none}
+  html.atlas-app .top-actions {grid-column:auto;flex-wrap:nowrap;gap:4px}
+  html.atlas-app .top-actions button,html.atlas-app .top-actions .file-button {font-size:10px;padding:7px 8px}
+  html.atlas-app #atlasFilesButton {display:block}
+  #atlasFileMenu {display:none;position:absolute;top:calc(100% + 8px);right:0;z-index:60;min-width:150px;padding:8px;flex-direction:column;border:1px solid #3b5557;border-radius:9px;background:#152a30;box-shadow:0 10px 25px #0006}
+  #atlasFileMenu[data-open="true"] {display:flex}
+  html.atlas-app #atlasFileMenu button,html.atlas-app #atlasFileMenu .file-button {display:block;width:100%;text-align:left;font-size:12px;padding:10px}
+  html.atlas-app .workspace-tabs {gap:4px;padding:2px 0}
+  html.atlas-app .workspace-tabs button {padding:11px 8px;min-height:42px}
+  html.atlas-app .workspace-subtabs {gap:18px;padding:0}
+  html.atlas-app .workspace-subtabs button {font-size:11px;min-height:36px}
+  html.atlas-app .layout,html.atlas-app[data-atlas-wide="true"] .layout {display:block;position:relative;min-width:0}
+  html.atlas-app .layout > .map-panel {height:100%;grid-column:1;grid-row:auto}
+  html.atlas-app .panel-head.map-head {display:flex;flex-direction:column;align-items:flex-start;padding:12px;gap:10px}
+  html.atlas-app .map-head h2 {font-size:17px}
+  .atlas-map-tools {gap:5px;justify-content:space-between;width:100%}
+  html.atlas-app .atlas-map-tools button {padding:6px;min-height:31px}
+  html.atlas-app .atlas-projections button {min-height:25px;padding:4px 7px;font-size:10px}
+  html.atlas-app #atlasTheme {width:111px;font-size:10px;height:31px;padding:5px}
+  html.atlas-app #atlasLayersButton,html.atlas-app #atlasDetailsButton {height:31px;width:31px;padding:5px}
+  #atlasInspector {position:absolute;top:0;left:0;bottom:0;width:min(330px,100%);max-width:100%;z-index:22;padding:12px;background:#102026fa;border:1px solid #3d5656;border-radius:12px;box-shadow:18px 10px 40px #00151b66}
+  .atlas-inspector-heading {padding-bottom:6px}
+  #atlasExpandInspector {display:none}
+  html.atlas-app #atlasCloseInspector {display:grid}
+  #atlasLayerPanel {top:106px;right:8px;width:calc(100% - 16px);max-height:calc(100% - 116px);padding:16px}
+  .atlas-map-footer {padding:7px 9px;gap:8px;min-height:39px}
+  html.atlas-app .atlas-map-footer .legend {display:none}
+  .atlas-map-status {margin-left:0;gap:8px;font-size:8px;flex:1}
+  html.atlas-app .atlas-map-footer #centerBtn {font-size:9px}
+  #atlasDimensions {max-width:87px;overflow:hidden;white-space:nowrap}
+  .atlas-compass {right:12px;top:14px}
+  #atlasSelection {left:10px;right:10px;bottom:12px;width:auto;padding:16px}
+  html.atlas-app footer {font-size:8px;padding:0}
+  html.atlas-app .map-tooltip {max-width:220px;font-size:10px}
+}

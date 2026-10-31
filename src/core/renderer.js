@@ -10,16 +10,17 @@ const mix=(a,b,t)=>{const A=hexToRgb(a),B=hexToRgb(b);t=clamp(t,0,1);return'#'+[
 class WorldRenderer{
   constructor(canvas){
     this.canvas=canvas;this.ctx=canvas.getContext('2d',{alpha:false});
-    this.world=null;this.historyView=null;this.mode='political';this.camera={x:.5,y:.5,zoom:1};this.keys=new Set();this.drag=null;this.hover=null;this.selectedSettlementId=null;this.baseDirty=true;this.keyboardFrame=0;
+    this.world=null;this.historyView=null;this.mode='terrain';this.projection='relief';this.layers={labels:true,borders:false,roads:false};this.camera={x:.5,y:.5,zoom:1};this.keys=new Set();this.drag=null;this.hover=null;this.selectedSettlementId=null;this.baseDirty=true;this.keyboardFrame=0;
     this.onHover=null;this.onSelectSettlement=null;this.pixelCanvas=document.createElement('canvas');this.pixelCtx=this.pixelCanvas.getContext('2d',{alpha:false});
     this.bind();this.resize();window.addEventListener('resize',()=>this.resize());
     
   }
-  resize(){const rect=this.canvas.getBoundingClientRect(),dpr=Math.min(2.5,window.devicePixelRatio||1);this.canvas.width=Math.max(1,Math.round(rect.width*dpr));this.canvas.height=Math.max(1,Math.round(rect.height*dpr));this.dpr=dpr;this.draw()}
+  resize(){const rect=this.canvas.getBoundingClientRect(),dpr=Math.min(2.5,window.devicePixelRatio||1),atHome=this.home&&['x','y','zoom'].every(key=>Math.abs(this.camera[key]-this.home[key])<.00001);this.canvas.width=Math.max(1,Math.round(rect.width*dpr));this.canvas.height=Math.max(1,Math.round(rect.height*dpr));this.dpr=dpr;this.home=this.homeCamera();if(atHome)this.camera={...this.home};this.draw()}
   setWorld(w){this.world=w;this.historyView=null;this.selectedSettlementId=null;this.baseDirty=true;this.center()}
   setHistoryView(view){const next=view||null;if(this.historyView===next)return;this.historyView=next;this.baseDirty=true;this.draw()}
   setMode(m){if(this.mode===m)return;this.mode=m;this.baseDirty=true;this.draw()}
-  center(){this.camera={x:.5,y:.5,zoom:1};this.draw()}
+  homeCamera(){const settlements=this.world?.settlements||[],regional=this.canvas.width/(this.dpr||1)<600;return{x:.5,y:regional&&settlements.length?clamp(settlements.reduce((sum,s)=>sum+s.y+.5,0)/settlements.length/this.world.settings.height,.15,.85):.5,zoom:1}}
+  center(){this.home=this.homeCamera();this.camera={...this.home};this.draw()}
   viewRealms(){return this.historyView?.realms||this.world?.kingdoms||[]}
   realm(id){return this.viewRealms().find(k=>k.id===id)||this.world?.kingdoms?.[id]||null}
   ownerOf(s){return this.historyView?.settlementKingdomIds?.[s.id]??s.kingdomId}
@@ -27,8 +28,10 @@ class WorldRenderer{
   prosperityOf(s){return this.historyView?.settlementProsperity?.[s.id]??s.score}
   politicalLayer(){return this.historyView?.political||this.world?.layers?.political}
   tradeVolumes(){return this.historyView?.tradeVolumes||[]}
-  worldToScreen(x,y){if(!this.world)return{x:0,y:0};const w=this.world.settings.width,h=this.world.settings.height,CW=this.canvas.width/this.dpr,CH=this.canvas.height/this.dpr;const scale=Math.min(CW/w,CH/h)*this.camera.zoom,viewW=CW/scale,viewH=CH/scale;let cx=this.camera.x*w,cy=this.camera.y*h,dx=x-cx;if(dx>w/2)dx-=w;if(dx<-w/2)dx+=w;return{x:CW/2+dx*scale,y:CH/2+(y-cy)*scale,scale,viewW,viewH}}
-  screenToWorld(sx,sy){if(!this.world)return null;const w=this.world.settings.width,h=this.world.settings.height,CW=this.canvas.width/this.dpr,CH=this.canvas.height/this.dpr;const scale=Math.min(CW/w,CH/h)*this.camera.zoom;let x=this.camera.x*w+(sx-CW/2)/scale,y=this.camera.y*h+(sy-CH/2)/scale;x=((x%w)+w)%w;y=clamp(y,0,h-1);return{x,y}}
+  setProjection(value){const projection=value==='flat'?'flat':'relief';if(this.projection===projection)return;this.projection=projection;this.baseDirty=true;this.draw()}
+  worldToScreen(x,y){if(!this.world)return{x:0,y:0,scale:1};return window.WorldForgeTerrain.project(this,x,y)}
+  screenToWorld(x,y){return this.world?window.WorldForgeTerrain.unproject(this,x,y):null}
+  requestDraw(){if(this.drawFrame)return;this.drawFrame=requestAnimationFrame(()=>{this.drawFrame=0;this.draw()})}
   realmMetric(id,key,fallback=0){const r=this.realm(id);return Number(r?.[key]??fallback)}
   colorAt(i){
     const w=this.world,L=w.layers,e=L.elevation[i],t=L.temperature[i],m=L.moisture[i],b=L.biome[i],P=this.politicalLayer(),kid=P?.[i]??-1;
@@ -59,28 +62,83 @@ class WorldRenderer{
     this.baseDirty=false
   }
   draw(){
-    const ctx=this.ctx,dpr=this.dpr||1,CW=this.canvas.width/dpr,CH=this.canvas.height/dpr;ctx.setTransform(dpr,0,0,dpr,0,0);ctx.fillStyle='#08100d';ctx.fillRect(0,0,CW,CH);if(!this.world)return;
-    if(this.baseDirty)this.renderBase();const w=this.world.settings.width,h=this.world.settings.height,center=this.worldToScreen(this.camera.x*w,this.camera.y*h),scale=center.scale;ctx.imageSmoothingEnabled=false;const viewW=CW/scale,viewH=CH/scale,cx=this.camera.x*w,cy=this.camera.y*h,left=cx-viewW/2,top=cy-viewH/2;
-    for(const ox of[-w,0,w]){const sx=(ox-left)*scale,sy=(0-top)*scale;ctx.drawImage(this.pixelCanvas,sx,sy,w*scale,h*scale)}
-    this.drawPoliticalBorders(ctx,scale,left,top,CW,CH);this.drawRivers(ctx,scale,left,top);this.drawRoads(ctx,scale,left,top);this.drawSettlements(ctx,scale,left,top)
+    const ctx=this.ctx,dpr=this.dpr||1,CW=this.canvas.width/dpr,CH=this.canvas.height/dpr;
+    ctx.setTransform(dpr,0,0,dpr,0,0);ctx.fillStyle='#11303d';ctx.fillRect(0,0,CW,CH);
+    if(!this.world)return;
+    if(this.baseDirty){const realms=this.viewRealms();this.populationMax=Math.max(1,...realms.map(r=>(r.population||0)/Math.max(1,r.settlementCount||1)));this.maxTradeVolume=Math.max(1,...this.tradeVolumes());this.maxSettlementPopulation=Math.max(1,...this.world.settlements.map(s=>this.popOf(s)));this.baseDirty=false}
+    window.WorldForgeTerrain.draw(this);
+    const m=window.WorldForgeTerrain.metrics(this),left=this.camera.x*this.world.settings.width-m.viewW/2,top=this.camera.y*this.world.settings.height-m.viewH/2;
+    if(this.layers.borders)this.drawPoliticalBorders(ctx,m.scale,left,top,CW,CH);
+    this.drawRivers(ctx,m.scale,left,top);
+    if(this.layers.roads||this.mode==='trade')this.drawRoads(ctx,m.scale,left,top);
+    this.drawSettlements(ctx,m.scale,left,top);
+    window.dispatchEvent(new CustomEvent('worldforge:map-draw',{detail:{renderer:this}}));
   }
-  mapPoint(x,y,scale,left,top){const w=this.world.settings.width;let xx=x;while(xx<left-w/2)xx+=w;while(xx>left+w*1.5)xx-=w;return{x:(xx-left)*scale,y:(y-top)*scale}}
-  drawPoliticalBorders(ctx,scale,left,top,CW,CH){
-    if(!['political','population','prosperity','trade'].includes(this.mode)||scale<2)return;const W=this.world.settings.width,H=this.world.settings.height,P=this.politicalLayer();ctx.save();ctx.strokeStyle='rgba(248,235,198,.35)';ctx.lineWidth=Math.max(1,.7*scale/3);ctx.beginPath();for(let y=0;y<H-1;y++)for(let x=0;x<W;x++){const i=y*W+x,k=P[i];if(k<0)continue;const r=P[y*W+((x+1)%W)],b=P[(y+1)*W+x],p=this.mapPoint(x,y,scale,left,top);if(r!==k){ctx.moveTo(p.x+scale,p.y);ctx.lineTo(p.x+scale,p.y+scale)}if(b!==k){ctx.moveTo(p.x,p.y+scale);ctx.lineTo(p.x+scale,p.y+scale)}}ctx.stroke();ctx.restore()
+  mapPoint(x,y){return this.worldToScreen(x,y)}
+  drawPoliticalBorders(ctx,scale){
+    const W=this.world.settings.width,H=this.world.settings.height,P=this.politicalLayer();if(!P||scale<1.5)return;
+    ctx.save();ctx.strokeStyle='rgba(237,226,190,.42)';ctx.lineWidth=.85;ctx.setLineDash([3,3]);ctx.beginPath();
+    const segment=(a,b)=>{if(Math.abs(a.x-b.x)>this.canvas.width/(this.dpr||1)*.7)return;ctx.moveTo(a.x,a.y);ctx.lineTo(b.x,b.y)};
+    for(let y=0;y<H-1;y++)for(let x=0;x<W;x++){
+      const id=y*W+x,k=P[id];if(k<0)continue;
+      if(P[y*W+((x+1)%W)]!==k)segment(this.worldToScreen(x+1,y),this.worldToScreen(x+1,y+1));
+      if(P[(y+1)*W+x]!==k)segment(this.worldToScreen(x,y+1),this.worldToScreen(x+1,y+1));
+    }
+    ctx.stroke();ctx.restore();
   }
-  drawRivers(ctx,scale,left,top){ctx.save();ctx.strokeStyle=this.mode==='political'?'rgba(102,188,220,.88)':'rgba(83,166,199,.92)';ctx.lineWidth=clamp(scale*.34,1,3);ctx.lineCap='round';for(const r of this.world.rivers){ctx.beginPath();let prev=null;for(const q of r.path){const p=this.mapPoint(q.x+.5,q.y+.5,scale,left,top);if(prev&&Math.abs(p.x-prev.x)<this.canvas.width/(this.dpr||1)*.7)ctx.lineTo(p.x,p.y);else ctx.moveTo(p.x,p.y);prev=p}ctx.stroke()}ctx.restore()}
+  drawRivers(ctx,scale,left,top){ctx.save();ctx.strokeStyle='rgba(133,198,198,.66)';ctx.lineWidth=clamp(scale*.16,.6,1.8);ctx.lineCap='round';for(const r of this.world.rivers){ctx.beginPath();let prev=null;for(const q of r.path){const p=this.mapPoint(q.x+.5,q.y+.5,scale,left,top);if(prev&&Math.abs(p.x-prev.x)<this.canvas.width/(this.dpr||1)*.7)ctx.lineTo(p.x,p.y);else ctx.moveTo(p.x,p.y);prev=p}ctx.stroke()}ctx.restore()}
   drawRoads(ctx,scale,left,top){
     if(scale<2.1)return;const tv=this.tradeVolumes(),maxTrade=this.maxTradeVolume||Math.max(1,...tv);ctx.save();ctx.setLineDash(this.mode==='trade'?[]:[3,3]);for(let ri=0;ri<this.world.roads.length;ri++){const r=this.world.roads[ri],q=this.mode==='trade'?clamp((tv[ri]||0)/maxTrade,0,1):.3;ctx.strokeStyle=this.mode==='trade'?`rgba(247,203,105,${.22+q*.75})`:'rgba(219,189,126,.48)';ctx.lineWidth=this.mode==='trade'?clamp(scale*(.18+q*.38),.8,4):clamp(scale*.22,.7,2.2);ctx.beginPath();let prev=null;for(const pt of r.points){const p=this.mapPoint(pt.x+.5,pt.y+.5,scale,left,top);if(prev&&Math.abs(p.x-prev.x)<500)ctx.lineTo(p.x,p.y);else ctx.moveTo(p.x,p.y);prev=p}ctx.stroke()}ctx.restore()
   }
-  drawSettlements(ctx,scale,left,top){
-    const selected=this.selectedSettlementId,activeRealms=this.viewRealms().filter(r=>r.active!==false),maxPop=this.maxSettlementPopulation||Math.max(1,...this.world.settlements.map(s=>this.popOf(s)));
-    for(const s of this.world.settlements){const p=this.mapPoint(s.x+.5,s.y+.5,scale,left,top),kid=this.ownerOf(s),k=this.realm(kid);if(p.y<-20||p.y>this.canvas.height/(this.dpr||1)+20)continue;const capital=!!activeRealms.find(r=>r.capitalId===s.id),pop=this.popOf(s),popFactor=clamp(Math.log1p(pop)/Math.log1p(maxPop),.25,1),r=capital?clamp(scale*1.18,5,11):clamp(scale*(.38+.48*popFactor),2.5,8);ctx.beginPath();ctx.arc(p.x,p.y,r+(s.id===selected?3:0),0,Math.PI*2);ctx.fillStyle=s.id===selected?'#fff3b5':capital?'#f6d06f':'#e5e0c7';ctx.fill();ctx.strokeStyle=k?.color||'#1a2119';ctx.lineWidth=capital?2:1;ctx.stroke();if(capital&&scale>2.2){ctx.font='700 10px system-ui';ctx.fillStyle='rgba(250,245,221,.95)';ctx.shadowColor='rgba(0,0,0,.8)';ctx.shadowBlur=3;ctx.fillText(k?.shortName||s.name,p.x+r+4,p.y-3);ctx.shadowBlur=0}}
+  drawSettlements(ctx,scale){
+    const active=this.viewRealms().filter(r=>r.active!==false),capitals=new Set(active.map(r=>r.capitalId)),CW=this.canvas.width/(this.dpr||1),CH=this.canvas.height/(this.dpr||1),positions=new Map();
+    const rows=[...this.world.settlements].sort((a,b)=>a.y-b.y);
+    for(const s of rows){
+      const p=this.worldToScreen(s.x+.5,s.y+.5);positions.set(s.id,p);
+      if(p.x<-25||p.x>CW+25||p.y<-25||p.y>CH+25)continue;
+      const capital=capitals.has(s.id),selected=s.id===this.selectedSettlementId,hovered=s.id===this.hover?.id,u=clamp(scale*.72,2.6,5.5)*(capital?1.3:1),realm=this.realm(this.ownerOf(s));
+      ctx.save();ctx.translate(p.x,p.y);ctx.fillStyle='rgba(7,28,27,.35)';ctx.beginPath();ctx.ellipse(u*.5,u*.7,u*1.8,u*.65,0,0,Math.PI*2);ctx.fill();
+      const house=(x,y,size)=>{
+        ctx.fillStyle='#d7ceb0';ctx.beginPath();ctx.moveTo(x-size,y-size);ctx.lineTo(x,y-size*.5);ctx.lineTo(x,y+size*.9);ctx.lineTo(x-size,y+size*.4);ctx.closePath();ctx.fill();
+        ctx.fillStyle='#939a85';ctx.beginPath();ctx.moveTo(x,y-size*.5);ctx.lineTo(x+size,y-size);ctx.lineTo(x+size,y+size*.4);ctx.lineTo(x,y+size*.9);ctx.closePath();ctx.fill();
+        ctx.fillStyle=capital?'#bc9b5c':'#877f62';ctx.beginPath();ctx.moveTo(x-size*1.15,y-size);ctx.lineTo(x,y-size*1.9);ctx.lineTo(x+size*1.15,y-size);ctx.lineTo(x,y-size*.3);ctx.closePath();ctx.fill();
+      };
+      if(capital){house(-u*.85,u*.2,u*.7);house(u*.7,-u*.2,u*.65)}house(0,-u*.45,u);
+      if(capital){ctx.strokeStyle='#ead6a4';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(u*.3,-u*2.4);ctx.lineTo(u*.3,-u*3.7);ctx.stroke();ctx.fillStyle=realm?.color||'#d5b478';ctx.fillRect(u*.3,-u*3.7,u*1.2,u*.7)}
+      if(selected||hovered){ctx.strokeStyle=selected?'#f1d49c':'rgba(232,230,205,.75)';ctx.lineWidth=1.5;ctx.beginPath();ctx.ellipse(0,u*.6,u*2.4,u,0,0,Math.PI*2);ctx.stroke()}
+      ctx.restore();
+    }
+    if(!this.layers.labels&&this.selectedSettlementId==null)return;
+    const boxes=[],maxLabels=CW<600?4:this.camera.zoom>1.8?18:8;
+    const candidates=[...rows].sort((a,b)=>(b.id===this.selectedSettlementId)-(a.id===this.selectedSettlementId)||(capitals.has(b.id)-capitals.has(a.id))||this.popOf(b)-this.popOf(a));
+    let labels=0;
+    for(const s of candidates){
+      const selected=s.id===this.selectedSettlementId,capital=capitals.has(s.id);
+      if(!selected&&(!this.layers.labels||(!capital&&this.camera.zoom<1.8)||labels>=maxLabels))continue;
+      const p=positions.get(s.id);ctx.font=(selected?'650':'550')+' 11px system-ui';const width=ctx.measureText(s.name).width+16,box={x:p.x+10,y:p.y-20,w:width,h:24};
+      if(box.x<0||box.x+box.w>CW||box.y<0||box.y+box.h>CH)continue;
+      if(!selected&&boxes.some(b=>box.x<b.x+b.w+12&&box.x+box.w+12>b.x&&box.y<b.y+b.h+8&&box.y+box.h+8>b.y))continue;
+      boxes.push(box);labels++;ctx.save();ctx.fillStyle=selected?'rgba(32,51,49,.95)':'rgba(17,43,46,.72)';ctx.beginPath();ctx.roundRect(box.x,box.y,box.w,box.h,5);ctx.fill();ctx.fillStyle=selected?'#f1d9a6':'#e4e8d8';ctx.textBaseline='middle';ctx.fillText(s.name,box.x+8,box.y+12);ctx.restore();
+    }
   }
   nearestSettlement(x,y){if(!this.world)return null;let best=null,bd=1e9;for(const s of this.world.settlements){let dx=Math.abs(x-s.x);dx=Math.min(dx,this.world.settings.width-dx);const d=Math.hypot(dx,y-s.y);if(d<bd){bd=d;best=s}}return bd<Math.max(2,5/this.worldToScreen(x,y).scale)?best:null}
   bind(){
-    const c=this.canvas,point=e=>{const r=c.getBoundingClientRect();return{x:e.clientX-r.left,y:e.clientY-r.top}};
-    c.addEventListener('wheel',e=>{e.preventDefault();const p=point(e),before=this.screenToWorld(p.x,p.y);this.camera.zoom=clamp(this.camera.zoom*Math.exp(-e.deltaY*.0012),.75,8);const after=this.screenToWorld(p.x,p.y);if(before&&after&&this.world){this.camera.x=((this.camera.x+(before.x-after.x)/this.world.settings.width)%1+1)%1;this.camera.y=clamp(this.camera.y+(before.y-after.y)/this.world.settings.height,0,1)}this.draw()},{passive:false});
-    c.addEventListener('pointerdown',e=>{const p=point(e);this.drag={p,origin:p};c.setPointerCapture?.(e.pointerId)});c.addEventListener('pointermove',e=>{const p=point(e);if(this.drag&&this.world){const W=this.world.settings.width,H=this.world.settings.height,s=this.worldToScreen(0,0).scale;this.camera.x=((this.camera.x-(p.x-this.drag.p.x)/s/W)%1+1)%1;this.camera.y=clamp(this.camera.y-(p.y-this.drag.p.y)/s/H,0,1);this.drag.p=p;this.draw();return}const w=this.screenToWorld(p.x,p.y),s=w?this.nearestSettlement(w.x,w.y):null;this.hover=s;this.onHover?.(s,p)});c.addEventListener('pointerup',e=>{const p=point(e),moved=this.drag?Math.hypot(p.x-this.drag.origin.x,p.y-this.drag.origin.y):99;this.drag=null;if(moved<5){const w=this.screenToWorld(p.x,p.y),s=w?this.nearestSettlement(w.x,w.y):null;if(s){this.selectedSettlementId=s.id;this.onSelectSettlement?.(s);this.draw()}}});c.addEventListener('pointerleave',()=>{if(!this.drag){this.hover=null;this.onHover?.(null,null)}});window.addEventListener('keydown',e=>{if(['INPUT','SELECT','TEXTAREA'].includes(e.target?.tagName))return;const k=e.key.toLowerCase();if(['w','a','s','d','arrowup','arrowdown','arrowleft','arrowright'].includes(k)){this.keys.add(k);this.startKeyboardLoop();e.preventDefault()}});window.addEventListener('keyup',e=>this.keys.delete(e.key.toLowerCase()));window.addEventListener('blur',()=>{this.keys.clear();if(this.keyboardFrame){cancelAnimationFrame(this.keyboardFrame);this.keyboardFrame=0}})
+    const canvas=this.canvas,pointers=new Map(),point=e=>{const r=canvas.getBoundingClientRect();return{x:e.clientX-r.left,y:e.clientY-r.top}},moveZoom=(factor,p)=>{
+      const before=this.screenToWorld(p.x,p.y);this.camera.zoom=clamp(this.camera.zoom*factor,.75,8);const after=this.screenToWorld(p.x,p.y);
+      if(before&&after&&this.world){this.camera.x=((this.camera.x+(before.x-after.x)/this.world.settings.width)%1+1)%1;this.camera.y=clamp(this.camera.y+(before.y-after.y)/this.world.settings.height,0,1)}this.requestDraw();
+    };
+    canvas.addEventListener('wheel',e=>{e.preventDefault();moveZoom(Math.exp(-e.deltaY*.0012),point(e))},{passive:false});
+    canvas.addEventListener('pointerdown',e=>{const p=point(e);pointers.set(e.pointerId,p);canvas.setPointerCapture?.(e.pointerId);if(pointers.size===1)this.drag={p,origin:p};else{const a=[...pointers.values()];this.pinchDistance=Math.hypot(a[0].x-a[1].x,a[0].y-a[1].y);this.drag=null}});
+    canvas.addEventListener('pointermove',e=>{
+      const p=point(e);if(pointers.has(e.pointerId))pointers.set(e.pointerId,p);
+      if(pointers.size>1){const a=[...pointers.values()],distance=Math.max(1,Math.hypot(a[0].x-a[1].x,a[0].y-a[1].y));moveZoom(distance/Math.max(1,this.pinchDistance),{x:(a[0].x+a[1].x)/2,y:(a[0].y+a[1].y)/2});this.pinchDistance=distance;return}
+      if(this.drag&&this.world){const m=window.WorldForgeTerrain.metrics(this);this.camera.x=((this.camera.x-(p.x-this.drag.p.x)/m.scale/this.world.settings.width)%1+1)%1;this.camera.y=clamp(this.camera.y-(p.y-this.drag.p.y)/m.scale/m.pitch/this.world.settings.height,0,1);this.drag.p=p;this.requestDraw();return}
+      const w=this.screenToWorld(p.x,p.y),settlement=w?this.nearestSettlement(w.x,w.y):null;if(this.hover?.id!==settlement?.id){this.hover=settlement;this.requestDraw()}this.onHover?.(settlement,p);
+    });
+    const end=(e,cancelled=false)=>{const p=point(e),moved=this.drag?Math.hypot(p.x-this.drag.origin.x,p.y-this.drag.origin.y):Infinity;pointers.delete(e.pointerId);this.drag=null;if(!pointers.size)this.pinchDistance=null;if(!cancelled&&moved<5){const w=this.screenToWorld(p.x,p.y),s=w?this.nearestSettlement(w.x,w.y):null;if(s){this.selectedSettlementId=s.id;this.onSelectSettlement?.(s);this.draw()}}};
+    canvas.addEventListener('pointerup',e=>end(e));canvas.addEventListener('pointercancel',e=>end(e,true));canvas.addEventListener('pointerleave',()=>{if(!this.drag){this.hover=null;this.onHover?.(null,null)}});
+    window.addEventListener('keydown',e=>{if(e.target?.isContentEditable||['INPUT','SELECT','TEXTAREA','BUTTON'].includes(e.target?.tagName))return;const key=e.key.toLowerCase();if(['w','a','s','d','arrowup','arrowdown','arrowleft','arrowright'].includes(key)){this.keys.add(key);this.startKeyboardLoop();e.preventDefault()}});
+    window.addEventListener('keyup',e=>this.keys.delete(e.key.toLowerCase()));window.addEventListener('blur',()=>{pointers.clear();this.drag=null;this.keys.clear();if(this.keyboardFrame){cancelAnimationFrame(this.keyboardFrame);this.keyboardFrame=0}});
   }
   startKeyboardLoop(){
     if(this.keyboardFrame)return;
