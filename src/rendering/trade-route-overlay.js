@@ -25,7 +25,7 @@ function render(force=false){
   svg.innerHTML=(w.economyLogistics?.routes||[]).filter(route=>(mode==='all'||route.mode===mode)&&(good==='all'||route.good===good)).slice(0,90).map(route=>{
     const a=point(route.from),b=point(route.to);if(!a||!b||Math.abs(a.x-b.x)>width*.65)return'';
     const bend=Math.min(32,Math.hypot(a.x-b.x,a.y-b.y)*.1),dash=route.status==='blocked'?'2 6':route.mode==='sea'?'3 5':'';
-    return'<path d="M '+a.x+' '+a.y+' Q '+((a.x+b.x)/2)+' '+((a.y+b.y)/2-bend)+' '+b.x+' '+b.y+'" fill="none" stroke="currentColor" stroke-width="'+Math.max(.7,Math.min(2,Number(route.volume||0)*2))+'" opacity="'+(route.status==='blocked'?.15:.44)+'" stroke-dasharray="'+dash+'" data-route-mode="'+route.mode+'"/>';
+    return'<path d="M '+a.x+' '+a.y+' Q '+((a.x+b.x)/2)+' '+((a.y+b.y)/2-bend)+' '+b.x+' '+b.y+'" fill="none" stroke="currentColor" stroke-width="'+Math.max(.7,Math.min(2,Number(route.volume||0)*2))+'" opacity="'+(route.status==='blocked'?.15:.44)+'" stroke-dasharray="'+dash+'" data-route-mode="'+route.mode+'" data-good="'+route.good+'" data-status="'+route.status+'"/>';
   }).join('');
 }
 window.addEventListener('resize',()=>render(true));
