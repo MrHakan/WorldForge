@@ -122,7 +122,7 @@
   position: relative;
   z-index: 2;
   grid-column: 1;
-  content-visibility: auto;
+  content-visibility: visible;
   contain-intrinsic-size: 420px;
 }
 

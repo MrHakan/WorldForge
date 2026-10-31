@@ -24,7 +24,7 @@ function ensure(){
   $('#calendarExport').onclick=exportAlmanac;
 }
 function monthIcon(m){return m.condition.includes('Snow')||m.condition.includes('frost')?'❄':m.condition.includes('storm')||m.condition.includes('rain')||m.condition==='Rain'?'☂':m.condition.includes('Heat')||m.condition.includes('heat')?'☀':'◌'}
-function render(force=false){
+function render(force=false){const panels=[...document.querySelectorAll("#calendarClimatePanel")];if(window.WorldForgeWorkspaceNavigation&&panels.length&&panels.every(panel=>!window.WorldForgeWorkspaceNavigation.isVisible(panel)))return;
   const w=world();if(!w)return;state.world=w;ensure();if(!$('#calendarClimatePanel'))return;
   Cal.initialize(w);
   const year=viewedAbsoluteYear(w),key=`${Cal.fingerprint(w)}|${year}|${state.settlementId}|${state.month}|${state.day}`;
@@ -46,9 +46,9 @@ function render(force=false){
   $('#calendarSky').innerHTML=a.celestial.events.length?a.celestial.events.map(e=>`<article><span>${esc(e.type.toUpperCase())} · ${esc(c.calendar.months[e.month].name)} ${e.day}</span><b>${esc(e.title)}</b><p>${esc(e.text)}</p></article>`).join(''):'<article><b>A quiet sky</b><p>No rare celestial phenomenon is recorded for this year. The Silver Moon continues its 29.53-day cycle.</p></article>';
   const ph=c.phenomena.filter(x=>x.year<=year).slice(-10).reverse();
   $('#calendarPhenomena').innerHTML=ph.map(e=>`<article><span>YEAR ${fmt(e.year)} · ${esc(e.type.replaceAll('_',' ').toUpperCase())}</span><b>${esc(e.title)}</b><small>${e.settlementId==null?'World sky':esc(w.settlements[e.settlementId]?.name||'Unknown place')}</small></article>`).join('')||'<article><b>No recorded extremes yet.</b><small>The first simulated years will begin the climate chronicle.</small></article>';
-  const pill=$('.version-pill');if(pill)pill.textContent='v1.5 · LIVING ALMANAC';
-  const foot=document.querySelector('footer span');if(foot)foot.textContent='WorldForge v1.5 · Calendar, Seasons, Weather & Celestial System';
-  document.title=`${w.name} · Year ${year} Almanac · WorldForge v1.5`;
+  const pill=$('.version-pill');if(pill)window.WorldForgeReleaseInfo?.apply();
+  const foot=document.querySelector('footer span');if(foot)window.WorldForgeReleaseInfo?.apply();
+  window.WorldForgeReleaseInfo?.apply();
 }
 function exportAlmanac(){
   const w=world();if(!w)return;const year=viewedAbsoluteYear(w),a=Cal.almanac(w,state.settlementId,year),p=a.profile,s=w.settlements[state.settlementId];
@@ -61,5 +61,5 @@ const proto=window.WorldRenderer.prototype,oldSet=proto.setWorld,oldHist=proto.s
 proto.setWorld=function(w){state.world=w;state.viewYear=null;state.last=null;Cal.initialize(w);const r=oldSet.call(this,w);setTimeout(()=>render(true),0);return r};
 proto.setHistoryView=function(v){const r=oldHist.call(this,v);if(this.world){state.world=this.world;state.viewYear=v?.isPresent?null:(v?.year??null);state.last=null;setTimeout(()=>render(true),0)}return r};
 setInterval(()=>render(false),1400);setTimeout(()=>render(true),180);
-window.WorldForgeCalendarUI={version:'1.5.0',state,render,exportAlmanac};
+window.addEventListener('worldforge:workspace-change',()=>render(true));window.WorldForgeCalendarUI={version:'1.5.0',state,render,exportAlmanac};
 })();

@@ -6,10 +6,11 @@
 'use strict';
 const VERSION='0.9.0',SCHEMA=1,REBASE_AT=4200,REBASE_SHIFT=3000,MAINTENANCE_STEP=25;
 let baseSimulator=Factions?.simulateYears?Factions.simulateYears.bind(Factions):Society?.simulateYears?Society.simulateYears.bind(Society):null;
+const activeRuns=new WeakMap();
 const TIME_KEYS=new Set(['year','startYear','currentYear','birthYear','deathYear','foundingYear','createdYear','formedYear','collapsedYear','dissolvedYear','originYear','discoveredYear','resolvedYear','endYear','completedYear','failedYear','lastChangeYear','lastUpdatedYear']);
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v)),round=(v,d=2)=>Number(Number(v).toFixed(d));
 function history(w){return History.initialize(w)}
-function initialize(w){history(w);Society?.initialize?.(w);City?.initialize?.(w);Adventure?.initialize?.(w);Story?.initialize?.(w);Culture?.initialize?.(w);Factions?.initialize?.(w);if(w.endless&&w.endless.schemaVersion===SCHEMA){w.endless.engineVersion=VERSION;if(!w.endless.baseSeed)w.endless.baseSeed=w.settings.seed;sync(w);return w.endless}const e={schemaVersion:SCHEMA,engineVersion:VERSION,baseSeed:w.settings.seed,epochOffset:0,absoluteYear:w.history.currentYear,rebases:0,lastRebaseAbsoluteYear:null,retention:{recentDetailedYears:500,midDetailYears:2500,midStep:25,ancientStep:100,archiveRecentYears:10000,archiveMidStep:1000,archiveAncientStep:5000},archive:{eras:[],checkpoints:[],eventCount:0,peopleCompacted:0,housesCompacted:0,gangsCompacted:0,sitesCompacted:0,questsCompacted:0,reignsCompacted:0},performance:{maintenanceRuns:0,lastMaintenanceYear:w.history.currentYear,lastBatchMs:0,lastBatchYears:0},async:{running:false,cancelRequested:false}};w.endless=e;checkpoint(w,true);return e}
+function initialize(w){history(w);Society?.initialize?.(w);City?.initialize?.(w);Adventure?.initialize?.(w);Story?.initialize?.(w);Culture?.initialize?.(w);Factions?.initialize?.(w);if(w.endless&&w.endless.schemaVersion===SCHEMA){w.endless.engineVersion=VERSION;if(!w.endless.baseSeed)w.endless.baseSeed=w.settings.seed;if(!activeRuns.has(w))w.endless.async={running:false,cancelRequested:false};sync(w);return w.endless}const e={schemaVersion:SCHEMA,engineVersion:VERSION,baseSeed:w.settings.seed,epochOffset:0,absoluteYear:w.history.currentYear,rebases:0,lastRebaseAbsoluteYear:null,retention:{recentDetailedYears:500,midDetailYears:2500,midStep:25,ancientStep:100,archiveRecentYears:10000,archiveMidStep:1000,archiveAncientStep:5000},archive:{eras:[],checkpoints:[],eventCount:0,peopleCompacted:0,housesCompacted:0,gangsCompacted:0,sitesCompacted:0,questsCompacted:0,reignsCompacted:0},performance:{maintenanceRuns:0,lastMaintenanceYear:w.history.currentYear,lastBatchMs:0,lastBatchYears:0},async:{running:false,cancelRequested:false}};w.endless=e;checkpoint(w,true);return e}
 function setBaseSimulator(fn){if(typeof fn==='function')baseSimulator=fn;return api}
 function absoluteYear(w){const e=initialize(w);return e.epochOffset+w.history.currentYear}
 function sync(w){const e=w.endless;e.absoluteYear=e.epochOffset+w.history.currentYear;return e.absoluteYear}
@@ -33,13 +34,53 @@ function checkpoint(w,force=false){const e=initialize(w),ay=absoluteYear(w);if(!
 function pruneArchive(w){const e=w.endless,now=absoluteYear(w),r=e.retention;e.archive.checkpoints=e.archive.checkpoints.filter(x=>{const age=now-x.year;if(age<=r.archiveRecentYears)return true;if(age<=50000)return x.year%r.archiveMidStep===0;return x.year%r.archiveAncientStep===0});e.archive.eras=e.archive.eras.filter(x=>{const age=now-x.endYear;if(age<=50000)return true;return x.startYear%r.archiveAncientStep===0})}
 function maintenance(w){const e=initialize(w);e.performance.maintenanceRuns++;e.performance.lastMaintenanceYear=absoluteYear(w);pruneSnapshotsTiered(w);checkpoint(w,false);return memoryStats(w)}
 function nextStep(w,remaining){const e=initialize(w),local=w.history.currentYear,ay=absoluteYear(w);if(local>=REBASE_AT){rebase(w);return 0}const toRebase=REBASE_AT-local;const mod=ay%MAINTENANCE_STEP,toMaintenance=mod===0?MAINTENANCE_STEP:MAINTENANCE_STEP-mod;return Math.max(1,Math.min(remaining,toRebase,toMaintenance,MAINTENANCE_STEP))}
-function simulateYears(w,years,options={}){const e=initialize(w),total=normalizeYears(years);if(!baseSimulator)throw new Error('Base simulation unavailable');let remaining=total;const started=Date.now();while(remaining>0){if(w.history.currentYear>=REBASE_AT){rebase(w);continue}const step=nextStep(w,remaining);if(step<=0)continue;withEpochSeed(w,()=>baseSimulator(w,step,options));remaining-=step;sync(w);if(absoluteYear(w)%MAINTENANCE_STEP===0)maintenance(w)}e.performance.lastBatchMs=Date.now()-started;e.performance.lastBatchYears=total;checkpoint(w,false);return e}
+function advanceYears(w,years,options={}){const e=initialize(w),total=normalizeYears(years);if(!baseSimulator)throw new Error('Base simulation unavailable');let remaining=total;const started=Date.now();while(remaining>0){if(w.history.currentYear>=REBASE_AT){rebase(w);continue}const step=nextStep(w,remaining);if(step<=0)continue;withEpochSeed(w,()=>baseSimulator(w,step,options));remaining-=step;sync(w);if(absoluteYear(w)%MAINTENANCE_STEP===0)maintenance(w)}e.performance.lastBatchMs=Date.now()-started;e.performance.lastBatchYears=total;checkpoint(w,false);return e}
 function simulateTo(w,target,options={}){const t=normalizeYears(target),now=absoluteYear(w);if(t<now)throw new Error('Endless simulation cannot run backward');return simulateYears(w,t-now,options)}
-async function simulateYearsAsync(w,years,options={}){const e=initialize(w),total=normalizeYears(years),batch=Math.max(1,Math.floor(Number(options.batchSize)||100));e.async.running=true;e.async.cancelRequested=false;let done=0;try{while(done<total&&!e.async.cancelRequested){const n=Math.min(batch,total-done);simulateYears(w,n,options);done+=n;if(typeof options.onProgress==='function')options.onProgress({done,total,absoluteYear:absoluteYear(w),localYear:w.history.currentYear,rebases:e.rebases});await new Promise(resolve=>typeof requestAnimationFrame==='function'?requestAnimationFrame(()=>resolve()):setTimeout(resolve,0))}return{done,total,cancelled:e.async.cancelRequested,absoluteYear:absoluteYear(w)}}finally{e.async.running=false}}
-async function simulateToAsync(w,target,options={}){const t=normalizeYears(target),now=absoluteYear(w);if(t<now)throw new Error('Target year must be later than the present');return simulateYearsAsync(w,t-now,options)}
-function cancel(w){const e=initialize(w);e.async.cancelRequested=true}
+function simulateYears(w,years,options={}){
+  if(activeRuns.has(w))throw new Error('A simulation is already running for this world');
+  return advanceYears(w,years,options);
+}
+async function yieldToBrowser(){
+  if(globalThis.scheduler&&typeof globalThis.scheduler.yield==='function')await globalThis.scheduler.yield();
+  // Let normal tasks (timers, imports and automation input) run between prioritized continuations.
+  await new Promise(resolve=>setTimeout(resolve,0));
+}
+async function simulateYearsAsync(w,years,options={}){
+  if(activeRuns.has(w))throw new Error('A simulation is already running for this world');
+  const e=initialize(w),total=normalizeYears(years);
+  if(total>Number.MAX_SAFE_INTEGER-absoluteYear(w))throw new Error('Target year exceeds JavaScript safe integer range');
+  const limit=Number(options.batchSize),budget=Number(options.timeBudgetMs);
+  const maxBatch=Number.isFinite(limit)&&limit>0?Math.max(1,Math.floor(limit)):100;
+  const timeBudget=Number.isFinite(budget)&&budget>0?budget:12;
+  const job={running:true,cancelRequested:Boolean(options.signal?.aborted)};
+  const abort=()=>{job.cancelRequested=true};
+  activeRuns.set(w,job);e.async=job;
+  options.signal?.addEventListener('abort',abort,{once:true});
+  let done=0,batch=1;
+  try{
+    await yieldToBrowser();
+    while(done<total&&!job.cancelRequested){
+      const n=Math.min(batch,total-done),start=Date.now();
+      advanceYears(w,n,options);done+=n;
+      batch=Math.min(maxBatch,Math.max(1,Math.floor(n*timeBudget/Math.max(1,Date.now()-start))));
+      options.onProgress?.({done,total,absoluteYear:absoluteYear(w),localYear:w.history.currentYear,rebases:e.rebases});
+      if(done<total)await yieldToBrowser();
+    }
+    return{done,total,cancelled:job.cancelRequested,absoluteYear:absoluteYear(w)};
+  }finally{
+    options.signal?.removeEventListener('abort',abort);
+    activeRuns.delete(w);job.running=false;
+  }
+}
+async function simulateToAsync(w,target,options={}){
+  const t=normalizeYears(target),now=absoluteYear(w);
+  if(t<now)throw new Error('Target year must be later than the present');
+  return simulateYearsAsync(w,t-now,options);
+}
+function cancel(w){const job=activeRuns.get(w);if(job)job.cancelRequested=true}
+function isRunning(w){return activeRuns.has(w)}
 function memoryStats(w){const e=initialize(w),mods=snapshotModules(w),snapshots=mods.reduce((n,m)=>n+(m.snapshots?.length||0),0),events=w.history.events.length,people=w.society?.people?.length||0,peopleArchived=w.society?.people?.filter(p=>p?.archived).length||0,sites=w.adventure?.sites?.length||0,quests=w.story?.quests?.length||0,orgs=w.factions?.organizations?.length||0;return{absoluteYear:absoluteYear(w),localYear:w.history.currentYear,epochOffset:e.epochOffset,rebases:e.rebases,snapshots,events,archivedEvents:e.archive.eventCount,people,peopleArchived,sites,quests,organizations:orgs,checkpoints:e.archive.checkpoints.length,eraArchives:e.archive.eras.length}}
 function fingerprint(w){const e=initialize(w),m=memoryStats(w);let h=2166136261>>>0,s=`${m.absoluteYear}|${m.localYear}|${m.epochOffset}|${m.rebases}|${e.archive.eventCount}|${e.archive.peopleCompacted}|${w.history.current.settlementKingdomIds.slice(0,16).join(',')}|${Math.round(History.currentView(w).metrics.population)}`;for(const ch of s){h^=ch.charCodeAt(0);h=Math.imul(h,16777619)}return(h>>>0).toString(16).padStart(8,'0')}
 function validate(w){const e=initialize(w),errors=[];const local=w.history.currentYear;if(e.absoluteYear!==e.epochOffset+local)errors.push('absolute year');for(const [name,m] of Object.entries({society:w.society,cities:w.cities,adventure:w.adventure,story:w.story,culture:w.culture,factions:w.factions}))if(m&&m.currentYear!==local)errors.push(`${name} year mismatch`);if(local>=5000)errors.push('legacy cap boundary reached');if(e.rebases>0&&e.epochOffset<=0)errors.push('epoch offset');if(w.settings.seed!==e.baseSeed)errors.push('base seed mutated');return errors}
-const api={VERSION,SCHEMA,REBASE_AT,REBASE_SHIFT,initialize,setBaseSimulator,absoluteYear,simulateYears,simulateTo,simulateYearsAsync,simulateToAsync,cancel,rebase,maintenance,memoryStats,fingerprint,validate};return api;
+const api={VERSION,SCHEMA,REBASE_AT,REBASE_SHIFT,initialize,setBaseSimulator,absoluteYear,simulateYears,simulateTo,simulateYearsAsync,simulateToAsync,cancel,isRunning,rebase,maintenance,memoryStats,fingerprint,validate};return api;
 });

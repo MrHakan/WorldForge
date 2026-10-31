@@ -11,9 +11,9 @@
     { id: 'society', label: 'Society', pages: [['overview', 'Overview', ['society-overview-panel']], ['thrones', 'Thrones', ['thrones-panel']], ['people', 'People', ['people-panel']], ['dynasties', 'Dynasties', ['dynasty-panel']], ['households', 'Households', ['householdPanel', 'household-panel']]] },
     { id: 'realms', label: 'Realms', pages: [['diplomacy', 'Diplomacy', ['diplomacyPanel', 'diplomacy-panel']], ['kingdoms', 'Kingdoms', ['kingdoms-panel']], ['politics', 'Politics', ['politicsPanel', 'politics-panel']], ['order', 'World Order', ['worldOrderPanel', 'world-order-panel']], ['warfare', 'Warfare & Operations', ['warfareSupplySection', 'warfarePeaceSection', 'warfarePostWarSection', 'warfareCampaignPlanningSection', 'warfareStrategicAISection', 'warfareStrategicReservesSection', 'warfareBattlefieldHistorySection', 'warfareBattlefieldRelicsSection', 'warfareCommanderLegacySection', 'warfareOccupationPolicySection']], ['military', 'Armies & Fleets', ['militaryPanel', 'military-panel']], ['treasury', 'Public Finance', ['treasuryPanel', 'treasury-panel']]] },
     { id: 'places', label: 'Places & Cities', pages: [['settlements', 'Settlements', ['places-panel']], ['cities', 'Cities', ['cityOverviewPanel', 'city-overview-panel', 'city-explorer-panel', 'city-panel']], ['activity', 'Activity', ['cityActivitySection']], ['urban', 'Urban Evolution', ['urbanEvolutionSection']], ['infrastructure', 'Infrastructure & Services', ['urbanInfrastructureSection', 'municipalPanel', 'municipal-panel']], ['economy', 'Local Economy & Logistics', ['economyLogisticsSection']], ['housing', 'Housing', ['housingPanel', 'housing-panel']], ['workforce', 'Workforce', ['workforcePanel', 'workforce-panel']], ['emergency', 'Health & Food Security', ['emergencyPanel', 'emergency-panel', 'nutritionPanel', 'nutrition-panel']]] },
-    { id: 'culture', label: 'Culture & Faith', pages: [['culture', 'Culture', ['culturePanel', 'culture-panel']], ['faith', 'Faith', ['religion-panel']], ['heritage', 'Heritage & Archaeology', ['heritageSection', 'heritage-panel', 'archaeologySection', 'archaeology-panel', 'artifactPanel', 'artifact-panel']], ['tourism', 'Tourism', ['tourismSection', 'tourism-panel']]] },
-    { id: 'factions', label: 'Factions & Economy', pages: [['factions', 'Factions', ['factionPanel', 'faction-panel']], ['organizations', 'Organizations', ['organization-panel']], ['economy', 'Markets & Stocks', ['economy-panel', 'resourcePanel', 'resource-panel']], ['trade', 'Trade & Logistics', ['trade-panel']], ['crime', 'Crime', ['crime-panel', 'underworld-panel']], ['industry', 'Technology & Institutions', ['technologyPanel', 'technology-panel', 'institutionPanel', 'institution-panel']]] },
-    { id: 'adventure', label: 'Adventure & Story', pages: [['adventure', 'Adventure', ['adventure-panel']], ['story', 'Story', ['story-panel']], ['quests', 'Quests', ['quest-panel']], ['sites', 'Sites', ['site-panel']], ['creator', 'Creator Studio', ['creatorSuite', 'creator-suite-panel']], ['canon', 'Living Canon', ['canonBridge', 'canon-bridge-panel']]] },
+    { id: 'culture', label: 'Culture & Faith', pages: [['culture', 'Culture & Faith', ['culturePanel', 'culture-panel']], ['faith', 'Faith', ['religion-panel']], ['heritage', 'Heritage & Archaeology', ['heritageSection', 'heritage-panel', 'archaeologySection', 'archaeology-panel', 'artifactPanel', 'artifact-panel']], ['tourism', 'Tourism', ['tourismSection', 'tourism-panel']]] },
+    { id: 'factions', label: 'Factions & Economy', pages: [['factions', 'Factions & Organizations', ['factionPanel', 'faction-panel']], ['organizations', 'Organizations', ['organization-panel']], ['economy', 'Markets & Stocks', ['economy-panel', 'resourcePanel', 'resource-panel']], ['trade', 'Trade & Logistics', ['trade-panel']], ['crime', 'Crime', ['crime-panel', 'underworld-panel']], ['industry', 'Technology & Institutions', ['technologyPanel', 'technology-panel', 'institutionPanel', 'institution-panel']]] },
+    { id: 'adventure', label: 'Adventure & Story', pages: [['adventure', 'Sites & Expeditions', ['adventure-panel']], ['story', 'Quests & Dialogue', ['story-panel']], ['quests', 'Quests', ['quest-panel']], ['sites', 'Sites', ['site-panel']], ['creator', 'Creator Studio', ['creatorSuite', 'creator-suite-panel']], ['canon', 'Living Canon', ['canonBridge', 'canon-bridge-panel']]] },
     { id: 'discovery', label: 'History & Discovery', pages: [['calendar', 'Calendar & Seasons', ['calendarClimatePanel', 'calendar-panel']], ['press', 'Chronicle Press', ['chroniclePressPanel', 'chronicle-press-panel']], ['knowledge', 'Knowledge & Evidence', ['knowledgePanel', 'knowledge-panel']]] },
     { id: 'worldbuilding', label: 'Worldbuilding', pages: [['atelier', 'Atelier', ['worldbuilding-panel', 'worldbuildingPanel']], ['encyclopedia', 'Encyclopedia', ['wiki-panel', 'encyclopedia-panel']], ['architecture', 'Architecture', ['architecture-panel']]] }
   ];
@@ -23,10 +23,15 @@
   const nestedCategorySelector = categorySelectors.map(selector => `#worldbuildingPanel ${selector}`).join(',');
   const structureSubscriptions = new Set();
 
-  const savedCategory = localStorage.getItem('worldforge.workspace.tab');
+  const storage = {
+    get(key) { try { return localStorage.getItem(key); } catch { return null; } },
+    set(key, value) { try { localStorage.setItem(key, value); } catch {} }
+  };
+  const savedCategory = storage.get('worldforge.workspace.tab');
   let activeCategory = CATEGORIES.some(category => category.id === savedCategory) ? savedCategory : 'overview';
   let activePage = null;
-  let mode = localStorage.getItem('worldforge.workspace.mode') || 'balanced';
+  let mode = storage.get('worldforge.workspace.mode') || 'balanced';
+  if (!MODES.some(item => item[0] === mode)) mode = 'balanced';
   let raf = 0;
   let lastSubtabMarkup = null;
   let lastWorkspaceKey = null;
@@ -38,10 +43,10 @@
   }
 
   function pageFor(element) {
-    const key = `${element.id || ''} ${element.className || ''}`;
+    const markers = new Set([element.id || '', ...String(element.className || '').split(/\s+/)]);
     for (const category of CATEGORIES) {
       for (const page of category.pages) {
-        if (page[2].some(marker => key.includes(marker))) return { category: category.id, page: page[0] };
+        if (page[2].some(marker => markers.has(marker))) return { category: category.id, page: page[0] };
       }
     }
     return { category: 'overview', page: 'summary' };
@@ -109,7 +114,7 @@
     structureSubscriptions.add(subscription);
 
     if (subscription.selectors.some(selector => $(selector))) {
-      requestAnimationFrame(() => callback({ nodes: [], initial: true }));
+      requestAnimationFrame(() => { if (structureSubscriptions.has(subscription)) callback({ nodes: [], initial: true }); });
     }
 
     return () => structureSubscriptions.delete(subscription);
@@ -162,14 +167,21 @@
     });
   }
 
+  function availablePages(category = cat()) {
+    const panels = $$('[data-workspace-category]');
+    const pages = category.pages.filter(page => panels.some(panel => panel.dataset.workspaceCategory === category.id && panel.dataset.workspacePage === page[0]));
+    return pages.length ? pages : category.pages;
+  }
+
   function renderSubtabs() {
     const category = cat();
-    activePage = localStorage.getItem(`worldforge.workspace.page.${category.id}`) || activePage || category.pages[0][0];
-    if (!category.pages.some(page => page[0] === activePage)) activePage = category.pages[0][0];
+    const pages = availablePages(category);
+    activePage = storage.get(`worldforge.workspace.page.${category.id}`) || activePage || pages[0][0];
+    if (!pages.some(page => page[0] === activePage)) activePage = pages[0][0];
 
     const host = $('#workspaceSubtabs');
     if (!host) return;
-    const markup = category.pages.map(page => `<button type="button" data-workspace-page="${page[0]}" class="${page[0] === activePage ? 'active' : ''}" aria-pressed="${page[0] === activePage}">${page[1]}</button>`).join('');
+    const markup = pages.map(page => `<button type="button" data-workspace-page="${page[0]}" class="${page[0] === activePage ? 'active' : ''}" aria-pressed="${page[0] === activePage}">${page[1]}</button>`).join('');
     if (markup !== lastSubtabMarkup) {
       host.innerHTML = markup;
       lastSubtabMarkup = markup;
@@ -198,7 +210,8 @@
 
     const worldbuilding = $('#worldbuildingPanel');
     if (worldbuilding) {
-      const hidden = !['worldbuilding', 'places', 'realms', 'culture'].includes(activeCategory);
+      const hasActiveChild = $$('#worldbuildingPanel [data-workspace-category]').some(panel => panel.dataset.workspaceCategory === activeCategory && panel.dataset.workspacePage === activePage);
+      const hidden = !(activeCategory === 'worldbuilding' && activePage === 'atelier') && !hasActiveChild;
       if (worldbuilding.hidden !== hidden) {
         worldbuilding.hidden = hidden;
         needsResize = true;
@@ -225,15 +238,15 @@
   function setMode(id) {
     if (!MODES.some(item => item[0] === id)) id = 'balanced';
     mode = id;
-    localStorage.setItem('worldforge.workspace.mode', id);
+    storage.set('worldforge.workspace.mode', id);
     apply();
   }
 
   function activateCategory(id) {
     if (!CATEGORIES.some(category => category.id === id)) id = 'overview';
     activeCategory = id;
-    activePage = localStorage.getItem(`worldforge.workspace.page.${id}`) || cat(id).pages[0][0];
-    localStorage.setItem('worldforge.workspace.tab', id);
+    activePage = storage.get(`worldforge.workspace.page.${id}`) || cat(id).pages[0][0];
+    storage.set('worldforge.workspace.tab', id);
     renderSubtabs();
     apply();
   }
@@ -242,7 +255,7 @@
     const category = cat();
     if (!category.pages.some(page => page[0] === id)) id = category.pages[0][0];
     activePage = id;
-    localStorage.setItem(`worldforge.workspace.page.${activeCategory}`, id);
+    storage.set(`worldforge.workspace.page.${activeCategory}`, id);
     renderSubtabs();
     apply();
   }
