@@ -8,7 +8,9 @@ await new Promise(r=>server.listen(0,'127.0.0.1',r));
 const browser=await chromium.launch({headless:true}),page=await browser.newPage({viewport:{width:1536,height:1000},deviceScaleFactor:2}),errors=[];
 page.on('pageerror',e=>errors.push(e.message));
 try{
+ await page.route('**/warfare-strategic-map-overlay.js',async route=>{await new Promise(r=>setTimeout(r,350));await route.continue()});
  await page.goto('http://127.0.0.1:'+server.address().port+'/WorldForge/');await page.waitForFunction(()=>WorldForgeLoader.ready);
+ await page.waitForFunction(()=>document.querySelector('#worldforgeStrategicMapControls')?.closest('#atlasAdvancedControls'));
  await mkdir(resolve(root,'test-results'),{recursive:true});
  const report=await page.evaluate(()=>{
   const r=WorldForgeApp.state.renderer,s=r.world.settlements.find(s=>s.x>30&&s.x<120&&s.y>20&&s.y<70)||r.world.settlements[0];
