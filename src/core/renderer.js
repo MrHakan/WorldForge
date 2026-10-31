@@ -95,18 +95,9 @@ class WorldRenderer{
     const rows=[...this.world.settlements].sort((a,b)=>a.y-b.y);
     for(const s of rows){
       const p=this.worldToScreen(s.x+.5,s.y+.5);positions.set(s.id,p);
-      if(p.x<-25||p.x>CW+25||p.y<-25||p.y>CH+25)continue;
+      if(p.x<-400||p.x>CW+400||p.y<-400||p.y>CH+400)continue;
       const capital=capitals.has(s.id),selected=s.id===this.selectedSettlementId,hovered=s.id===this.hover?.id,u=clamp(scale*.72,2.6,5.5)*(capital?1.3:1),realm=this.realm(this.ownerOf(s));
-      ctx.save();ctx.translate(p.x,p.y);ctx.fillStyle='rgba(7,28,27,.35)';ctx.beginPath();ctx.ellipse(u*.5,u*.7,u*1.8,u*.65,0,0,Math.PI*2);ctx.fill();
-      const house=(x,y,size)=>{
-        ctx.fillStyle='#d7ceb0';ctx.beginPath();ctx.moveTo(x-size,y-size);ctx.lineTo(x,y-size*.5);ctx.lineTo(x,y+size*.9);ctx.lineTo(x-size,y+size*.4);ctx.closePath();ctx.fill();
-        ctx.fillStyle='#939a85';ctx.beginPath();ctx.moveTo(x,y-size*.5);ctx.lineTo(x+size,y-size);ctx.lineTo(x+size,y+size*.4);ctx.lineTo(x,y+size*.9);ctx.closePath();ctx.fill();
-        ctx.fillStyle=capital?'#bc9b5c':'#877f62';ctx.beginPath();ctx.moveTo(x-size*1.15,y-size);ctx.lineTo(x,y-size*1.9);ctx.lineTo(x+size*1.15,y-size);ctx.lineTo(x,y-size*.3);ctx.closePath();ctx.fill();
-      };
-      if(capital){house(-u*.85,u*.2,u*.7);house(u*.7,-u*.2,u*.65)}house(0,-u*.45,u);
-      if(capital){ctx.strokeStyle='#ead6a4';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(u*.3,-u*2.4);ctx.lineTo(u*.3,-u*3.7);ctx.stroke();ctx.fillStyle=realm?.color||'#d5b478';ctx.fillRect(u*.3,-u*3.7,u*1.2,u*.7)}
-      if(selected||hovered){ctx.strokeStyle=selected?'#f1d49c':'rgba(232,230,205,.75)';ctx.lineWidth=1.5;ctx.beginPath();ctx.ellipse(0,u*.6,u*2.4,u,0,0,Math.PI*2);ctx.stroke()}
-      ctx.restore();
+      window.WorldForgeLivingSettlements.draw(this,ctx,s,p,selected||hovered,capital);
     }
     if(!this.layers.labels&&this.selectedSettlementId==null)return;
     const boxes=[],maxLabels=CW<600?4:this.camera.zoom>1.8?18:8;
@@ -124,7 +115,7 @@ class WorldRenderer{
   nearestSettlement(x,y){if(!this.world)return null;let best=null,bd=1e9;for(const s of this.world.settlements){let dx=Math.abs(x-s.x);dx=Math.min(dx,this.world.settings.width-dx);const d=Math.hypot(dx,y-s.y);if(d<bd){bd=d;best=s}}return bd<Math.max(2,5/this.worldToScreen(x,y).scale)?best:null}
   bind(){
     const canvas=this.canvas,pointers=new Map(),point=e=>{const r=canvas.getBoundingClientRect();return{x:e.clientX-r.left,y:e.clientY-r.top}},moveZoom=(factor,p)=>{
-      const before=this.screenToWorld(p.x,p.y);this.camera.zoom=clamp(this.camera.zoom*factor,.75,8);const after=this.screenToWorld(p.x,p.y);
+      const before=this.screenToWorld(p.x,p.y);this.camera.zoom=clamp(this.camera.zoom*factor,.75,20);const after=this.screenToWorld(p.x,p.y);
       if(before&&after&&this.world){this.camera.x=((this.camera.x+(before.x-after.x)/this.world.settings.width)%1+1)%1;this.camera.y=clamp(this.camera.y+(before.y-after.y)/this.world.settings.height,0,1)}this.requestDraw();
     };
     canvas.addEventListener('wheel',e=>{e.preventDefault();moveZoom(Math.exp(-e.deltaY*.0012),point(e))},{passive:false});
@@ -146,7 +137,7 @@ class WorldRenderer{
     this.keyboardFrame=requestAnimationFrame(frame)
   }
   tick(){if(!this.world||!this.keys.size)return;const s=.007/Math.sqrt(this.camera.zoom);let moved=false;if(this.keys.has('a')||this.keys.has('arrowleft')){this.camera.x=(this.camera.x-s+1)%1;moved=true}if(this.keys.has('d')||this.keys.has('arrowright')){this.camera.x=(this.camera.x+s)%1;moved=true}if(this.keys.has('w')||this.keys.has('arrowup')){this.camera.y=clamp(this.camera.y-s,0,1);moved=true}if(this.keys.has('s')||this.keys.has('arrowdown')){this.camera.y=clamp(this.camera.y+s,0,1);moved=true}if(moved)this.draw()}
-  focusSettlement(id){const s=this.world?.settlements[id];if(!s)return;this.selectedSettlementId=id;this.camera.x=s.x/this.world.settings.width;this.camera.y=s.y/this.world.settings.height;this.camera.zoom=Math.max(this.camera.zoom,3);this.draw()}
+  focusSettlement(id){const s=this.world?.settlements[id];if(!s)return;this.selectedSettlementId=id;this.camera.x=s.x/this.world.settings.width;this.camera.y=s.y/this.world.settings.height;this.camera.zoom=Math.max(this.camera.zoom,8);this.draw()}
 }
 window.WorldRenderer=WorldRenderer;
 })();
