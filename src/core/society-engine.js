@@ -31,7 +31,15 @@ function ownerAt(world,sid){return world.history.current.settlementKingdomIds[si
 function realmName(world,id){return world.history.realms[id]?.shortName||`Realm ${id}`}
 function ageAt(p,year){return year-p.birthYear}
 function aliveAt(p,year){return p.birthYear<=year&&(p.deathYear==null||p.deathYear>year)}
-function livingPeople(s,year=s.currentYear){return s.people.filter(p=>aliveAt(p,year))}
+const livingIndexes=new WeakMap();
+function livingPeople(s,year=s.currentYear){
+ if(year!==s.currentYear)return s.people.filter(p=>aliveAt(p,year));
+ let index=livingIndexes.get(s);
+ if(!index||index.people!==s.people||index.length>s.people.length||year<index.year||year>index.year+1){index={people:s.people,length:0,year,candidates:[]};livingIndexes.set(s,index)}
+ const added=s.people.slice(index.length);index.candidates=index.candidates.filter(p=>aliveAt(p,year));
+ for(const p of added)if(aliveAt(p,year))index.candidates.push(p);
+ index.length=s.people.length;index.year=year;return index.candidates.slice();
+}
 function person(s,id){return Number.isInteger(id)?s.people[id]||null:null}
 function house(s,id){return Number.isInteger(id)&&id>=0?s.houses[id]||null:null}
 function title(s,id){return Number.isInteger(id)&&id>=0?s.titles[id]||null:null}

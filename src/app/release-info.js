@@ -1,6 +1,6 @@
 (function (root) {
   'use strict';
-  const version = '5.4.0', name = 'WebGL Atlas';
+  const version = '5.5.0', name = 'Live Simulation';
   function apply() {
     if (typeof document === 'undefined') return;
     const worldName = root.WorldForgeApp?.state?.world?.name;

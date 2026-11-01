@@ -56,6 +56,8 @@ jobs:
         run: npm run test:hd
       - name: Verify GPU rendering, zoom and context recovery
         run: npm run test:webgl
+      - name: Verify background simulation and live state
+        run: npm run test:live
       - name: Record generated atlas review images
         if: always()
         run: node scripts/print-visual-review.mjs

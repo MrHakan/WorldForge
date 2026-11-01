@@ -108,6 +108,8 @@ function invalidateWorldWork(){
 }
 window.addEventListener('worldforge:simulation-start',event=>{if(!event.detail?.autoplay)stopPlay()});
 window.addEventListener('worldforge:workspace-change',()=>{if(state.world)renderWorld(false,false)});
+window.addEventListener('worldforge:state-commit',event=>{if(event.detail.world!==state.world)return;state.cache={};if(!document.hidden)renderWorld(false);});
+document.addEventListener('visibilitychange',()=>{if(!document.hidden&&state.world)renderWorld(false)});
 window.addEventListener('worldforge:ready',()=>{
   if(!window.WorldForgeEndlessUI.state.running)document.querySelectorAll('.history-action').forEach(b=>b.disabled=false);
 });
