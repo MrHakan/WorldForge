@@ -29,3 +29,7 @@ console.log('A 5,000-snapshot world updates with under 500 bytes of deltas');
 const derived={history:{currentYear:0},live:{flags:{fortified:false}}},copy=structuredClone(derived),deltas=new Tracker(derived);
 copy.live.flags=Object.freeze(copy.live.flags);derived.live.flags.fortified=true;apply(copy,deltas.changes(derived));assert.equal(copy.live.flags.fortified,true);
 console.log('Frozen derived engine flags can be refreshed without redefining read-only properties');
+
+const ordered={history:{currentYear:0},jobs:{farmer:1,scholar:2}},orderedCopy=structuredClone(ordered),orderTracker=new Tracker(ordered);
+ordered.jobs={farmer:1,smith:3,scholar:2};apply(orderedCopy,orderTracker.changes(ordered));assert.equal(JSON.stringify(orderedCopy),JSON.stringify(ordered),'allocation dictionaries must preserve insertion order');
+console.log('Rebuilt allocation dictionaries retain deterministic key ordering');

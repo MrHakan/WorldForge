@@ -19,6 +19,12 @@ class Tracker{
    // retained by identity rather than rescanned with every live update.
 
    const keys=Object.keys(value),present=new Set(keys);
+   if(!prev.array){
+    // Rebuilt job/market dictionaries can insert a new key between existing
+    // keys. Preserve iteration order: allocation tie-breaks and fingerprints use it.
+    const order=[...prev.children.keys()].filter(k=>present.has(k)).concat(keys.filter(k=>!prev.children.has(k)));
+    if(keys.some((key,i)=>key!==order[i])){ops.push(['set',path,value]);return capture(value,path.at(-1))}
+   }
    for(const key of keys){const child=path.concat(key);prev.children.set(key,visit(value[key],prev.children.get(key),child,path.at(-1)==='snapshots'))}
    for(const key of prev.children.keys())if(!present.has(key)){if(!prev.array)ops.push(['delete',path.concat(key)]);prev.children.delete(key)}
    if(prev.array&&prev.length!==value.length)ops.push(['set',path.concat('length'),value.length]);
