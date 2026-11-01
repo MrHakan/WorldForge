@@ -12,7 +12,7 @@ page.on('pageerror',e=>errors.push(e.message));
 await mkdir(resolve(root,'test-results'),{recursive:true});
 const url='http://127.0.0.1:'+server.address().port+'/WorldForge/';
 try{
- await page.goto(url);await page.waitForFunction(()=>window.WorldForgeLoader?.ready);
+ await page.goto(url,{waitUntil:'domcontentloaded',timeout:45000});await page.waitForFunction(()=>window.WorldForgeLoader?.ready);
  await page.evaluate(()=>new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r))));
  assert.equal(await page.evaluate(()=>WorldForgeApp.state.renderer.gpuActive),true,'the real WebGL shaders must compile and render');
  const report=await page.evaluate(()=>{
@@ -58,7 +58,7 @@ try{
  await page.screenshot({path:resolve(root,'test-results/webgl-mobile.jpg'),type:'jpeg',quality:85});
  const fallback=await browser.newPage({viewport:{width:1100,height:800}});
  await fallback.addInitScript(()=>{const get=HTMLCanvasElement.prototype.getContext;HTMLCanvasElement.prototype.getContext=function(type,...args){return type.startsWith('webgl')?null:get.call(this,type,...args)}});
- await fallback.goto(url);await fallback.waitForFunction(()=>window.WorldForgeLoader?.ready);
+ await fallback.goto(url,{waitUntil:'domcontentloaded',timeout:45000});await fallback.waitForFunction(()=>window.WorldForgeLoader?.ready);
  assert.equal(await fallback.locator('#worldCanvas').getAttribute('data-renderer'),'canvas2d');
  await fallback.close();assert.deepEqual(errors,[]);
  await writeFile(resolve(root,'test-results/webgl-performance.json'),JSON.stringify(report,null,2));

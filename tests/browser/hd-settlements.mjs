@@ -9,7 +9,7 @@ const browser=await chromium.launch({headless:true,args:['--enable-unsafe-swifts
 page.on('pageerror',e=>errors.push(e.message));
 try{
  await page.route('**/warfare-strategic-map-overlay.js',async route=>{await new Promise(r=>setTimeout(r,350));await route.continue()});
- await page.goto('http://127.0.0.1:'+server.address().port+'/WorldForge/');await page.waitForFunction(()=>WorldForgeLoader.ready);
+ await page.goto('http://127.0.0.1:'+server.address().port+'/WorldForge/',{waitUntil:'domcontentloaded',timeout:45000});await page.waitForFunction(()=>WorldForgeLoader.ready);
  await page.waitForFunction(()=>document.querySelector('#worldforgeStrategicMapControls')?.closest('#atlasAdvancedControls'));
  await mkdir(resolve(root,'test-results'),{recursive:true});
  const report=await page.evaluate(()=>{

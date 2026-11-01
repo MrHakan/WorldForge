@@ -68,6 +68,12 @@ uniform float uUnit;
 varying vec4 vColor;
 void main(){vec2 p=uOrigin+aPoint*uUnit;gl_Position=vec4(p.x*2.0/uViewport.x-1.0,1.0-p.y*2.0/uViewport.y,0,1);vColor=aColor;}`;
 const modelFragment=`precision mediump float;varying vec4 vColor;void main(){gl_FragColor=vColor;}`;
+const foliageVertex=`
+attribute vec3 aPosition;attribute vec4 aColor;
+uniform vec2 uViewport,uCamera;
+uniform float uScale,uPitch,uOffset;
+varying vec4 vColor;
+void main(){vec2 p=vec2((aPosition.x+uOffset-uCamera.x)*uScale,((aPosition.y-uCamera.y)*uPitch-aPosition.z)*uScale);gl_Position=vec4(p.x*2.0/uViewport.x,-p.y*2.0/uViewport.y,0,1);vColor=aColor;}`;
 function program(gl,vertex,fragment){
   const shaders=[];let p=null;
   try{
@@ -128,9 +134,10 @@ class Atlas{
     renderer.canvas.style.position='relative';renderer.canvas.style.background='transparent';
   }
   initialize(){
-    const gl=this.gl;this.world=null;this.chunks=[];this.models.clear();this.textures=[];this.layerKey=null;
+    const gl=this.gl;this.world=null;this.chunks=[];this.foliage=null;this.models.clear();this.textures=[];this.layerKey=null;
     this.terrain=locations(gl,program(gl,terrainVertex,terrainFragment),['aPosition'],['uViewport','uCamera','uWorld','uScale','uPitch','uRelief','uOffset','uFields','uAnalysis','uSea','uMode']);
     this.model=locations(gl,program(gl,modelVertex,modelFragment),['aPoint','aColor'],['uViewport','uOrigin','uUnit']);
+    this.trees=locations(gl,program(gl,foliageVertex,modelFragment),['aPosition','aColor'],['uViewport','uCamera','uScale','uPitch','uOffset']);
     gl.disable(gl.DEPTH_TEST);gl.disable(gl.CULL_FACE);
   }
   clearWorld(){
@@ -138,6 +145,7 @@ class Atlas{
     for(const c of this.chunks){gl.deleteBuffer(c.vertices);gl.deleteBuffer(c.indices)}
     for(const m of this.models.values())gl.deleteBuffer(m.buffer);
     for(const t of this.textures)gl.deleteTexture(t);
+    if(this.foliage)gl.deleteBuffer(this.foliage.buffer);
     this.chunks=[];this.models.clear();this.textures=[];this.layerKey=null;
   }
   texture(width,height,data){
@@ -171,6 +179,38 @@ class Atlas{
       this.chunks.push({vertices,indices:ib,count:indices.length,y0:row/2,y1:(row+rows)/2});
     }
     this.stats.meshBuilds++;
+    this.buildFoliage(world);
+  }
+  buildFoliage(world){
+    const W=world.settings.width,H=world.settings.height,v=[],green=[.19,.38,.25,1],light=[.34,.51,.29,1];
+    const hash=(x,y)=>{let n=Math.imul(x,374761393)^Math.imul(y,668265263);n=Math.imul(n^(n>>>13),1274126177);return((n^(n>>>16))>>>0)/4294967295};
+    const triangle=(a,b,c,color)=>{for(const p of[a,b,c])v.push(...p,...color)};
+    for(let y=1;y<H-1;y++)for(let x=0;x<W;x++){
+      const biome=world.layers.biome[y*W+x],n=hash(x,y);
+      if(!['forest','taiga','rainforest'].includes(biome)||n>.38||T().elevation(world,x,y)<world.settings.seaLevel+.025)continue;
+      const wx=x+.2+n,wy=y+.25+hash(y,x)*.5,z=T().height(world,wx,wy),r=.12+n*.15,h=.4+n*.5;
+      const P=(dx,dy,dz)=>[wx+dx,wy+dy,z+dz];
+      triangle(P(-r,.02,0),P(r*1.7,.14,0),P(r,.3,0),[.025,.09,.07,.2]);
+      triangle(P(-.025,0,0),P(.025,0,0),P(0,0,h*.6),[.35,.27,.16,1]);
+      if(biome==='taiga'){
+        triangle(P(-r,0,h*.15),P(0,0,h),P(0,0,h*.15),light);
+        triangle(P(0,0,h),P(r,0,h*.15),P(0,0,h*.15),green);
+      }else{
+        const crown=[[-r,0,h*.45],[-r*.8,0,h*.8],[0,0,h],[r*.9,0,h*.8],[r,0,h*.45],[0,0,h*.3]];
+        for(let i=0;i<crown.length;i++)triangle(P(0,0,h*.65),P(...crown[i]),P(...crown[(i+1)%crown.length]),i<3?light:green);
+      }
+    }
+    const gl=this.gl,buffer=gl.createBuffer();gl.bindBuffer(gl.ARRAY_BUFFER,buffer);gl.bufferData(gl.ARRAY_BUFFER,new Float32Array(v),gl.STATIC_DRAW);this.foliage={buffer,count:v.length/7};
+  }
+  drawFoliage(renderer,m){
+    if(renderer.projection==='flat'||!['terrain','political','biome'].includes(renderer.mode))return;
+    const gl=this.gl,p=this.trees,W=this.world.settings.width,H=this.world.settings.height;
+    gl.useProgram(p.program);gl.enable(gl.BLEND);gl.blendFunc(gl.SRC_ALPHA,gl.ONE_MINUS_SRC_ALPHA);
+    gl.bindBuffer(gl.ARRAY_BUFFER,this.foliage.buffer);gl.enableVertexAttribArray(p.aPosition);gl.enableVertexAttribArray(p.aColor);
+    gl.vertexAttribPointer(p.aPosition,3,gl.FLOAT,false,28,0);gl.vertexAttribPointer(p.aColor,4,gl.FLOAT,false,28,12);
+    gl.uniform2f(p.uViewport,m.width,m.height);gl.uniform2f(p.uCamera,renderer.camera.x*W,renderer.camera.y*H);gl.uniform1f(p.uScale,m.scale);gl.uniform1f(p.uPitch,m.pitch);
+    for(const offset of[-W,0,W]){if(offset+W<renderer.camera.x*W-m.viewW/2||offset>renderer.camera.x*W+m.viewW/2)continue;gl.uniform1f(p.uOffset,offset);gl.drawArrays(gl.TRIANGLES,0,this.foliage.count)}
+    gl.disableVertexAttribArray(p.aPosition);gl.disableVertexAttribArray(p.aColor);
   }
   updateAnalysis(renderer){
     const mode=renderer.mode,view=renderer.historyView,key=mode==='terrain'?'terrain':mode;
@@ -209,7 +249,7 @@ class Atlas{
         gl.bindBuffer(gl.ARRAY_BUFFER,c.vertices);gl.vertexAttribPointer(p.aPosition,4,gl.FLOAT,false,16,0);gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER,c.indices);gl.drawElements(gl.TRIANGLES,c.count,gl.UNSIGNED_SHORT,0);calls++;
       }
     }
-    gl.disableVertexAttribArray(p.aPosition);this.stats.frames++;
+    gl.disableVertexAttribArray(p.aPosition);this.drawFoliage(renderer,m);this.stats.frames++;
     renderer.terrainDetail={backend:'webgl',resolution:null,tiles:0,drawCalls:calls,pixelsPerCell:m.scale*(renderer.dpr||1),...this.stats};
     return true;
   }

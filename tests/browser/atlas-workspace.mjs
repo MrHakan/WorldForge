@@ -15,7 +15,7 @@ page.on('console',message=>{if(message.type()==='error')errors.push(message.text
 page.on('response',response=>{if(response.status()>=400)failedRequests.push(response.status()+' '+response.url())});
 await mkdir(resolve(root,'test-results'),{recursive:true});
 try{
-  await page.goto('http://127.0.0.1:'+server.address().port+'/WorldForge/');
+  await page.goto('http://127.0.0.1:'+server.address().port+'/WorldForge/',{waitUntil:'domcontentloaded',timeout:45000});
   await page.waitForFunction(()=>window.WorldForgeLoader?.ready,null,{timeout:45000});
   await page.waitForFunction(()=>document.querySelector('#worldforgeStrategicMapControls')?.closest('#atlasAdvancedControls'),null,{timeout:15000});
   await page.evaluate(()=>new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve))));
