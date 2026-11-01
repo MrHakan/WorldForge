@@ -27,7 +27,7 @@ try{
  await page.evaluate(()=>WorldForgeApp.stopPlay());await page.waitForFunction(()=>!WorldForgeEndlessUI.state.running);
  await page.evaluate(()=>{
   window.__live={beats:0,commits:0,stale:0,maxGapMs:0};let last=performance.now();window.__beat=setInterval(()=>{const now=performance.now();__live.maxGapMs=Math.max(__live.maxGapMs,now-last);last=now;__live.beats++},10);
-  window.addEventListener('worldforge:state-commit',()=>{__live.commits++;const text=document.querySelector('#currentYear').textContent;if(!text.includes(String(WorldForgeApp.state.world.history.currentYear)))__live.stale++});
+  window.addEventListener('worldforge:state-commit',()=>{__live.commits++;const text=document.querySelector('#currentYear').textContent;const view=WorldForgeHistory.currentView(WorldForgeApp.state.world),population=document.querySelector('#historyPopulation').textContent.replace(/\D/g,'');if(!text.includes(String(view.year))||population!==String(Math.round(view.metrics.population)))__live.stale++});
   void WorldForgeEndlessUI.runAsync(10000);
  });
  await page.waitForFunction(()=>__live.commits>=2&&WorldForgeApp.state.world.history.currentYear>=200&&WorldForgeEndlessUI.state.running,null,{timeout:240000});
