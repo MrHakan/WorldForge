@@ -1,7 +1,7 @@
 # Current WorldForge Release
 
-## v5.2.0 — Terrain Atlas
+## v5.4.0 — WebGL Atlas
 
-The atlas now starts with a quiet, natural 2.5D terrain view: elevation-displaced geometry, directional hill shading, softened coasts, forests and small settlement buildings. A persistent navigation rail and scrollable details pane replace the crowded two-row workbench. Analytical overlays are opt-in and share the same map projection, camera and settlement coordinates.
+Terrain and settlement geometry now render through WebGL. Pan and zoom reuse persistent GPU buffers; terrain shading is evaluated per pixel instead of enlarging cached terrain images. Buildings retain sharp roof, masonry, door and window geometry at close zoom. Context restoration and a bounded Canvas fallback keep the map usable when a browser loses GPU access.
 
-See [V5.2.md](V5.2.md) for release notes and validation.
+See [V5.4.md](V5.4.md) for release notes and validation.

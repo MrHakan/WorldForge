@@ -54,6 +54,8 @@ jobs:
         run: npm run test:atlas
       - name: Verify HD terrain and evolving settlements
         run: npm run test:hd
+      - name: Verify GPU rendering, zoom and context recovery
+        run: npm run test:webgl
       - name: Record generated atlas review images
         if: always()
         run: node scripts/print-visual-review.mjs
@@ -111,3 +113,4 @@ jobs:
         run: node scripts/release.mjs
         env:
           GITHUB_TOKEN: ${{ github.token }}
+

@@ -1,6 +1,6 @@
 {
   "name": "worldforge",
-  "version": "5.3.0",
+  "version": "5.4.0",
   "private": true,
   "description": "Deterministic procedural world, civilization and story studio",
   "engines": {
@@ -13,7 +13,8 @@
     "test:syntax": "node tests/check-js-syntax.mjs",
     "test:browser": "node tests/browser/pages-smoke.mjs",
     "test:atlas": "node tests/browser/atlas-workspace.mjs",
-    "test:hd": "node tests/browser/hd-settlements.mjs"
+    "test:hd": "node tests/browser/hd-settlements.mjs",
+    "test:webgl": "node tests/browser/webgl-atlas.mjs"
   },
   "devDependencies": {
     "playwright": "1.64.1"
