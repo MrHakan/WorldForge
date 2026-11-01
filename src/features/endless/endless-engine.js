@@ -7,6 +7,8 @@
 const VERSION='0.9.0',SCHEMA=1,REBASE_AT=4200,REBASE_SHIFT=3000,MAINTENANCE_STEP=25;
 let baseSimulator=Factions?.simulateYears?Factions.simulateYears.bind(Factions):Society?.simulateYears?Society.simulateYears.bind(Society):null;
 const activeRuns=new WeakMap();
+let asyncDriver=null;
+function setAsyncDriver(driver){asyncDriver=typeof driver==='function'?driver:null}
 const TIME_KEYS=new Set(['year','startYear','currentYear','birthYear','deathYear','foundingYear','createdYear','formedYear','collapsedYear','dissolvedYear','originYear','discoveredYear','resolvedYear','endYear','completedYear','failedYear','lastChangeYear','lastUpdatedYear']);
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v)),round=(v,d=2)=>Number(Number(v).toFixed(d));
 function history(w){return History.initialize(w)}
@@ -18,7 +20,7 @@ function normalizeYears(v){const n=Number(v);if(!Number.isFinite(n)||n<0)throw n
 function withEpochSeed(w,fn){const e=initialize(w),old=w.settings.seed;w.settings.seed=e.epochOffset?`${e.baseSeed}|EPOCH:${e.epochOffset}`:e.baseSeed;try{return fn()}finally{w.settings.seed=old}}
 function shiftTimes(value,delta,seen=new Set()){if(!value||typeof value!=='object'||seen.has(value))return;seen.add(value);if(Array.isArray(value)){for(const x of value)shiftTimes(x,delta,seen);return}for(const [k,v] of Object.entries(value)){if(typeof v==='number'&&TIME_KEYS.has(k))value[k]=v-delta;else if(v&&typeof v==='object')shiftTimes(v,delta,seen)}}
 function snapshotModules(w){return[w.history,w.society,w.cities,w.adventure,w.story,w.culture,w.factions].filter(Boolean)}
-function pruneSnapshotsTiered(w){const e=initialize(w),now=absoluteYear(w);for(const m of snapshotModules(w)){if(!Array.isArray(m.snapshots)||m.snapshots.length<3)continue;const by=new Map();for(const s of m.snapshots){const ay=e.epochOffset+s.year,age=now-ay;let keep=age<=e.retention.recentDetailedYears;if(!keep&&age<=e.retention.midDetailYears)keep=ay%e.retention.midStep===0;if(!keep&&age>e.retention.midDetailYears)keep=ay%e.retention.ancientStep===0;if(s.year===m.currentYear||s.year===0)keep=true;if(keep)by.set(s.year,s)}m.snapshots=[...by.values()].sort((a,b)=>a.year-b.year)}}
+function pruneSnapshotsTiered(w){const e=initialize(w),now=absoluteYear(w);for(const m of snapshotModules(w)){if(!Array.isArray(m.snapshots)||m.snapshots.length<3)continue;const by=new Map();for(const s of m.snapshots){const ay=e.epochOffset+s.year,age=now-ay;let keep=age<=e.retention.recentDetailedYears&&s.year%(w.history.snapshotInterval||5)===0;if(!keep&&age<=e.retention.midDetailYears)keep=ay%e.retention.midStep===0;if(!keep&&age>e.retention.midDetailYears)keep=ay%e.retention.ancientStep===0;if(s.year===m.currentYear||s.year===0)keep=true;if(keep)by.set(s.year,s)}m.snapshots=[...by.values()].sort((a,b)=>a.year-b.year)}}
 function prepareSnapshotsForRebase(w,shift){for(const m of snapshotModules(w)){if(!Array.isArray(m.snapshots)||!m.snapshots.length)continue;let base=null;for(const s of m.snapshots)if(s.year<=shift&&(!base||s.year>base.year))base=s;let keep=m.snapshots.filter(s=>s.year>=shift);if(base&&!keep.some(s=>s.year===shift)){base={...base,year:shift};keep.unshift(base)}m.snapshots=keep.sort((a,b)=>a.year-b.year)}}
 function eraBucket(e,absYear){const start=Math.floor(absYear/250)*250;let b=e.archive.eras.find(x=>x.startYear===start);if(!b){b={startYear:start,endYear:start+249,eventCounts:{},majorEvents:[],totalEvents:0};e.archive.eras.push(b);e.archive.eras.sort((a,b)=>a.startYear-b.startYear)}return b}
 function archiveOldEvents(w,shift){const e=initialize(w),h=w.history,old=h.events.filter(x=>x.year<shift),keep=h.events.filter(x=>x.year>=shift);for(const ev of old){const abs=e.epochOffset+ev.year,b=eraBucket(e,abs);b.totalEvents++;b.eventCounts[ev.type]=(b.eventCounts[ev.type]||0)+1;if((ev.importance||1)>=2&&b.majorEvents.length<16)b.majorEvents.push({year:abs,type:ev.type,title:ev.title,text:ev.text})}e.archive.eventCount+=old.length;const remap=new Map();keep.forEach((ev,i)=>{remap.set(ev.id,i);ev.id=i});h.events=keep;if(w.adventure){for(const s of w.adventure.sites||[])if(s&&s.sourceEventId!=null)s.sourceEventId=remap.has(s.sourceEventId)?remap.get(s.sourceEventId):null;w.adventure.processedEventIds=h.events.map(x=>x.id)}if(w.story){for(const q of w.story.quests||[])if(q&&q.sourceEventId!=null)q.sourceEventId=remap.has(q.sourceEventId)?remap.get(q.sourceEventId):null;w.story.processedEventIds=h.events.map(x=>x.id)}for(const s of h.snapshots||[])s.eventIndex=h.events.filter(ev=>ev.year<=s.year).length;return old.length}
@@ -53,18 +55,19 @@ async function simulateYearsAsync(w,years,options={}){
   const maxBatch=Number.isFinite(limit)&&limit>0?Math.max(1,Math.floor(limit)):100;
   const timeBudget=Number.isFinite(budget)&&budget>0?budget:12;
   const job={running:true,cancelRequested:Boolean(options.signal?.aborted)};
-  const abort=()=>{job.cancelRequested=true};
+  const abort=()=>{job.cancelRequested=true;job.onCancel?.()};
   activeRuns.set(w,job);e.async=job;
   options.signal?.addEventListener('abort',abort,{once:true});
   let done=0,batch=1;
   try{
+    if(asyncDriver&&!options.inThread){const result=await asyncDriver(w,total,{...options,job});if(result)return result}
     await yieldToBrowser();
     while(done<total&&!job.cancelRequested){
       const n=Math.min(batch,total-done),start=Date.now();
       advanceYears(w,n,options);done+=n;
       batch=Math.min(maxBatch,Math.max(1,Math.floor(n*timeBudget/Math.max(1,Date.now()-start))));
       options.onProgress?.({done,total,absoluteYear:absoluteYear(w),localYear:w.history.currentYear,rebases:e.rebases});
-      if(done<total)await yieldToBrowser();
+      if(done<total){await yieldToBrowser();if(!job.cancelRequested&&options.pauseEveryYears>0&&done%options.pauseEveryYears===0)await new Promise(resolve=>setTimeout(resolve,Math.max(0,Math.min(2000,Number(options.pauseMs)||0))))}
     }
     return{done,total,cancelled:job.cancelRequested,absoluteYear:absoluteYear(w)};
   }finally{
@@ -77,10 +80,10 @@ async function simulateToAsync(w,target,options={}){
   if(t<now)throw new Error('Target year must be later than the present');
   return simulateYearsAsync(w,t-now,options);
 }
-function cancel(w){const job=activeRuns.get(w);if(job)job.cancelRequested=true}
+function cancel(w){const job=activeRuns.get(w);if(job){job.cancelRequested=true;job.onCancel?.()}}
 function isRunning(w){return activeRuns.has(w)}
 function memoryStats(w){const e=initialize(w),mods=snapshotModules(w),snapshots=mods.reduce((n,m)=>n+(m.snapshots?.length||0),0),events=w.history.events.length,people=w.society?.people?.length||0,peopleArchived=w.society?.people?.filter(p=>p?.archived).length||0,sites=w.adventure?.sites?.length||0,quests=w.story?.quests?.length||0,orgs=w.factions?.organizations?.length||0;return{absoluteYear:absoluteYear(w),localYear:w.history.currentYear,epochOffset:e.epochOffset,rebases:e.rebases,snapshots,events,archivedEvents:e.archive.eventCount,people,peopleArchived,sites,quests,organizations:orgs,checkpoints:e.archive.checkpoints.length,eraArchives:e.archive.eras.length}}
 function fingerprint(w){const e=initialize(w),m=memoryStats(w);let h=2166136261>>>0,s=`${m.absoluteYear}|${m.localYear}|${m.epochOffset}|${m.rebases}|${e.archive.eventCount}|${e.archive.peopleCompacted}|${w.history.current.settlementKingdomIds.slice(0,16).join(',')}|${Math.round(History.currentView(w).metrics.population)}`;for(const ch of s){h^=ch.charCodeAt(0);h=Math.imul(h,16777619)}return(h>>>0).toString(16).padStart(8,'0')}
 function validate(w){const e=initialize(w),errors=[];const local=w.history.currentYear;if(e.absoluteYear!==e.epochOffset+local)errors.push('absolute year');for(const [name,m] of Object.entries({society:w.society,cities:w.cities,adventure:w.adventure,story:w.story,culture:w.culture,factions:w.factions}))if(m&&m.currentYear!==local)errors.push(`${name} year mismatch`);if(local>=5000)errors.push('legacy cap boundary reached');if(e.rebases>0&&e.epochOffset<=0)errors.push('epoch offset');if(w.settings.seed!==e.baseSeed)errors.push('base seed mutated');return errors}
-const api={VERSION,SCHEMA,REBASE_AT,REBASE_SHIFT,initialize,setBaseSimulator,absoluteYear,simulateYears,simulateTo,simulateYearsAsync,simulateToAsync,cancel,isRunning,rebase,maintenance,memoryStats,fingerprint,validate};return api;
+const api={VERSION,SCHEMA,REBASE_AT,REBASE_SHIFT,initialize,setBaseSimulator,setAsyncDriver,absoluteYear,simulateYears,simulateTo,simulateYearsAsync,simulateToAsync,cancel,isRunning,rebase,maintenance,memoryStats,fingerprint,validate};return api;
 });

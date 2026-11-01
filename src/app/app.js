@@ -82,16 +82,12 @@ async function advanceYears(years,autoplay=false){
   return window.WorldForgeEndlessUI.runAsync(n,{autoplay});
 }
 function runToTarget(){return window.WorldForgeEndlessUI.runToAsync(Math.floor(Number($('#targetYearInput').value)))}
-function stopPlay(){state.playing=false;clearTimeout(state.playTimer);state.playTimer=null;if($('#playBtn'))$('#playBtn').textContent='▶ Auto 5y/tick'}
+function stopPlay(){const wasPlaying=state.playing;state.playing=false;if(wasPlaying&&state.world)window.WorldForgeEndless?.cancel(state.world);clearTimeout(state.playTimer);state.playTimer=null;if($('#playBtn'))$('#playBtn').textContent='▶ Auto 5y/tick'}
 function togglePlay(){
   if(state.playing){stopPlay();return}
   state.playing=true;$('#playBtn').textContent='■ Stop';
-  const tick=async()=>{
-    if(!state.playing)return;
-    try{await advanceYears(5,true)}catch(error){console.error(error);stopPlay();toast('Automatic simulation stopped')}
-    if(state.playing)state.playTimer=setTimeout(tick,650);
-  };
-  state.playTimer=setTimeout(tick,650);
+  const remaining=Number.MAX_SAFE_INTEGER-window.WorldForgeEndless.absoluteYear(state.world);
+  void advanceYears(remaining,true).catch(error=>{console.error(error);toast('Automatic simulation stopped')}).finally(()=>{if(state.playing)stopPlay()});
 }
 function syncControls(){const s=state.world.settings;$('#seedInput').value=s.seed;$('#widthInput').value=s.width;$('#heightInput').value=s.height;$('#seaLevelInput').value=s.seaLevel;$('#ageInput').value=s.age;$('#settlementInput').value=s.settlementTarget;$('#kingdomInput').value=s.kingdomTarget;updateRangeLabels()}
 function bind(){state.renderer=new WorldRenderer($('#worldCanvas'));state.renderer.onHover=(s,p)=>{const tip=$('#mapTooltip');if(!s||!p){tip.classList.add('hidden');return}const view=getView(),kid=view.settlementKingdomIds[s.id],k=getRealm(view,kid),biome=E.BIOMES[state.world.layers.biome[s.y*state.world.settings.width+s.x]]?.label,capital=view.realms.some(r=>r.active&&r.capitalId===s.id);tip.innerHTML=`<b>${esc(s.name)}</b>${capital?'Capital · ':''}${esc(s.type)}<br>${esc(k?.name||'Unruled')}<br>${esc(biome)} · pop. ${fmt(view.settlementPopulation[s.id])}<br>Prosperity ${fmt(view.settlementProsperity[s.id]*100,0)}% · Year ${view.year}`;tip.style.left=Math.min(p.x+14,$('#mapWrap').clientWidth-255)+'px';tip.style.top=Math.max(12,p.y-20)+'px';tip.classList.remove('hidden')};state.renderer.onSelectSettlement=s=>{const row=document.querySelector(`[data-settlement="${s.id}"]`);row?.scrollIntoView({behavior:'smooth',block:'center'});toast(`${s.name} selected`)};
@@ -108,6 +104,8 @@ function invalidateWorldWork(){
 }
 window.addEventListener('worldforge:simulation-start',event=>{if(!event.detail?.autoplay)stopPlay()});
 window.addEventListener('worldforge:workspace-change',()=>{if(state.world)renderWorld(false,false)});
+window.addEventListener('worldforge:state-commit',event=>{if(event.detail.world!==state.world)return;state.cache={};if(!document.hidden)renderWorld(false);});
+document.addEventListener('visibilitychange',()=>{if(!document.hidden&&state.world)renderWorld(false)});
 window.addEventListener('worldforge:ready',()=>{
   if(!window.WorldForgeEndlessUI.state.running)document.querySelectorAll('.history-action').forEach(b=>b.disabled=false);
 });

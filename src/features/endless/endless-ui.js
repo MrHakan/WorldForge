@@ -14,24 +14,25 @@ function install(){window.WorldForgeReleaseInfo?.apply();const v=$('.version-pil
 function setProgress(text,pct=0,state='RUNNING'){const l=$('#endlessProgressLabel'),p=$('#endlessProgressPct'),bar=$('#endlessProgressBar'),s=$('#endlessState');if(l)l.textContent=text;if(p)p.textContent=state;if(bar)bar.style.width=`${Math.max(0,Math.min(100,pct))}%`;if(s)s.textContent=state}
 function refreshYearLabels(){if(!ui.world)return;const e=ui.world.endless,offset=e?.epochOffset||0,abs=X.absoluteYear(ui.world),local=ui.world.history.currentYear,hist=ui.viewYear==null?abs:offset+ui.viewYear;const pairs=[['#currentYear',`YEAR ${fmt(hist)}`],['#timelineYear',`Year ${fmt(hist)}`],['#endlessYear',fmt(abs)],['#endlessLocal',fmt(local)],['#endlessOffset',fmt(offset)]];for(const [sel,text] of pairs){const el=$(sel);if(el)el.textContent=text}for(const sel of['#societyYearBadge','#adventureYear','#storyYear','#wikiYear','#cultureYear','#factionYear']){const el=$(sel);if(el)el.textContent=`YEAR ${fmt(hist)}`}const timeline=$('#timelineSlider');if(timeline){const cap=Math.max(0,local);timeline.max=cap;timeline.min=0}const captions=document.querySelectorAll('.timeline-caption span');if(captions.length>=2){captions[0].textContent=`Year ${fmt(offset)}`;captions[captions.length-1].textContent=`Year ${fmt(abs)}`}}
 function render(){if(!ui.world||!$('#endlessPanel'))return;const m=X.memoryStats(ui.world);$('#endlessYear').textContent=fmt(m.absoluteYear);$('#endlessLocal').textContent=fmt(m.localYear);$('#endlessOffset').textContent=fmt(m.epochOffset);$('#endlessRebases').textContent=fmt(m.rebases);$('#endlessEvents').textContent=fmt(m.events);$('#endlessArchivedEvents').textContent=fmt(m.archivedEvents);$('#endlessSnapshots').textContent=fmt(m.snapshots);$('#endlessArchivedPeople').textContent=fmt(m.peopleArchived);$('#endlessEras').textContent=fmt(m.eraArchives);refreshYearLabels()}
-function lock(on){
+function lock(on,autoplay=false){
   ui.running=on;
-  document.querySelectorAll('[data-endless-years],.history-action').forEach(b=>b.disabled=on);
+  document.querySelectorAll('[data-endless-years],.history-action').forEach(b=>b.disabled=on);const play=$('#playBtn');if(play)play.disabled=on&&!autoplay;
   document.querySelectorAll('#endlessCancel,#cancelSimBtn').forEach(b=>b.disabled=!on);
 }
 async function runAsync(years,{autoplay=false}={}){
   if(!ui.world||ui.running||X.isRunning(ui.world))return;
   if(window.WorldForgeLoader&&!window.WorldForgeLoader.ready){setProgress('Loading simulation systems…',0,'LOADING');return}
   const world=ui.world,id=++ui.jobId,current=()=>ui.world===world&&ui.jobId===id;
-  lock(true);window.dispatchEvent(new CustomEvent('worldforge:simulation-start',{detail:{autoplay}}));
-  setProgress('Simulating '+fmt(years)+' years…',0,'RUNNING');
+  if(window.WorldForgeApp?.state.world===world)window.WorldForgeApp.state.viewYear=null;
+  lock(true,autoplay);window.dispatchEvent(new CustomEvent('worldforge:simulation-start',{detail:{autoplay}}));
+  setProgress(autoplay?'Automatic simulation running…':'Simulating '+fmt(years)+' years…',0,'RUNNING');
   let lastRender=0;
   try{
-    const result=await X.simulateYearsAsync(world,years,{batchSize:1,onProgress:p=>{
+    const result=await X.simulateYearsAsync(world,years,{batchSize:1,pauseEveryYears:autoplay?5:0,pauseMs:650,onProgress:p=>{
       if(!current())return;
       const pct=p.total?100*p.done/p.total:100;
-      setProgress('Year '+fmt(p.absoluteYear)+' · '+fmt(p.done)+' / '+fmt(p.total)+' years',pct,pct.toFixed(0)+'%');
-      if(Date.now()-lastRender>100){lastRender=Date.now();render()}
+      setProgress('Year '+fmt(p.absoluteYear)+(autoplay?' · automatic 5-year steps':' · '+fmt(p.done)+' / '+fmt(p.total)+' years'),autoplay?100:pct,autoplay?'LIVE':pct.toFixed(0)+'%');
+      if(p.synced!==false&&Date.now()-lastRender>350){lastRender=Date.now();render();if(!window.WorldForgeRuntime||window.WorldForgeRuntime.stats.backend!=='worker')window.dispatchEvent(new CustomEvent('worldforge:state-commit',{detail:{world,progress:p}}))}
     }});
     if(current()){
       setProgress((result.cancelled?'Stopped at Year ':'Reached Year ')+fmt(result.absoluteYear)+'.',100,result.cancelled?'CANCELLED':'COMPLETE');
@@ -62,3 +63,4 @@ install();const proto=window.WorldRenderer.prototype,oldSetWorld=proto.setWorld,
     if(current){window.WorldForgeCreatorUI.state.world=current;window.WorldForgeCreatorSuite.initialize(current);window.WorldForgeCreatorSuite.starterPack(current);window.WorldForgeCreatorUI.render()}
   }catch(error){console.error('Creator Toolkit bootstrap failed',error)}
 })();
+

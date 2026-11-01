@@ -1,7 +1,7 @@
 # Current WorldForge Release
 
-## v5.4.0 — WebGL Atlas
+## v5.5.0 — Live Simulation
 
-Terrain and settlement geometry now render through WebGL. Pan and zoom reuse persistent GPU buffers; terrain shading is evaluated per pixel instead of enlarging cached terrain images. Buildings retain sharp roof, masonry, door and window geometry at close zoom. Context restoration and a bounded Canvas fallback keep the map usable when a browser loses GPU access.
+Simulation runs in a dedicated worker while incremental state updates keep the current page fresh. Hidden legacy panels skip rendering, living-character queries use an active index, and historical replay snapshots respect the configured interval.
 
-See [V5.4.md](V5.4.md) for release notes and validation.
+See [V5.5.md](V5.5.md).

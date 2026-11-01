@@ -4,17 +4,15 @@
 
 **Live:** https://mrhakan.github.io/WorldForge/
 
-## Current release — v5.4.0 WebGL Atlas
+## Current release — v5.5.0 Live Simulation
 
-- GPU terrain mesh and per-pixel coast, climate, rock and surface shading.
-- Cached triangle geometry for all 27 procedural building types, with roof seams, masonry courses, window recesses and lintels.
-- Camera-only pan and zoom up to 40×: no CPU terrain tile regeneration or world texture uploads during zoom.
-- Device-resolution rendering with an 8-megapixel framebuffer budget, coalesced input and two-finger panning.
-- WebGL context recovery and a bounded Canvas fallback when GPU rendering is unavailable.
+- Simulation runs in a dedicated Web Worker while the map and controls remain interactive.
+- A project-owned runtime sends incremental changes with backpressure and refreshes visible data during long jobs.
+- Active-character indexing, interval-based replay retention and hidden-panel rendering guards reduce work as years accumulate.
+- Cancellation, replacement and worker fallback preserve coherent world state and existing save files.
+- The WebGL atlas retains its uploaded geometry while simulation data updates.
 
-Technology and population still grow settlements from camps through clay villages, brick towns, fortified cities and civic metropolises. Save files and deterministic simulation data are unchanged.
-
-See [v5.4 release notes](docs/releases/V5.4.md).
+See [v5.5 release notes](docs/releases/V5.5.md).
 
 ### Local workspace
 

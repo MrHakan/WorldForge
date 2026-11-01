@@ -61,7 +61,12 @@ function initialize(w){
  const R=w.resources;R.engineVersion=VERSION;R.markets=R.markets||[];R.flows=R.flows||[];R.shocks=R.shocks||[];R.annual=R.annual||[];R.archives=R.archives||[];R.settings={maxFlows:1400,maxShocks:700,retainDetailedYears:1000,tradeIntensity:.55,...R.settings};R.stats={produced:0,consumed:0,transported:0,shortages:0,famines:0,tradeBooms:0,warDisruptions:0,spoiled:0,archivedYears:0,...R.stats};
  const by=new Map(R.markets.map(x=>[x.settlementId,x]));for(const s of w.settlements||[])if(!by.has(s.id)){const m=initialMarket(w,s);R.markets.push(m);by.set(s.id,m)}R.markets.sort((a,b)=>a.settlementId-b.settlementId);return R
 }
-function market(w,sid){return initialize(w).markets.find(x=>x.settlementId===Number(sid))||null}
+function market(w,sid){
+ const id=Number(sid),existing=w.resources?.schemaVersion===SCHEMA?w.resources.markets?.find(x=>x.settlementId===id):null;
+ // Production recipes read the same market thousands of times per year. A read
+ // must not normalize every dependent engine and every other market again.
+ return existing||initialize(w).markets.find(x=>x.settlementId===id)||null;
+}
 function annualClimate(w,sid){const cur=w.calendarClimate?.current;if(cur?.settlement){const x=cur.settlement.find(q=>q.id===sid);if(x)return x}return{cropYield:1,foodStress:0,drought:0,flood:0,storm:0,winterSeverity:0,heat:0}}
 function demandFor(w,sid,c){const pop=population(w,sid),city=w.cities?.cities?.[sid],pros=Number(w.history?.current?.settlementProsperity?.[sid]??city?.prosperity??.45),lux=c.category==='Luxury'?(.45+pros*1.4):1;return Math.max(.05,pop*c.demand*lux*12)}
 function productionFor(w,sid,c,year){const m=market(w,sid),s=w.settlements[sid],rid=realmId(w,sid),fx=techEffects(w,rid),cl=annualClimate(w,sid),rr=keyed(w,year,`prod:${sid}:${c.id}`),suit=Number(m.suitability[c.id]||.1),pop=population(w,sid);let tech=1,weather=1;
