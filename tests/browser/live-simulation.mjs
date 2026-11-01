@@ -23,12 +23,13 @@ try{
  await page.waitForFunction(()=>WorldForgeApp.state.world.history.currentYear>=22&&WorldForgeApp.state.playing);
  await page.evaluate(()=>WorldForgeApp.stopPlay());await page.waitForFunction(()=>!WorldForgeEndlessUI.state.running);
  await page.evaluate(()=>{
-  window.__live={beats:0,commits:0,stale:0};window.__beat=setInterval(()=>__live.beats++,10);
+  window.__live={beats:0,commits:0,stale:0,maxGapMs:0};let last=performance.now();window.__beat=setInterval(()=>{const now=performance.now();__live.maxGapMs=Math.max(__live.maxGapMs,now-last);last=now;__live.beats++},10);
   window.addEventListener('worldforge:state-commit',()=>{__live.commits++;const text=document.querySelector('#currentYear').textContent;if(!text.includes(String(WorldForgeApp.state.world.history.currentYear)))__live.stale++});
   void WorldForgeEndlessUI.runAsync(10000);
  });
- await page.waitForFunction(()=>__live.commits>=2&&WorldForgeEndlessUI.state.running);
+ await page.waitForFunction(()=>__live.commits>=2&&WorldForgeApp.state.world.history.currentYear>=200&&WorldForgeEndlessUI.state.running,null,{timeout:120000});
  assert.ok(await page.evaluate(()=>__live.beats>10),'the main thread must keep responding during long runs');
+ assert.ok(await page.evaluate(()=>__live.maxGapMs<500),'long runs must not create half-second main-thread stalls');
  assert.equal(await page.evaluate(()=>__live.stale),0,'displayed data must update during the job, not only after it ends');
  await page.evaluate(()=>{const r=WorldForgeApp.state.renderer;r.camera.zoom=8;r.requestDraw();WorldForgeEndless.cancel(r.world)});
  await page.waitForFunction(()=>!WorldForgeEndlessUI.state.running);

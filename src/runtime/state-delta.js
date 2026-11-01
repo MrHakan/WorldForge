@@ -30,14 +30,22 @@ class Tracker{
  }
 }
 function apply(world,ops){
+ const put=(parent,key,value)=>{const descriptor=Object.getOwnPropertyDescriptor(parent,key);if(descriptor?.writable)parent[key]=value;else Object.defineProperty(parent,key,{value,writable:true,configurable:true,enumerable:true})};
  for(const [type,path,value]of ops){
   if(!path.length||STATIC.has(path[0]))throw new Error('Invalid simulation delta');
   let parent=world;
-  for(const key of path.slice(0,-1)){if(!Object.hasOwn(parent,key)||!object(parent[key]))throw new Error('Out-of-order simulation delta');parent=parent[key]}
+  for(let i=0;i<path.length-1;i++){
+   const key=path[i];if(!Object.hasOwn(parent,key)||!object(parent[key]))throw new Error('Out-of-order simulation delta');
+   let child=parent[key];const next=Object.getOwnPropertyDescriptor(child,path[i+1]);
+   // Engine profiles contain frozen/read-only derived flags. Replace their small
+   // container instead of attempting to redefine an immutable property in place.
+   if(Object.isFrozen(child)||(!Object.isExtensible(child)&&!next)||(next&&(!next.writable||(type==='delete'&&!next.configurable)))){child=Array.isArray(child)?[...child]:{...child};put(parent,key,child)}
+   parent=child;
+  }
   const key=path.at(-1);
   if(type==='delete')Reflect.deleteProperty(parent,key);
   else if(Array.isArray(parent)&&key==='length')parent.length=value;
-  else Object.defineProperty(parent,key,{value,writable:true,configurable:true,enumerable:true});
+  else put(parent,key,value);
  }
  return world;
 }

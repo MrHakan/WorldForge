@@ -25,3 +25,7 @@ const aged={history:{currentYear:6000,snapshots:Array.from({length:5000},(_,year
 const aging=new Tracker(aged);assert.deepEqual(aging.changes(aged),[]);aged.history.currentYear++;aged.live.population++;
 assert.ok(JSON.stringify(aged).length>1000000);assert.ok(JSON.stringify(aging.changes(aged)).length<500,'live traffic must not grow with unchanged replay history');
 console.log('A 5,000-snapshot world updates with under 500 bytes of deltas');
+
+const derived={history:{currentYear:0},live:{flags:{fortified:false}}},copy=structuredClone(derived),deltas=new Tracker(derived);
+copy.live.flags=Object.freeze(copy.live.flags);derived.live.flags.fortified=true;apply(copy,deltas.changes(derived));assert.equal(copy.live.flags.fortified,true);
+console.log('Frozen derived engine flags can be refreshed without redefining read-only properties');

@@ -23,6 +23,7 @@ async function runAsync(years,{autoplay=false}={}){
   if(!ui.world||ui.running||X.isRunning(ui.world))return;
   if(window.WorldForgeLoader&&!window.WorldForgeLoader.ready){setProgress('Loading simulation systems…',0,'LOADING');return}
   const world=ui.world,id=++ui.jobId,current=()=>ui.world===world&&ui.jobId===id;
+  if(window.WorldForgeApp?.state.world===world)window.WorldForgeApp.state.viewYear=null;
   lock(true,autoplay);window.dispatchEvent(new CustomEvent('worldforge:simulation-start',{detail:{autoplay}}));
   setProgress(autoplay?'Automatic simulation running…':'Simulating '+fmt(years)+' years…',0,'RUNNING');
   let lastRender=0;

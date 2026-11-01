@@ -22,7 +22,7 @@ async function start(data){
   postMessage({type:'ready',id:runId});
   const publish=(result=null)=>{
    const t=performance.now(),ops=tracker.changes(world);pending=true;
-   waiting=()=>{pending=false;waiting=null};
+   waiting=delay=>{pending=false;waiting=null;interval=Math.max(interval,Math.min(1500,Number(delay)||350))};
    postMessage({type:'patch',id:runId,ops,progress,result});last=performance.now();
    return performance.now()-t;
   };
@@ -39,6 +39,6 @@ async function start(data){
 self.onmessage=event=>{
  const data=event.data;
  if(data.type==='start'&&runId===null)void start(data);
- else if(data.id===runId&&data.type==='ack')waiting?.();
+ else if(data.id===runId&&data.type==='ack')waiting?.(data.intervalMs);
  else if(data.id===runId&&data.type==='cancel'&&world)self.WorldForgeEndless.cancel(world);
 };

@@ -34,7 +34,7 @@ function run(world,years,options){
       const start=performance.now();root.WorldForgeStateDelta.apply(world,data.ops);stats.commits++;stats.operations+=data.ops.length;stats.lastApplyMs=performance.now()-start;last=data.progress;
       options.onProgress?.({...last,synced:true});
       root.dispatchEvent(new CustomEvent('worldforge:state-commit',{detail:{world,progress:last}}));
-      if(data.result)finish(data.result);else worker.postMessage({type:'ack',id});
+      if(data.result)finish(data.result);else{stats.lastCommitMs=performance.now()-start;worker.postMessage({type:'ack',id,intervalMs:Math.max(350,stats.lastCommitMs*12)})}
      }
     }catch(error){finish(null,error)}
    };
