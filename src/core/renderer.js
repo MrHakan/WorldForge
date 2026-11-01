@@ -9,13 +9,15 @@ const mix=(a,b,t)=>{const A=hexToRgb(a),B=hexToRgb(b);t=clamp(t,0,1);return'#'+[
 
 class WorldRenderer{
   constructor(canvas){
-    this.canvas=canvas;this.ctx=canvas.getContext('2d',{alpha:false});
+    this.canvas=canvas;this.ctx=canvas.getContext('2d',{alpha:true});
+    this.gpu=null;this.gpuFailure=null;
+    try{if(window.WorldForgeWebGL)this.gpu=new window.WorldForgeWebGL.Atlas(this)}catch(error){this.gpuFailure=error.message}
     this.world=null;this.historyView=null;this.mode='terrain';this.projection='relief';this.layers={labels:true,borders:false,roads:false};this.camera={x:.5,y:.5,zoom:1};this.keys=new Set();this.drag=null;this.hover=null;this.selectedSettlementId=null;this.baseDirty=true;this.keyboardFrame=0;
     this.onHover=null;this.onSelectSettlement=null;this.pixelCanvas=document.createElement('canvas');this.pixelCtx=this.pixelCanvas.getContext('2d',{alpha:false});
     this.bind();this.resize();window.addEventListener('resize',()=>this.resize());
     
   }
-  resize(){const rect=this.canvas.getBoundingClientRect(),dpr=Math.min(2.5,window.devicePixelRatio||1),atHome=this.home&&['x','y','zoom'].every(key=>Math.abs(this.camera[key]-this.home[key])<.00001);this.canvas.width=Math.max(1,Math.round(rect.width*dpr));this.canvas.height=Math.max(1,Math.round(rect.height*dpr));this.dpr=dpr;this.home=this.homeCamera();if(atHome)this.camera={...this.home};this.draw()}
+  resize(){const rect=this.canvas.getBoundingClientRect(),ratio=window.devicePixelRatio||1,dpr=Math.min(3,ratio,Math.sqrt(8000000/Math.max(1,rect.width*rect.height))),atHome=this.home&&['x','y','zoom'].every(key=>Math.abs(this.camera[key]-this.home[key])<.00001);this.canvas.width=Math.max(1,Math.round(rect.width*dpr));this.canvas.height=Math.max(1,Math.round(rect.height*dpr));this.dpr=dpr;this.home=this.homeCamera();if(atHome)this.camera={...this.home};this.requestDraw()}
   setWorld(w){this.world=w;this.historyView=null;this.selectedSettlementId=null;this.baseDirty=true;this.center()}
   setHistoryView(view){const next=view||null;if(this.historyView===next)return;this.historyView=next;this.baseDirty=true;this.draw()}
   setMode(m){if(this.mode===m)return;this.mode=m;this.baseDirty=true;this.draw()}
@@ -63,15 +65,19 @@ class WorldRenderer{
   }
   draw(){
     const ctx=this.ctx,dpr=this.dpr||1,CW=this.canvas.width/dpr,CH=this.canvas.height/dpr;
-    ctx.setTransform(dpr,0,0,dpr,0,0);ctx.fillStyle='#11303d';ctx.fillRect(0,0,CW,CH);
-    if(!this.world)return;
+    ctx.setTransform(dpr,0,0,dpr,0,0);ctx.clearRect(0,0,CW,CH);
+    if(!this.world){ctx.fillStyle='#11303d';ctx.fillRect(0,0,CW,CH);return}
     if(this.baseDirty){const realms=this.viewRealms();this.populationMax=Math.max(1,...realms.map(r=>(r.population||0)/Math.max(1,r.settlementCount||1)));this.maxTradeVolume=Math.max(1,...this.tradeVolumes());this.maxSettlementPopulation=Math.max(1,...this.world.settlements.map(s=>this.popOf(s)));this.baseDirty=false}
-    window.WorldForgeTerrain.draw(this);
+    this.gpuActive=false;
+    try{this.gpuActive=Boolean(this.gpu?.draw(this))}catch(error){this.gpuFailure=error.message;this.gpu.canvas.hidden=true;this.gpu.canvas.style.visibility='hidden'}
+    if(!this.gpuActive){ctx.fillStyle='#11303d';ctx.fillRect(0,0,CW,CH);window.WorldForgeTerrain.draw(this)}
+    this.canvas.dataset.renderer=this.gpuActive?'webgl':'canvas2d';
     const m=window.WorldForgeTerrain.metrics(this),left=this.camera.x*this.world.settings.width-m.viewW/2,top=this.camera.y*this.world.settings.height-m.viewH/2;
     if(this.layers.borders)this.drawPoliticalBorders(ctx,m.scale,left,top,CW,CH);
     this.drawRivers(ctx,m.scale,left,top);
     if(this.layers.roads||this.mode==='trade')this.drawRoads(ctx,m.scale,left,top);
     this.drawSettlements(ctx,m.scale,left,top);
+    if(this.gpuActive)this.gpu.finish();
     window.dispatchEvent(new CustomEvent('worldforge:map-draw',{detail:{renderer:this}}));
   }
   mapPoint(x,y){return this.worldToScreen(x,y)}
@@ -95,7 +101,7 @@ class WorldRenderer{
     const rows=[...this.world.settlements].sort((a,b)=>a.y-b.y);
     for(const s of rows){
       const p=this.worldToScreen(s.x+.5,s.y+.5);positions.set(s.id,p);
-      if(p.x<-400||p.x>CW+400||p.y<-400||p.y>CH+400)continue;
+      const margin=Math.max(40,window.WorldForgeLivingSettlements.unit(scale)*6);if(p.x<-margin||p.x>CW+margin||p.y<-margin||p.y>CH+margin)continue;
       const capital=capitals.has(s.id),selected=s.id===this.selectedSettlementId,hovered=s.id===this.hover?.id,u=clamp(scale*.72,2.6,5.5)*(capital?1.3:1),realm=this.realm(this.ownerOf(s));
       window.WorldForgeLivingSettlements.draw(this,ctx,s,p,selected||hovered,capital);
     }
@@ -115,18 +121,18 @@ class WorldRenderer{
   nearestSettlement(x,y){if(!this.world)return null;let best=null,bd=1e9;for(const s of this.world.settlements){let dx=Math.abs(x-s.x);dx=Math.min(dx,this.world.settings.width-dx);const d=Math.hypot(dx,y-s.y);if(d<bd){bd=d;best=s}}return bd<Math.max(2,5/this.worldToScreen(x,y).scale)?best:null}
   bind(){
     const canvas=this.canvas,pointers=new Map(),point=e=>{const r=canvas.getBoundingClientRect();return{x:e.clientX-r.left,y:e.clientY-r.top}},moveZoom=(factor,p)=>{
-      const before=this.screenToWorld(p.x,p.y);this.camera.zoom=clamp(this.camera.zoom*factor,.75,20);const after=this.screenToWorld(p.x,p.y);
+      const before=this.screenToWorld(p.x,p.y);this.camera.zoom=clamp(this.camera.zoom*factor,.75,40);const after=this.screenToWorld(p.x,p.y);
       if(before&&after&&this.world){this.camera.x=((this.camera.x+(before.x-after.x)/this.world.settings.width)%1+1)%1;this.camera.y=clamp(this.camera.y+(before.y-after.y)/this.world.settings.height,0,1)}this.requestDraw();
     };
     canvas.addEventListener('wheel',e=>{e.preventDefault();moveZoom(Math.exp(-e.deltaY*.0012),point(e))},{passive:false});
-    canvas.addEventListener('pointerdown',e=>{const p=point(e);pointers.set(e.pointerId,p);canvas.setPointerCapture?.(e.pointerId);if(pointers.size===1)this.drag={p,origin:p};else{const a=[...pointers.values()];this.pinchDistance=Math.hypot(a[0].x-a[1].x,a[0].y-a[1].y);this.drag=null}});
+    canvas.addEventListener('pointerdown',e=>{const p=point(e);pointers.set(e.pointerId,p);canvas.setPointerCapture?.(e.pointerId);if(pointers.size===1)this.drag={p,origin:p};else{const a=[...pointers.values()];this.pinchDistance=Math.hypot(a[0].x-a[1].x,a[0].y-a[1].y);this.pinchCenter={x:(a[0].x+a[1].x)/2,y:(a[0].y+a[1].y)/2};this.drag=null}});
     canvas.addEventListener('pointermove',e=>{
       const p=point(e);if(pointers.has(e.pointerId))pointers.set(e.pointerId,p);
-      if(pointers.size>1){const a=[...pointers.values()],distance=Math.max(1,Math.hypot(a[0].x-a[1].x,a[0].y-a[1].y));moveZoom(distance/Math.max(1,this.pinchDistance),{x:(a[0].x+a[1].x)/2,y:(a[0].y+a[1].y)/2});this.pinchDistance=distance;return}
+      if(pointers.size>1){const a=[...pointers.values()],distance=Math.max(1,Math.hypot(a[0].x-a[1].x,a[0].y-a[1].y)),center={x:(a[0].x+a[1].x)/2,y:(a[0].y+a[1].y)/2};if(this.world&&this.pinchCenter){const m=window.WorldForgeTerrain.metrics(this);this.camera.x=((this.camera.x-(center.x-this.pinchCenter.x)/m.scale/this.world.settings.width)%1+1)%1;this.camera.y=clamp(this.camera.y-(center.y-this.pinchCenter.y)/m.scale/m.pitch/this.world.settings.height,0,1)}moveZoom(distance/Math.max(1,this.pinchDistance),center);this.pinchDistance=distance;this.pinchCenter=center;return}
       if(this.drag&&this.world){const m=window.WorldForgeTerrain.metrics(this);this.camera.x=((this.camera.x-(p.x-this.drag.p.x)/m.scale/this.world.settings.width)%1+1)%1;this.camera.y=clamp(this.camera.y-(p.y-this.drag.p.y)/m.scale/m.pitch/this.world.settings.height,0,1);this.drag.p=p;this.requestDraw();return}
       const w=this.screenToWorld(p.x,p.y),settlement=w?this.nearestSettlement(w.x,w.y):null;if(this.hover?.id!==settlement?.id){this.hover=settlement;this.requestDraw()}this.onHover?.(settlement,p);
     });
-    const end=(e,cancelled=false)=>{const p=point(e),moved=this.drag?Math.hypot(p.x-this.drag.origin.x,p.y-this.drag.origin.y):Infinity;pointers.delete(e.pointerId);this.drag=null;if(!pointers.size)this.pinchDistance=null;if(!cancelled&&moved<5){const w=this.screenToWorld(p.x,p.y),s=w?this.nearestSettlement(w.x,w.y):null;if(s){this.selectedSettlementId=s.id;this.onSelectSettlement?.(s);this.draw()}}};
+    const end=(e,cancelled=false)=>{const p=point(e),moved=this.drag&&!this.drag.pinched?Math.hypot(p.x-this.drag.origin.x,p.y-this.drag.origin.y):Infinity;pointers.delete(e.pointerId);this.drag=null;if(pointers.size===1){const remaining=[...pointers.values()][0];this.drag={p:remaining,origin:remaining,pinched:true}}if(!pointers.size){this.pinchDistance=null;this.pinchCenter=null}if(!cancelled&&moved<5){const w=this.screenToWorld(p.x,p.y),s=w?this.nearestSettlement(w.x,w.y):null;if(s){this.selectedSettlementId=s.id;this.onSelectSettlement?.(s);this.draw()}}};
     canvas.addEventListener('pointerup',e=>end(e));canvas.addEventListener('pointercancel',e=>end(e,true));canvas.addEventListener('pointerleave',()=>{if(!this.drag){this.hover=null;this.onHover?.(null,null)}});
     window.addEventListener('keydown',e=>{if(e.target?.isContentEditable||['INPUT','SELECT','TEXTAREA','BUTTON'].includes(e.target?.tagName))return;const key=e.key.toLowerCase();if(['w','a','s','d','arrowup','arrowdown','arrowleft','arrowright'].includes(key)){this.keys.add(key);this.startKeyboardLoop();e.preventDefault()}});
     window.addEventListener('keyup',e=>this.keys.delete(e.key.toLowerCase()));window.addEventListener('blur',()=>{pointers.clear();this.drag=null;this.keys.clear();if(this.keyboardFrame){cancelAnimationFrame(this.keyboardFrame);this.keyboardFrame=0}});
@@ -141,3 +147,4 @@ class WorldRenderer{
 }
 window.WorldRenderer=WorldRenderer;
 })();
+

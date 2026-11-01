@@ -4,16 +4,17 @@
 
 **Live:** https://mrhakan.github.io/WorldForge/
 
-## Current release — v5.2.0 Terrain Atlas
+## Current release — v5.4.0 WebGL Atlas
 
-- A natural 2.5D map with elevation, hill shading, coastal water, forests and settlement buildings.
-- A navigation rail, scrollable details pane and a map focus mode.
-- One theme selector and an opt-in layer drawer; advanced controls stay off the canvas.
-- Shared coordinates for terrain, picking and analytical overlays, with cached camera redraws.
+- GPU terrain mesh and per-pixel coast, climate, rock and surface shading.
+- Cached triangle geometry for all 27 procedural building types, with roof seams, masonry courses, window recesses and lintels.
+- Camera-only pan and zoom up to 40×: no CPU terrain tile regeneration or world texture uploads during zoom.
+- Device-resolution rendering with an 8-megapixel framebuffer budget, coalesced input and two-finger panning.
+- WebGL context recovery and a bounded Canvas fallback when GPU rendering is unavailable.
 
-Close zoom uses device-resolution terrain tiles and procedural buildings. Technology and population grow settlements from camps through clay villages, brick towns, fortified cities and civic metropolises.
+Technology and population still grow settlements from camps through clay villages, brick towns, fortified cities and civic metropolises. Save files and deterministic simulation data are unchanged.
 
-See [v5.3 release notes](docs/releases/V5.3.md).
+See [v5.4 release notes](docs/releases/V5.4.md).
 
 ### Local workspace
 
@@ -259,3 +260,4 @@ See [current release notes](docs/releases/V5.1.md) for deployment and workspace 
 District-focused zoom and settlement-map navigation are now available. The next visual milestones are a reusable sprite atlas, larger landmark compositions, route/road continuity and time-aware visual evolution while preserving the aggregate simulation model.
 
 Everything runs locally in the browser; generated worlds are not uploaded by the application.
+

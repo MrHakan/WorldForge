@@ -40,6 +40,7 @@ function plan(p){
  return rows.sort((a,b)=>a.x+a.y-b.x-b.y);
 }
 function polygon(ctx,points,fill){ctx.fillStyle=fill;ctx.beginPath();ctx.moveTo(...points[0]);for(const p of points.slice(1))ctx.lineTo(...p);ctx.closePath();ctx.fill();ctx.strokeStyle='rgba(24,35,37,.23)';ctx.lineWidth=.55;ctx.stroke()}
+function litRoof(hex){return '#'+hex.slice(1).match(/../g).map(v=>Math.round(parseInt(v,16)*.84+255*.16).toString(16).padStart(2,'0')).join('')}
 // All faces are projected from local XYZ geometry and rasterized at display DPR.
 function building(ctx,b,p,unit){
  const origin=[(b.x-b.y)*unit,(b.x+b.y)*unit*.48],P=(x,y,z)=>[origin[0]+(x-y)*unit,origin[1]+(x+y)*unit*.48-z*unit];
@@ -49,15 +50,22 @@ function building(ctx,b,p,unit){
   polygon(ctx,[P(x,y,h),P(x+w,y,h),P(x+w,y+d,h),P(x,y+d,h)],'#e1d7bd');
  };
  const roof=(x,y,w,d,h)=>{
-  polygon(ctx,[P(x-.04,y-.04,h),P(x+w+.04,y-.04,h),P(x+w/2,y-.04,h+.23)],p.roof);
+  polygon(ctx,[P(x-.04,y-.04,h),P(x+w+.04,y-.04,h),P(x+w/2,y-.04,h+.23)],p.wall);
   polygon(ctx,[P(x+w+.04,y-.04,h),P(x+w+.04,y+d+.04,h),P(x+w/2,y+d+.04,h+.23),P(x+w/2,y-.04,h+.23)],p.roof);
-  polygon(ctx,[P(x-.04,y-.04,h),P(x+w/2,y-.04,h+.23),P(x+w/2,y+d+.04,h+.23),P(x-.04,y+d+.04,h)],'#b59c80');
+  polygon(ctx,[P(x-.04,y-.04,h),P(x+w/2,y-.04,h+.23),P(x+w/2,y+d+.04,h+.23),P(x-.04,y+d+.04,h)],litRoof(p.roof));
+  if(unit>20){
+   ctx.strokeStyle='rgba(42,38,35,.25)';ctx.lineWidth=.5;
+   for(let k=1;k<5;k++){const ry=y+d*k/5;ctx.beginPath();ctx.moveTo(...P(x+w/2,ry,h+.23));ctx.lineTo(...P(x+w+.035,ry,h));ctx.stroke()}
+   ctx.strokeStyle='rgba(244,221,177,.6)';ctx.lineWidth=.8;ctx.beginPath();ctx.moveTo(...P(x+w/2,y-.04,h+.23));ctx.lineTo(...P(x+w/2,y+d+.04,h+.23));ctx.stroke();
+  }
  };
  const w=b.w,d=w*.85,h=b.h,type=b.type;
  polygon(ctx,[P(-.06,0,0),P(w+.22,d*.2,0),P(w+.34,d+.3,0),P(0,d+.15,0)],'rgba(10,24,25,.2)');
  if(type==='tent'||type==='pavilion'){
   polygon(ctx,[P(-w,0,0),P(0,0,h),P(w,0,0)],'#e4d4af');polygon(ctx,[P(0,0,h),P(0,d,h),P(w,d,0),P(w,0,0)],type==='pavilion'?p.accent:'#a99173');
-  polygon(ctx,[P(-w*.25,0,0),P(0,0,h*.65),P(w*.25,0,0)],'#3c3830');return;
+  polygon(ctx,[P(-w*.25,0,0),P(0,0,h*.65),P(w*.25,0,0)],'#3c3830');
+  if(unit>20){ctx.strokeStyle='#ad966d';ctx.lineWidth=.65;for(const x of[-w,w]){ctx.beginPath();ctx.moveTo(...P(x,0,h*.15));ctx.lineTo(...P(x*1.35,-.15,0));ctx.stroke()}}
+  return;
  }
  if(type==='campfire'){for(let i=0;i<8;i++){const a=i*Math.PI/4;box(Math.cos(a)*.22,Math.sin(a)*.22,.09,.09,.06,'#9b9e94','#666d67')}polygon(ctx,[P(-.1,0,0),P(0,0,.33),P(.14,0,0)],'#eea452');return}
  if(type==='farm'||type==='garden'){for(let i=0;i<5;i++)polygon(ctx,[P(-w,i*.1,0),P(w,i*.1,0),P(w,i*.1+.05,0),P(-w,i*.1+.05,0)],type==='farm'?'#c1ab62':'#5f9167');return}
@@ -85,14 +93,19 @@ function building(ctx,b,p,unit){
   if(type==='clocktower'){const c=P(w*.5,-.01,h*1.25);ctx.fillStyle='#f2dfad';ctx.beginPath();ctx.arc(c[0],c[1],w*unit*.25,0,Math.PI*2);ctx.fill();ctx.strokeStyle='#394349';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(c[0],c[1]-w*unit*.18);ctx.lineTo(...c);ctx.lineTo(c[0]+w*unit*.15,c[1]);ctx.stroke()}
  }
  if(unit>20){
+  // Masonry courses, shaded window recesses and lintels remain real geometry at
+  // every zoom instead of details painted into a low-resolution settlement sprite.
+  if(p.stage>=1){ctx.strokeStyle='rgba(62,49,41,.2)';ctx.lineWidth=.45;for(let z=.12;z<h;z+=.14){ctx.beginPath();ctx.moveTo(...P(0,-.004,z));ctx.lineTo(...P(w,-.004,z));ctx.lineTo(...P(w+.004,d,z));ctx.stroke()}}
   const levels=tower?3:p.stage>=2?2:1;
   for(let j=0;j<levels;j++)for(let i=0;i<2;i++)polygon(ctx,[P(w*(.15+i*.5),-.003,h*(.35+j*.25)),P(w*(.3+i*.5),-.003,h*(.35+j*.25)),P(w*(.3+i*.5),-.003,h*(.53+j*.25)),P(w*(.15+i*.5),-.003,h*(.53+j*.25))],'#35434a');
   polygon(ctx,[P(w*.4,-.008,0),P(w*.64,-.008,0),P(w*.64,-.008,h*.33),P(w*.4,-.008,h*.33)],'#514535');
+  polygon(ctx,[P(w*.35,-.014,h*.33),P(w*.69,-.014,h*.33),P(w*.69,-.014,h*.38),P(w*.35,-.014,h*.38)],'#e3cc9d');
+  if(['townhouse','manor','warehouse'].includes(type)){polygon(ctx,[P(w*.1,-.09,h*.32),P(w*.9,-.09,h*.32),P(w*.9,-.3,h*.24),P(w*.1,-.3,h*.24)],type==='warehouse'?'#788873':p.accent)}
   if(type==='mill'){const c=P(w*.5,0,h+.15);ctx.strokeStyle='#e1d0a4';ctx.lineWidth=2;for(let i=0;i<4;i++){const a=i*Math.PI/2+.5;ctx.beginPath();ctx.moveTo(...c);ctx.lineTo(c[0]+Math.cos(a)*unit*.3,c[1]+Math.sin(a)*unit*.3);ctx.stroke()}}
  }
 }
-function draw(renderer,ctx,s,point,selected,capital){
- const p=profile(renderer,s),unit=clamp(point.scale*.72,3,110),close=point.scale>14;
+const modelUnit=scale=>clamp(scale*.82,5,300);
+function paint(renderer,ctx,s,p,point,selected,capital,close=point.scale>14,unit=modelUnit(point.scale)){
  const onLand=b=>{const x=s.x+.5+(b.x-b.y)*unit/point.scale,y=s.y+.5+(b.x+b.y)*unit*.48/point.scale/(renderer.projection==='flat'?1:.72);return root.WorldForgeTerrain.elevation(renderer.world,x,y)>renderer.world.settings.seaLevel+.002};
  const rows=plan(p).filter(b=>b.id==='landmark'||onLand(b)),visible=close?rows:rows.filter(b=>b.id==='landmark'||b.id<2);
  ctx.save();ctx.translate(point.x,point.y);
@@ -106,5 +119,14 @@ function draw(renderer,ctx,s,point,selected,capital){
  if(selected){ctx.strokeStyle='#e7c889';ctx.lineWidth=1.5;ctx.beginPath();ctx.ellipse(0,unit*.2,Math.max(10,unit*1.5),Math.max(5,unit*.7),0,0,Math.PI*2);ctx.stroke()}
  ctx.restore();return p;
 }
-const api={STAGES,CATALOG,profile,plan,building,draw};root.WorldForgeLivingSettlements=api;if(typeof module!=='undefined'&&module.exports)module.exports=api;
+function draw(renderer,ctx,s,point,selected,capital){
+ const p=profile(renderer,s);
+ if(renderer.gpuActive&&renderer.gpu.drawSettlement(renderer,s,p,point,capital)){
+  if(selected){const unit=modelUnit(point.scale);ctx.save();ctx.strokeStyle='#e7c889';ctx.lineWidth=1.5;ctx.beginPath();ctx.ellipse(point.x,point.y+unit*.2,Math.max(10,unit*1.5),Math.max(5,unit*.7),0,0,Math.PI*2);ctx.stroke();ctx.restore()}
+  return p;
+ }
+ return paint(renderer,ctx,s,p,point,selected,capital);
+}
+const api={STAGES,CATALOG,profile,plan,building,paint,unit:modelUnit,draw};root.WorldForgeLivingSettlements=api;if(typeof module!=='undefined'&&module.exports)module.exports=api;
 })(typeof window!=='undefined'?window:globalThis);
+

@@ -5,11 +5,11 @@ import {chromium} from 'playwright';
 import {createPagesServer} from '../../scripts/serve.mjs';
 const root=resolve(import.meta.dirname,'../..'),server=createPagesServer(resolve(root,'dist'));
 await new Promise(r=>server.listen(0,'127.0.0.1',r));
-const browser=await chromium.launch({headless:true}),page=await browser.newPage({viewport:{width:1536,height:1000},deviceScaleFactor:2}),errors=[];
+const browser=await chromium.launch({headless:true,args:['--enable-unsafe-swiftshader']}),page=await browser.newPage({viewport:{width:1536,height:1000},deviceScaleFactor:2}),errors=[];
 page.on('pageerror',e=>errors.push(e.message));
 try{
  await page.route('**/warfare-strategic-map-overlay.js',async route=>{await new Promise(r=>setTimeout(r,350));await route.continue()});
- await page.goto('http://127.0.0.1:'+server.address().port+'/WorldForge/');await page.waitForFunction(()=>WorldForgeLoader.ready);
+ await page.goto('http://127.0.0.1:'+server.address().port+'/WorldForge/',{waitUntil:'domcontentloaded',timeout:45000});await page.waitForFunction(()=>WorldForgeLoader.ready);
  await page.waitForFunction(()=>document.querySelector('#worldforgeStrategicMapControls')?.closest('#atlasAdvancedControls'));
  await mkdir(resolve(root,'test-results'),{recursive:true});
  const report=await page.evaluate(()=>{
@@ -17,8 +17,8 @@ try{
   r.focusSettlement(s.id);r.camera.zoom=12;r.draw();
   const detail=r.terrainDetail;return{detail,stage:WorldForgeLivingSettlements.profile(r,s).stage};
  });
- assert.ok(report.detail.resolution>=report.detail.pixelsPerCell,'terrain texture must cover device pixels at close zoom');
- assert.ok(report.detail.tiles<100,'only visible tiles should render');
+ assert.equal(report.detail.backend,'webgl','close terrain must use the GPU, not magnified canvas tiles');
+ assert.equal(report.detail.tiles,0,'zoom must not rasterize any terrain tiles');
  await page.getByRole('button',{name:'Explore settlement',exact:true}).click();
  assert.ok(await page.evaluate(()=>WorldForgeApp.state.renderer.camera.zoom>=8));
  await page.screenshot({path:resolve(root,'test-results/hd-natural.jpg'),type:'jpeg',quality:85});
@@ -37,3 +37,4 @@ try{
  }
  assert.deepEqual(errors,[]);console.log('HD close zoom, DPR resolution, visible tile bounds and five settlement stages passed');
 }finally{await browser.close();await new Promise(r=>server.close(r))}
+

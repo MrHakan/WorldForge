@@ -9,7 +9,7 @@ const { version } = JSON.parse(await readFile(resolve(root, 'package.json'), 'ut
 const server = createPagesServer(resolve(root, 'dist'));
 await new Promise(resolve => server.listen(0, '127.0.0.1', resolve));
 const url = `http://127.0.0.1:${server.address().port}/WorldForge/`;
-const browser = await chromium.launch({ headless: true });
+const browser = await chromium.launch({ headless: true, args: ['--enable-unsafe-swiftshader'] });
 const page = await browser.newPage({ viewport: { width: 1440, height: 1000 } });
 page.setDefaultTimeout(10000);
 const errors = [], failedRequests = [];
@@ -17,7 +17,7 @@ page.on('pageerror', error => errors.push(error.stack));
 page.on('console', message => { if (message.type() === 'error') errors.push(message.text()); });
 page.on('response', response => { if (response.status() >= 400) failedRequests.push(`${response.status()} ${response.url()}`); });
 try {
-  await page.goto(url);
+  await page.goto(url, {waitUntil:'domcontentloaded',timeout:45000});
   await page.waitForFunction(() => window.WorldForgeLoader?.ready, null, { timeout: 45000 });
   assert.ok((await page.title()).endsWith(`WorldForge v${version}`));
   assert.ok((await page.locator('.version-pill').textContent()).includes(version));
@@ -83,10 +83,11 @@ try {
 } catch (error) {
   await mkdir(resolve(root, 'test-results'), { recursive: true });
   console.error('Browser check failed:',error.stack);
-  await writeFile(resolve(root, 'test-results/errors.json'), JSON.stringify({ errors, failedRequests, failure:error.stack }, null, 2));
+  await writeFile(resolve(root, 'test-results/errors.json'), JSON.stringify({ errors, failedRequests, failure:error.stack,renderer:await page.evaluate(()=>{const r=window.WorldForgeApp?.state?.renderer;return{ready:window.WorldForgeLoader?.ready,gpu:r?.gpuActive,failure:r?.gpuFailure,detail:r?.terrainDetail}}).catch(()=>null) }, null, 2));
   await page.screenshot({ path: resolve(root, 'test-results/failure.jpg'), type:'jpeg',quality:50,fullPage: false,timeout:5000 }).catch(()=>{});
   throw error;
 } finally {
   await browser.close();
   await new Promise(resolve => server.close(resolve));
 }
+

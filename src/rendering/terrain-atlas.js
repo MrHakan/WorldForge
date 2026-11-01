@@ -89,7 +89,7 @@ function hash(x,y){let a=Math.imul(x|0,374761393)^Math.imul(y|0,668265263);a=Mat
 function build(renderer,tile=null){
   const w=renderer.world,mode=renderer.mode,projection=renderer.projection||'relief',p=pitch(projection),naturalMode=mode==='terrain';
   let entries=caches.get(w);if(!entries){entries=[];caches.set(w,entries)}
-  const overviewRes=Math.max(5,Math.min(16,2**Math.ceil(Math.log2(metrics(renderer).scale*(renderer.dpr||1)))));
+  const overviewRes=5;
   const key=tile?`${tile.x}:${tile.y}:${tile.res}`:`overview:${overviewRes}`;
   const previous=entries.find(entry=>entry.key===key&&entry.mode===mode&&entry.projection===projection&&(naturalMode||entry.view===renderer.historyView));
   if(previous)return previous;
@@ -100,7 +100,7 @@ function build(renderer,tile=null){
   const ctx=canvas.getContext('2d',{alpha:Boolean(tile)});
   if(!tile){ctx.fillStyle=rgb(OCEAN);ctx.fillRect(0,0,canvas.width,canvas.height)}
   const point=(x,y)=>[(x-x0)*res,(pad+(y-y0)*p-height(w,x,y,projection))*res];
-  const step=tile?Math.max(.0625,Math.min(.5,4/res)):.5;
+  const step=tile?.25:.5;
   for(let y=y0;y<yEnd;y+=step){
     for(let x=x0;x<xEnd;x+=step){
       const c=terrainColor(renderer,x+step/2,y+step/2),a=point(x,y),b=point(x+step,y),d=point(x,y+step),f=point(x+step,y+step);
@@ -122,30 +122,38 @@ function build(renderer,tile=null){
     }
   }
   const result={canvas,key,mode,projection,pitch:p,xOrigin:x0,yOrigin:y0*p-pad,unitsWide:xEnd-x0,unitsHigh:(yEnd-y0)*p+pad+2,view:renderer.historyView};
-  entries.push(result);let pixels=entries.reduce((n,e)=>n+e.canvas.width*e.canvas.height,0);while(entries.length>1&&(entries.length>256||pixels>32000000)){const old=entries.shift();pixels-=old.canvas.width*old.canvas.height}
+  entries.push(result);let pixels=entries.reduce((n,e)=>n+e.canvas.width*e.canvas.height,0);while(entries.length>1&&(entries.length>512||pixels>12000000)){const old=entries.shift();pixels-=old.canvas.width*old.canvas.height}
   return result;
 }
 function draw(renderer){
   const detail=metrics(renderer);
-  if(renderer.camera.zoom>=2&&detail.scale*(renderer.dpr||1)>6)return drawTiles(renderer,detail);
   const ctx=renderer.ctx,m=metrics(renderer),W=renderer.world.settings.width,surface=build(renderer),left=renderer.camera.x*W-m.viewW/2,cy=renderer.camera.y*renderer.world.settings.height;
   ctx.imageSmoothingEnabled=true;ctx.imageSmoothingQuality='high';
   for(const offset of[-W,0,W]){
     const x=(offset-left)*m.scale,y=m.height/2+(surface.yOrigin-cy*m.pitch)*m.scale;
     ctx.drawImage(surface.canvas,x,y,W*m.scale,surface.unitsHigh*m.scale);
   }
+  if(renderer.camera.zoom>=2&&detail.scale*(renderer.dpr||1)>6)drawTiles(renderer,detail);
   return surface;
 }
 function drawTiles(renderer,m){
   const W=renderer.world.settings.width,H=renderer.world.settings.height,cy=renderer.camera.y*H,left=renderer.camera.x*W-m.viewW/2;
-  const res=Math.min(512,2**Math.ceil(Math.log2(m.scale*(renderer.dpr||1)))),size=res>128?4:8;
-  const top=Math.max(0,Math.floor((cy-m.viewH/2)/size)*size),bottom=Math.min(H,cy+m.viewH/2+16);
-  let count=0;
+  const visibleTiles=(Math.ceil(Math.min(W,m.viewW)/8)+2)*(Math.ceil(Math.min(H,m.viewH+16)/8)+2);
+  const budgetRes=2**Math.floor(Math.log2(Math.sqrt(6000000/(visibleTiles*160))));
+  const res=Math.max(4,Math.min(32,budgetRes,2**Math.ceil(Math.log2(m.scale*(renderer.dpr||1))))),size=8;
+  const top=Math.max(0,Math.floor((cy-m.viewH/2)/size)*size),bottom=Math.min(H,cy+m.viewH/2+16),started=performance.now();
+  let count=0,built=0,pending=false;
   for(let y=top;y<bottom;y+=size)for(const offset of[-W,0,W]){
     const start=Math.max(0,Math.floor((left-offset)/size)*size),end=Math.min(W,left+m.viewW-offset+size);
-    for(let x=start;x<end;x+=size){const s=build(renderer,{x,y,res,size});renderer.ctx.drawImage(s.canvas,(offset+x-left)*m.scale,m.height/2+(s.yOrigin-cy*m.pitch)*m.scale,s.unitsWide*m.scale,s.unitsHigh*m.scale);count++}
+    for(let x=start;x<end;x+=size){
+      const key=`${x}:${y}:${res}`,cached=caches.get(renderer.world)?.find(e=>e.key===key&&e.mode===renderer.mode&&e.projection===renderer.projection&&(renderer.mode==='terrain'||e.view===renderer.historyView));
+      if(!cached&&(built>=2||performance.now()-started>6)){pending=true;continue}
+      const s=cached||build(renderer,{x,y,res,size});if(!cached)built++;
+      renderer.ctx.drawImage(s.canvas,(offset+x-left)*m.scale,m.height/2+(s.yOrigin-cy*m.pitch)*m.scale,s.unitsWide*m.scale,s.unitsHigh*m.scale);count++;
+    }
   }
-  renderer.terrainDetail={resolution:res,tiles:count,pixelsPerCell:m.scale*(renderer.dpr||1)};
+  renderer.terrainDetail={backend:'canvas2d',resolution:res,tiles:count,pending,pixelsPerCell:m.scale*(renderer.dpr||1)};
+  if(pending)renderer.requestDraw?.();
 }
 function settlementPosition(world,city){
   if(typeof city!=='object')city=(world.cities?.cities||[]).find(c=>String(c.id)===String(city));
@@ -160,3 +168,4 @@ const api={VERSION:'5.2.0',sample,elevation,height,pitch,metrics,project,unproje
 if(root)root.WorldForgeTerrain=api;
 if(typeof module!=='undefined'&&module.exports)module.exports=api;
 })(typeof window!=='undefined'?window:globalThis);
+

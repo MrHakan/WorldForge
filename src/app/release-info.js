@@ -1,6 +1,6 @@
 (function (root) {
   'use strict';
-  const version = '5.3.0', name = 'Living Atlas HD';
+  const version = '5.4.0', name = 'WebGL Atlas';
   function apply() {
     if (typeof document === 'undefined') return;
     const worldName = root.WorldForgeApp?.state?.world?.name;
@@ -18,3 +18,4 @@
   if (root) root.WorldForgeReleaseInfo = info;
   if (typeof document !== 'undefined') document.addEventListener('DOMContentLoaded', apply, { once: true });
 })(typeof window !== 'undefined' ? window : globalThis);
+

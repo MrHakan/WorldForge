@@ -6,7 +6,7 @@ import {createPagesServer} from '../../scripts/serve.mjs';
 
 const root=resolve(import.meta.dirname,'../..'),server=createPagesServer(resolve(root,'dist'));
 await new Promise(resolve=>server.listen(0,'127.0.0.1',resolve));
-const browser=await chromium.launch({headless:true});
+const browser=await chromium.launch({headless:true,args:['--enable-unsafe-swiftshader']});
 const page=await browser.newPage({viewport:{width:1536,height:1000},deviceScaleFactor:1});
 page.setDefaultTimeout(15000);
 const errors=[],failedRequests=[];
@@ -15,7 +15,7 @@ page.on('console',message=>{if(message.type()==='error')errors.push(message.text
 page.on('response',response=>{if(response.status()>=400)failedRequests.push(response.status()+' '+response.url())});
 await mkdir(resolve(root,'test-results'),{recursive:true});
 try{
-  await page.goto('http://127.0.0.1:'+server.address().port+'/WorldForge/');
+  await page.goto('http://127.0.0.1:'+server.address().port+'/WorldForge/',{waitUntil:'domcontentloaded',timeout:45000});
   await page.waitForFunction(()=>window.WorldForgeLoader?.ready,null,{timeout:45000});
   await page.waitForFunction(()=>document.querySelector('#worldforgeStrategicMapControls')?.closest('#atlasAdvancedControls'),null,{timeout:15000});
   await page.evaluate(()=>new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve))));
@@ -26,7 +26,7 @@ try{
   assert.ok(await page.locator('#atlasLayerPanel').isHidden(),'analytical controls must start closed');
   assert.equal(await page.locator('#mapWrap #strategicMapTools,#mapWrap #worldforgeStrategicMapControls,#mapWrap #tradeRouteControls').count(),0,'legacy controls must not cover the map');
   const pixels=await page.evaluate(()=>{
-    const canvas=document.querySelector('#worldCanvas'),data=canvas.getContext('2d').getImageData(0,0,canvas.width,canvas.height).data;
+    const r=WorldForgeApp.state.renderer,canvas=r.canvas,composite=document.createElement('canvas');composite.width=canvas.width;composite.height=canvas.height;const ctx=composite.getContext('2d');r.draw();if(r.gpuActive)ctx.drawImage(r.gpu.canvas,0,0);ctx.drawImage(canvas,0,0);const data=ctx.getImageData(0,0,canvas.width,canvas.height).data;
     let land=0,total=0;const colors=new Set();
     for(let i=0;i<data.length;i+=64){total++;if(data[i]>60&&data[i+1]>65&&data[i+2]<155)land++;colors.add((data[i]>>3)+','+(data[i+1]>>3)+','+(data[i+2]>>3))}
     return{landRatio:land/total,colors:colors.size,width:canvas.clientWidth,height:canvas.clientHeight};
@@ -91,3 +91,4 @@ try{
   await writeFile(resolve(root,'test-results/atlas-errors.json'),JSON.stringify({error:error.stack,errors,failedRequests},null,2));
   throw error;
 }finally{await browser.close();await new Promise(resolve=>server.close(resolve))}
+
