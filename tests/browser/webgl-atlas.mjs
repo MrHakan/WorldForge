@@ -45,10 +45,10 @@ try{
  assert.equal(await page.evaluate(()=>WorldForgeApp.state.renderer.gpu.gl.getError()),0,'wrapped flat analytical views must use valid GPU state');
  // Context loss is common after backgrounding Safari. Verify a working fallback
  // and rebuild on restoration, not a permanently blank or frozen map.
- await page.evaluate(()=>{const r=WorldForgeApp.state.renderer;r.camera.zoom=1;r.gpu.gl.getExtension('WEBGL_lose_context').loseContext()});
+ await page.evaluate(()=>{const r=WorldForgeApp.state.renderer;r.camera.zoom=1;window.__testContextLoss=r.gpu.gl.getExtension('WEBGL_lose_context');window.__testContextLoss.loseContext()});
  await page.waitForFunction(()=>{const r=WorldForgeApp.state.renderer;return r.gpu.lost&&!r.gpuActive});
  assert.equal(await page.locator('#worldCanvas').getAttribute('data-renderer'),'canvas2d');
- await page.evaluate(()=>WorldForgeApp.state.renderer.gpu.gl.getExtension('WEBGL_lose_context').restoreContext());
+ await page.evaluate(()=>window.__testContextLoss.restoreContext());
  await page.waitForFunction(()=>{const r=WorldForgeApp.state.renderer;return !r.gpu.lost&&r.gpuActive});
  await page.setViewportSize({width:390,height:844});
  await page.evaluate(()=>{WorldForgeMapExperience.focusMap(true);WorldForgeApp.state.renderer.center()});

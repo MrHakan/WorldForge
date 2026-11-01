@@ -51,9 +51,9 @@ void main(){
     c=mix(c,vec3(.91,.93,.88),smoothstep(.76,.94,q));
     if(t<.14)c=mix(c,vec3(.85,.91,.87),.7);
     c=mix(beach,c,smoothstep(0.0,.017,e-uSea));
-    vec3 layer=texture2D(uAnalysis,(floor(vWorld)+.5)/uWorld).rgb;
-    if(uMode==1.0)c=mix(c,layer,.23);
-    if(uMode>1.0)c=mix(c,layer,uMode==2.0?.56:.86);
+    vec4 layer=texture2D(uAnalysis,(vec2(mod(floor(vWorld.x),uWorld.x),clamp(floor(vWorld.y),0.0,uWorld.y-1.0))+.5)/uWorld);
+    if(uMode==1.0)c=mix(c,layer.rgb,.23*layer.a);
+    if(uMode>1.0)c=mix(c,layer.rgb,uMode==2.0?.56:.86);
     float grain=(noise(vWorld*3.0)-.5)*.055+(noise(vWorld*13.0)-.5)*.026*smoothstep(7.0,24.0,uScale);
     // Fine surface detail is evaluated at device pixels rather than magnified texels.
     c=(c+grain)*vShade;
@@ -65,14 +65,14 @@ attribute vec2 aPoint;
 attribute vec4 aColor;
 uniform vec2 uViewport,uOrigin;
 uniform float uUnit;
-varying vec4 vColor;
+varying lowp vec4 vColor;
 void main(){vec2 p=uOrigin+aPoint*uUnit;gl_Position=vec4(p.x*2.0/uViewport.x-1.0,1.0-p.y*2.0/uViewport.y,0,1);vColor=aColor;}`;
-const modelFragment=`precision mediump float;varying vec4 vColor;void main(){gl_FragColor=vColor;}`;
+const modelFragment=`precision mediump float;varying lowp vec4 vColor;void main(){gl_FragColor=vColor;}`;
 const foliageVertex=`
 attribute vec3 aPosition;attribute vec4 aColor;
 uniform vec2 uViewport,uCamera;
 uniform float uScale,uPitch,uOffset;
-varying vec4 vColor;
+varying lowp vec4 vColor;
 void main(){vec2 p=vec2((aPosition.x+uOffset-uCamera.x)*uScale,((aPosition.y-uCamera.y)*uPitch-aPosition.z)*uScale);gl_Position=vec4(p.x*2.0/uViewport.x,-p.y*2.0/uViewport.y,0,1);vColor=aColor;}`;
 function program(gl,vertex,fragment){
   const shaders=[];let p=null;
@@ -221,9 +221,9 @@ class Atlas{
       let c;
       if(mode==='terrain')c=[0,0,0];
       else if(mode==='political'){
-        const owner=political?.[i];if(!colors.has(owner))colors.set(owner,T().color(renderer.realm(owner)?.color||T().natural(this.world,i%W,Math.floor(i/W))));c=colors.get(owner);
+        const owner=political?.[i];if(!colors.has(owner)){const realm=renderer.realm(owner);colors.set(owner,realm?[...T().color(realm.color),255]:[0,0,0,0])}c=colors.get(owner);
       }else c=T().color(renderer.colorAt(i));
-      data.set([...c,255],i*4);
+      data.set([c[0],c[1],c[2],c[3]??255],i*4);
     }
     const gl=this.gl;gl.bindTexture(gl.TEXTURE_2D,this.textures[1]);gl.texSubImage2D(gl.TEXTURE_2D,0,0,0,W,H,gl.RGBA,gl.UNSIGNED_BYTE,data);
     this.layerKey=key;this.layerView=view;this.stats.textureUploads++;

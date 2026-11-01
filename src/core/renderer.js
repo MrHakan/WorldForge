@@ -101,7 +101,7 @@ class WorldRenderer{
     const rows=[...this.world.settlements].sort((a,b)=>a.y-b.y);
     for(const s of rows){
       const p=this.worldToScreen(s.x+.5,s.y+.5);positions.set(s.id,p);
-      if(p.x<-400||p.x>CW+400||p.y<-400||p.y>CH+400)continue;
+      const margin=Math.max(40,window.WorldForgeLivingSettlements.unit(scale)*6);if(p.x<-margin||p.x>CW+margin||p.y<-margin||p.y>CH+margin)continue;
       const capital=capitals.has(s.id),selected=s.id===this.selectedSettlementId,hovered=s.id===this.hover?.id,u=clamp(scale*.72,2.6,5.5)*(capital?1.3:1),realm=this.realm(this.ownerOf(s));
       window.WorldForgeLivingSettlements.draw(this,ctx,s,p,selected||hovered,capital);
     }
