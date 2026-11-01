@@ -27,10 +27,10 @@ async function start(data){
    return performance.now()-t;
   };
   let interval=350;
-  const result=await self.WorldForgeEndless.simulateYearsAsync(world,data.years,{batchSize:1,onProgress:p=>{
+  const result=await self.WorldForgeEndless.simulateYearsAsync(world,data.years,{batchSize:1,pauseEveryYears:data.pauseEveryYears,pauseMs:data.pauseMs,onProgress:p=>{
    progress=p;const now=performance.now();
    if(now-lastTick>100){postMessage({type:'progress',id:runId,progress:p});lastTick=now}
-   if(!pending&&now-last>=interval)interval=Math.min(1500,Math.max(350,publish()*12));
+   if(!pending&&(now-last>=interval||(data.pauseEveryYears>0&&p.done%data.pauseEveryYears===0)))interval=Math.min(1500,Math.max(350,publish()*12));
   }});
   while(pending)await new Promise(resolve=>setTimeout(resolve,4));
   publish(result);

@@ -20,3 +20,8 @@ const hostile=JSON.parse('{"__proto__":{"safe":true}}');world.wiki.notes=hostile
 assert.equal(Object.getPrototypeOf(replica.wiki.notes),Object.prototype);assert.equal({}.safe,undefined);
 assert.throws(()=>apply(replica,[['set',['layers'],{}]]),/Invalid/);
 console.log('State deltas: append, trim, deletion, rebasing, stable geometry, authored notes and safe object keys passed');
+
+const aged={history:{currentYear:6000,snapshots:Array.from({length:5000},(_,year)=>({year,people:Array(64).fill(year)}))},endless:{epochOffset:0},live:{population:1}};
+const aging=new Tracker(aged);assert.deepEqual(aging.changes(aged),[]);aged.history.currentYear++;aged.live.population++;
+assert.ok(JSON.stringify(aged).length>1000000);assert.ok(JSON.stringify(aging.changes(aged)).length<500,'live traffic must not grow with unchanged replay history');
+console.log('A 5,000-snapshot world updates with under 500 bytes of deltas');

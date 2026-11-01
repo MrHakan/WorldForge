@@ -3,7 +3,7 @@
 const jobs=new WeakMap();let serial=0;
 const stats={backend:'idle',commits:0,operations:0,lastApplyMs:0};
 function scripts(){
- return [...document.scripts].map(s=>s.src).filter(Boolean).map(s=>new URL(s)).filter(u=>u.origin===location.origin&&/\/src\//.test(u.pathname)&&(
+ return [...document.scripts].sort((a,b)=>Number(b.defer)-Number(a.defer)).map(s=>s.src).filter(Boolean).map(s=>new URL(s)).filter(u=>u.origin===location.origin&&/\/src\//.test(u.pathname)&&(
   /(?:-engine|-calibration|-wiki-adapter)\.js$/.test(u.pathname)||/\/(?:engine|history-engine|society-engine|release-integration|structure-archetypes)\.js$/.test(u.pathname)||/\/warfare\/(?!.*(?:-ui|-renderer|-overlay|-controls|strategic-map))[^/]+\.js$/.test(u.pathname)
  )).map(u=>u.href);
 }
@@ -38,9 +38,9 @@ function run(world,years,options){
      }
     }catch(error){finish(null,error)}
    };
-   worker.postMessage({type:'start',id,world,years,scripts:scripts()});
+   worker.postMessage({type:'start',id,world,years,scripts:scripts(),pauseEveryYears:options.pauseEveryYears,pauseMs:options.pauseMs});
    if(options.job.cancelRequested)cancel();
-  }catch{stats.backend='cooperative';finish(null)}
+  }catch(error){stats.lastError=error.message;stats.backend='cooperative';finish(null)}
  });
 }
 root.WorldForgeRuntime={run,shouldRender,stats,scripts};

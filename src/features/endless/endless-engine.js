@@ -67,7 +67,7 @@ async function simulateYearsAsync(w,years,options={}){
       advanceYears(w,n,options);done+=n;
       batch=Math.min(maxBatch,Math.max(1,Math.floor(n*timeBudget/Math.max(1,Date.now()-start))));
       options.onProgress?.({done,total,absoluteYear:absoluteYear(w),localYear:w.history.currentYear,rebases:e.rebases});
-      if(done<total)await yieldToBrowser();
+      if(done<total){await yieldToBrowser();if(!job.cancelRequested&&options.pauseEveryYears>0&&done%options.pauseEveryYears===0)await new Promise(resolve=>setTimeout(resolve,Math.max(0,Math.min(2000,Number(options.pauseMs)||0))))}
     }
     return{done,total,cancelled:job.cancelRequested,absoluteYear:absoluteYear(w)};
   }finally{

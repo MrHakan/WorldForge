@@ -19,6 +19,9 @@ try{
   return{expected:checks(baseline),actual:checks(app.state.world),backend:WorldForgeRuntime.stats.backend,error:WorldForgeRuntime.stats.lastError,geometryStable:r.world.layers===layers,builds,afterBuilds:r.gpu?.stats.meshBuilds};
  });
  assert.equal(parity.backend,'worker',JSON.stringify(parity));assert.deepEqual(parity.actual,parity.expected,'worker and browser simulation must stay deterministic across all systems');assert.ok(parity.geometryStable);assert.equal(parity.afterBuilds,parity.builds);
+ await page.evaluate(()=>{document.querySelector('#playBtn').click()});
+ await page.waitForFunction(()=>WorldForgeApp.state.world.history.currentYear>=22&&WorldForgeApp.state.playing);
+ await page.evaluate(()=>WorldForgeApp.stopPlay());await page.waitForFunction(()=>!WorldForgeEndlessUI.state.running);
  await page.evaluate(()=>{
   window.__live={beats:0,commits:0,stale:0};window.__beat=setInterval(()=>__live.beats++,10);
   window.addEventListener('worldforge:state-commit',()=>{__live.commits++;const text=document.querySelector('#currentYear').textContent;if(!text.includes(String(WorldForgeApp.state.world.history.currentYear)))__live.stale++});
