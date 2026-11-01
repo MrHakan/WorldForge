@@ -21,9 +21,9 @@ async function start(data){
   const tracker=new self.WorldForgeStateDelta.Tracker(world);let last=performance.now(),lastTick=0,pending=false,progress={done:0,total:data.years,absoluteYear:self.WorldForgeEndless.absoluteYear(world)};
   postMessage({type:'ready',id:runId});
   const publish=(result=null)=>{
-   const t=performance.now(),ops=tracker.changes(world);pending=true;
+   const t=performance.now(),ops=tracker.changes(world),diffMs=performance.now()-t;pending=true;
    waiting=delay=>{pending=false;waiting=null;interval=Math.max(interval,Math.min(1500,Number(delay)||350))};
-   postMessage({type:'patch',id:runId,ops,progress,result});last=performance.now();
+   postMessage({type:'patch',id:runId,ops,progress,result,timings:{diffMs,yearMs:world.endless.performance.lastBatchMs}});last=performance.now();
    return performance.now()-t;
   };
   let interval=350;

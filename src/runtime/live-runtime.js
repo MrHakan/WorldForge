@@ -29,9 +29,9 @@ function run(world,years,options){
     try{
      if(data.type==='ready'){ready=true;clearTimeout(bootTimer);if(options.job.cancelRequested)cancel()}
      else if(data.type==='error'){stats.lastError=data.message;if(!ready){stats.backend='cooperative';finish(null)}else finish(null,new Error(data.message))}
-     else if(data.type==='progress')options.onProgress?.({...data.progress,synced:false});
+     else if(data.type==='progress'){stats.simulatedYear=data.progress.absoluteYear;options.onProgress?.({...data.progress,synced:false})}
      else if(data.type==='patch'){
-      const start=performance.now();root.WorldForgeStateDelta.apply(world,data.ops);stats.commits++;stats.operations+=data.ops.length;stats.lastApplyMs=performance.now()-start;last=data.progress;
+      const start=performance.now();root.WorldForgeStateDelta.apply(world,data.ops);stats.commits++;stats.operations+=data.ops.length;stats.lastApplyMs=performance.now()-start;last=data.progress;stats.visibleYear=last.absoluteYear;stats.worker=data.timings;
       options.onProgress?.({...last,synced:true});
       root.dispatchEvent(new CustomEvent('worldforge:state-commit',{detail:{world,progress:last}}));
       if(data.result)finish(data.result);else{stats.lastCommitMs=performance.now()-start;worker.postMessage({type:'ack',id,intervalMs:Math.max(350,stats.lastCommitMs*12)})}

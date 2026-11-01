@@ -33,3 +33,7 @@ console.log('Frozen derived engine flags can be refreshed without redefining rea
 const ordered={history:{currentYear:0},jobs:{farmer:1,scholar:2}},orderedCopy=structuredClone(ordered),orderTracker=new Tracker(ordered);
 ordered.jobs={farmer:1,smith:3,scholar:2};apply(orderedCopy,orderTracker.changes(ordered));assert.equal(JSON.stringify(orderedCopy),JSON.stringify(ordered),'allocation dictionaries must preserve insertion order');
 console.log('Rebuilt allocation dictionaries retain deterministic key ordering');
+
+const changing={history:{currentYear:0},market:{jobs:{},values:Array.from({length:100},()=>0)}},packed=structuredClone(changing),packing=new Tracker(changing);
+changing.market.values=Array.from({length:100},(_,i)=>i+1);const update=packing.changes(changing);assert.ok(update.length<5,'dense changes should use compact containers instead of per-field messages');apply(packed,update);assert.deepEqual(packed,changing);
+console.log('Dense changing arrays are coalesced into compact messages');

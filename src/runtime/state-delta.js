@@ -15,6 +15,7 @@ class Tracker{
    if(!object(value)){if(!prev||prev.children||!Object.is(prev.value,value))ops.push(['set',path,value]);return{value}}
    if(immutable){const signature=Number(value.year)>=world.history.currentYear?JSON.stringify(value):null;if(!rebased&&prev?.ref===value&&(Number(value.year)<world.history.currentYear||prev.signature===signature))return prev;ops.push(['set',path,value]);return{ref:value,opaque:true,signature}}
    if(!prev?.children||Array.isArray(value)!==prev.array){ops.push(['set',path,value]);return capture(value,path.at(-1))}
+   const start=ops.length;
    // Completed replay snapshots are immutable between epoch rebases. They can be
    // retained by identity rather than rescanned with every live update.
 
@@ -28,6 +29,10 @@ class Tracker{
    for(const key of keys){const child=path.concat(key);prev.children.set(key,visit(value[key],prev.children.get(key),child,path.at(-1)==='snapshots'))}
    for(const key of prev.children.keys())if(!present.has(key)){if(!prev.array)ops.push(['delete',path.concat(key)]);prev.children.delete(key)}
    if(prev.array&&prev.length!==value.length)ops.push(['set',path.concat('length'),value.length]);
+   const dirty=ops.length-start;
+   const denseArray=prev.array&&value.length>32&&value.every(v=>!object(v));
+   const record=path.length>=3&&!path.includes('snapshots');
+   if(dirty>48&&(denseArray||record)){ops.splice(start,dirty,['set',path,value])}
    prev.ref=value;prev.length=value.length;return prev;
   };
   for(const key of Object.keys(world))if(!STATIC.has(key))this.nodes.set(key,visit(world[key],this.nodes.get(key),[key]));

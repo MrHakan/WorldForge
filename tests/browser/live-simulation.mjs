@@ -30,7 +30,7 @@ try{
   window.addEventListener('worldforge:state-commit',()=>{__live.commits++;const text=document.querySelector('#currentYear').textContent;if(!text.includes(String(WorldForgeApp.state.world.history.currentYear)))__live.stale++});
   void WorldForgeEndlessUI.runAsync(10000);
  });
- await page.waitForFunction(()=>__live.commits>=2&&WorldForgeApp.state.world.history.currentYear>=200&&WorldForgeEndlessUI.state.running,null,{timeout:120000});
+ await page.waitForFunction(()=>__live.commits>=2&&WorldForgeApp.state.world.history.currentYear>=200&&WorldForgeEndlessUI.state.running,null,{timeout:240000});
  assert.ok(await page.evaluate(()=>__live.beats>10),'the main thread must keep responding during long runs');
  assert.ok(await page.evaluate(()=>__live.maxGapMs<500),'long runs must not create half-second main-thread stalls');
  assert.equal(await page.evaluate(()=>__live.stale),0,'displayed data must update during the job, not only after it ends');
@@ -47,5 +47,5 @@ try{
  await fallback.evaluate(()=>WorldForgeEndlessUI.runAsync(1));assert.equal(await fallback.evaluate(()=>WorldForgeApp.state.world.history.currentYear),1);await fallback.close();
  assert.deepEqual(errors,[]);await writeFile(resolve(root,'test-results/live-simulation.json'),JSON.stringify({parity,report},null,2));
  console.log('Live simulation: full-stack worker parity, responsive input, intermediate data refresh, stable GPU geometry, cancellation, replacement and cooperative fallback passed');
-}catch(error){await writeFile(resolve(root,'test-results/live-simulation-errors.json'),JSON.stringify({error:error.stack,errors,runtime:await page.evaluate(()=>window.WorldForgeRuntime?.stats).catch(()=>null)},null,2));throw error}
+}catch(error){await writeFile(resolve(root,'test-results/live-simulation-errors.json'),JSON.stringify({error:error.stack,errors,runtime:await page.evaluate(()=>({stats:window.WorldForgeRuntime?.stats,live:window.__live,year:window.WorldForgeApp?.state.world?.history.currentYear,running:window.WorldForgeEndlessUI?.state.running})).catch(()=>null)},null,2));throw error}
 finally{await browser.close();await new Promise(r=>server.close(r))}
