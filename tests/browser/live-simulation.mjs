@@ -16,8 +16,11 @@ try{
   const baseline=E.deserialize(E.serialize(app.state.world)),checks=w=>[WorldForgeHistory.historyFingerprint(w),WorldForgeSociety.societyFingerprint(w),WorldForgeTechnology.fingerprint(w),WorldForgeWorkforce.fingerprint(w),WorldForgeWorldOrder.fingerprint(w),WorldForgeMilitary.fingerprint(w)];
   X.simulateYears(baseline,12);const layers=r.world.layers,builds=r.gpu?.stats.meshBuilds;
   await WorldForgeEndlessUI.runAsync(12);
-  return{expected:checks(baseline),actual:checks(app.state.world),backend:WorldForgeRuntime.stats.backend,error:WorldForgeRuntime.stats.lastError,geometryStable:r.world.layers===layers,builds,afterBuilds:r.gpu?.stats.meshBuilds};
+  const differences=[];const compare=(a,b,path)=>{if(differences.length>=40)return;if(a===null||b===null||typeof a!=='object'||typeof b!=='object'){if(!Object.is(a,b))differences.push({path,expected:a,actual:b});return}for(const key of new Set([...Object.keys(a),...Object.keys(b)]))compare(a[key],b[key],path+'.'+key)};
+  const expected=checks(baseline),actual=checks(app.state.world);compare(baseline.workforce,app.state.world.workforce,'workforce');
+  return{expected,actual,differences,backend:WorldForgeRuntime.stats.backend,error:WorldForgeRuntime.stats.lastError,geometryStable:r.world.layers===layers,builds,afterBuilds:r.gpu?.stats.meshBuilds};
  });
+ await writeFile(resolve(root,'test-results/live-parity.json'),JSON.stringify(parity,null,2));
  assert.equal(parity.backend,'worker',JSON.stringify(parity));assert.deepEqual(parity.actual,parity.expected,'worker and browser simulation must stay deterministic across all systems');assert.ok(parity.geometryStable);assert.equal(parity.afterBuilds,parity.builds);
  await page.evaluate(()=>{document.querySelector('#playBtn').click()});
  await page.waitForFunction(()=>WorldForgeApp.state.world.history.currentYear>=22&&WorldForgeApp.state.playing);

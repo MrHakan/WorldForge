@@ -44,3 +44,9 @@ global.scheduler = { yield() { yields++; return new Promise(resolve => setTimeou
 await X.simulateYearsAsync(world, 3, { batchSize: 1 });
 assert.equal(yields, 3, 'use scheduler.yield when available');
 console.log('Async ownership, cancellation, save recovery, yielding and determinism passed');
+
+
+const rebased=create();rebased.history.snapshotInterval=7;rebased.history.currentYear=14;rebased.society.currentYear=14;rebased.endless.epochOffset=3000;
+rebased.history.snapshots=[0,7,14].map(year=>({...structuredClone(rebased.history.snapshots[0]),year}));
+X.maintenance(rebased);assert.ok(rebased.history.snapshots.some(s=>s.year===7),'recent replay must respect its local interval after epoch rebasing');
+console.log('Custom replay intervals survive epoch offsets');
