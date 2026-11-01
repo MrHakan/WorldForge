@@ -40,6 +40,7 @@ function plan(p){
  return rows.sort((a,b)=>a.x+a.y-b.x-b.y);
 }
 function polygon(ctx,points,fill){ctx.fillStyle=fill;ctx.beginPath();ctx.moveTo(...points[0]);for(const p of points.slice(1))ctx.lineTo(...p);ctx.closePath();ctx.fill();ctx.strokeStyle='rgba(24,35,37,.23)';ctx.lineWidth=.55;ctx.stroke()}
+function litRoof(hex){return '#'+hex.slice(1).match(/../g).map(v=>Math.round(parseInt(v,16)*.84+255*.16).toString(16).padStart(2,'0')).join('')}
 // All faces are projected from local XYZ geometry and rasterized at display DPR.
 function building(ctx,b,p,unit){
  const origin=[(b.x-b.y)*unit,(b.x+b.y)*unit*.48],P=(x,y,z)=>[origin[0]+(x-y)*unit,origin[1]+(x+y)*unit*.48-z*unit];
@@ -49,9 +50,9 @@ function building(ctx,b,p,unit){
   polygon(ctx,[P(x,y,h),P(x+w,y,h),P(x+w,y+d,h),P(x,y+d,h)],'#e1d7bd');
  };
  const roof=(x,y,w,d,h)=>{
-  polygon(ctx,[P(x-.04,y-.04,h),P(x+w+.04,y-.04,h),P(x+w/2,y-.04,h+.23)],p.roof);
+  polygon(ctx,[P(x-.04,y-.04,h),P(x+w+.04,y-.04,h),P(x+w/2,y-.04,h+.23)],p.wall);
   polygon(ctx,[P(x+w+.04,y-.04,h),P(x+w+.04,y+d+.04,h),P(x+w/2,y+d+.04,h+.23),P(x+w/2,y-.04,h+.23)],p.roof);
-  polygon(ctx,[P(x-.04,y-.04,h),P(x+w/2,y-.04,h+.23),P(x+w/2,y+d+.04,h+.23),P(x-.04,y+d+.04,h)],'#b59c80');
+  polygon(ctx,[P(x-.04,y-.04,h),P(x+w/2,y-.04,h+.23),P(x+w/2,y+d+.04,h+.23),P(x-.04,y+d+.04,h)],litRoof(p.roof));
   if(unit>20){
    ctx.strokeStyle='rgba(42,38,35,.25)';ctx.lineWidth=.5;
    for(let k=1;k<5;k++){const ry=y+d*k/5;ctx.beginPath();ctx.moveTo(...P(x+w/2,ry,h+.23));ctx.lineTo(...P(x+w+.035,ry,h));ctx.stroke()}

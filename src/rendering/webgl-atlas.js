@@ -50,11 +50,16 @@ void main(){
     c=mix(c,vec3(.59,.6,.55),smoothstep(.5,.8,q));
     c=mix(c,vec3(.91,.93,.88),smoothstep(.76,.94,q));
     if(t<.14)c=mix(c,vec3(.85,.91,.87),.7);
-    c=mix(beach,c,smoothstep(0.0,.017,e-uSea));
+    c=mix(beach,c,smoothstep(0.0,.009,e-uSea));
     vec4 layer=texture2D(uAnalysis,(vec2(mod(floor(vWorld.x),uWorld.x),clamp(floor(vWorld.y),0.0,uWorld.y-1.0))+.5)/uWorld);
     if(uMode==1.0)c=mix(c,layer.rgb,.23*layer.a);
     if(uMode>1.0)c=mix(c,layer.rgb,uMode==2.0?.56:.86);
     float grain=(noise(vWorld*3.0)-.5)*.055+(noise(vWorld*13.0)-.5)*.026*smoothstep(7.0,24.0,uScale);
+    vec2 material=floor(vWorld*72.0),local=fract(vWorld*72.0)-.5;
+    float speckle=random(material),close=smoothstep(35.0,100.0,uScale);
+    grain+=(speckle-.5)*mix(.065,.12,smoothstep(.3,.7,q))*close;
+    float blade=(1.0-smoothstep(.025,.1,abs(local.x+local.y*.3)))*(1.0-smoothstep(.2,.4,abs(local.y)))*step(.64,speckle);
+    grain+=blade*.06*close*(1.0-smoothstep(.2,.55,q))*step(.2,t);
     // Fine surface detail is evaluated at device pixels rather than magnified texels.
     c=(c+grain)*vShade;
   }
